@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
+import 'package:untitled/views/login.dart';
 import 'package:untitled/views/splash.dart';
-
+import '../../views/on_boarding.dart';
 import 'app_routes.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -9,6 +10,15 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.splash,
       builder: (context, state) => const SplashView(),
+    ),
+
+    GoRoute(
+      path: AppRoutes.onboarding,
+      builder: (context, state) => const OnboardingView(),
+    ),
+    GoRoute(
+      path: AppRoutes.login,
+      builder: (context, state) => const LoginView(),
     ),
   ],
 );
