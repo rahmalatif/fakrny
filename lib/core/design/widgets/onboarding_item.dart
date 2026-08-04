@@ -1,14 +1,46 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../model/on_boarding_model.dart';
+import '../../logic/context_extension.dart';
 import '../theme/app_color.dart';
 import 'app_image.dart';
-
 class OnboardingItem extends StatelessWidget {
   final OnboardingModel model;
+  final int index;
 
-  const OnboardingItem({super.key, required this.model});
+  const OnboardingItem({
+    super.key,
+    required this.model,
+    required this.index,
+  });
+
+  String title(BuildContext context) {
+    switch (index) {
+      case 0:
+        return context.l10n.onboarding1Title;
+      case 1:
+        return context.l10n.onboarding2Title;
+      case 2:
+        return context.l10n.onboarding3Title;
+      default:
+        return "";
+    }
+  }
+
+  String description(BuildContext context) {
+    switch (index) {
+      case 0:
+        return context.l10n.onboarding1Desc;
+      case 1:
+        return context.l10n.onboarding2Desc;
+      case 2:
+        return context.l10n.onboarding3Desc;
+      default:
+        return "";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +89,7 @@ class OnboardingItem extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      model.title,
+                      title(context),
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 28,
@@ -68,7 +100,7 @@ class OnboardingItem extends StatelessWidget {
                     const SizedBox(height: 20),
 
                     Text(
-                      model.description,
+                      description(context),
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 16,

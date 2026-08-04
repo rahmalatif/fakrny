@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:untitled/core/design/widgets/star_background.dart';
 import '../core/design/theme/gradiant_colors.dart';
 import '../core/design/widgets/animated_logo.dart';
+import '../l10n/app_localizations.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
@@ -21,7 +22,7 @@ class _SplashViewState extends State<SplashView> {
   void initState() {
     super.initState();
 
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 10), () {
       if (!mounted) return;
       context.go('/onBoarding');
     });
@@ -46,8 +47,8 @@ class _SplashViewState extends State<SplashView> {
 
                     FadeInUp(
                       delay: const Duration(milliseconds: 700),
-                      child: const Text(
-                        "فكرني",
+                      child: Text(
+                        AppLocalizations.of(context)!.appName,
                         style: TextStyle(
                           fontSize: 42,
                           fontWeight: FontWeight.bold,
@@ -71,8 +72,8 @@ class _SplashViewState extends State<SplashView> {
 
                     FadeInUp(
                       delay: const Duration(milliseconds: 1300),
-                      child: const Text(
-                        "انسى... واحنا نفكرك",
+                      child:  Text(
+                        AppLocalizations.of(context)!.appSlogan,
                         style: TextStyle(color: Colors.white, fontSize: 20),
                       ),
                     ),

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:untitled/core/design/theme/app_gradiant.dart';
 import 'package:untitled/core/design/widgets/app_image.dart';
 import 'package:untitled/core/design/widgets/gradiant_button.dart';
 
 import '../core/design/widgets/form.dart';
 import '../core/design/widgets/star.dart';
+import '../l10n/app_localizations.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -15,6 +17,7 @@ class LoginView extends StatefulWidget {
 
 final emailController = TextEditingController();
 final passwordController = TextEditingController();
+
 
 class _LoginViewState extends State<LoginView> {
   @override
@@ -74,7 +77,7 @@ class _LoginViewState extends State<LoginView> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        "مرحبا بعودتك",
+                        AppLocalizations.of(context)!.welcome,
                         style: TextStyle(
                           fontSize: 28,
                           color: Colors.black,
@@ -83,13 +86,13 @@ class _LoginViewState extends State<LoginView> {
                       ),
                       SizedBox(height: 5),
                       Text(
-                        "سجل دخولك للوصول الى تذكيراتك",
+                        AppLocalizations.of(context)!.welcomeSub,
                         style: TextStyle(fontSize: 16, color: Colors.grey),
                       ),
 
                       SizedBox(height: 24),
                       AppTextField(
-                        hintText: "البريد الالكتروني",
+                        hintText: AppLocalizations.of(context)!.email,
                         controller: emailController,
                         keyboardType: TextInputType.emailAddress,
                         prefixIcon: const Icon(Icons.email_outlined),
@@ -98,7 +101,7 @@ class _LoginViewState extends State<LoginView> {
                       const SizedBox(height: 16),
 
                       AppTextField(
-                        hintText: "كلمه المرور",
+                        hintText: AppLocalizations.of(context)!.password,
                         controller: passwordController,
                         obscureText: true,
                         prefixIcon: const Icon(Icons.lock_outline),
@@ -111,7 +114,7 @@ class _LoginViewState extends State<LoginView> {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              "نسيت كلمه المرور؟",
+                              AppLocalizations.of(context)!.forget,
                               style: TextStyle(
                                 color: Colors.deepPurpleAccent,
                                 fontSize: 16,
@@ -123,11 +126,14 @@ class _LoginViewState extends State<LoginView> {
                       ),
                       SizedBox(height: 20),
                       GradiantButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          context.go('/Home');
+                        },
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            "تسجيل الدخول",
+                            AppLocalizations.of(context)!.loginButton,
+
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -145,11 +151,11 @@ class _LoginViewState extends State<LoginView> {
                               thickness: 1,
                             ),
                           ),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 12),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Text(
-                              "أو أكمل باستخدام",
-                              style: TextStyle(
+                              AppLocalizations.of(context)!.continueWith,
+                              style: const TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey,
                                 fontWeight: FontWeight.w500,

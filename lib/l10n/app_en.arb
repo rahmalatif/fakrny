@@ -1,0 +1,28 @@
+{
+  "appName": "Fakrny",
+  "onboarding1Title": "Reminders in Natural Language",
+  "onboarding1Desc": "Just type what you want to remember... and We will handle the rest.",
+  "onboarding2Title": "Smart Notifications at the Right Time",
+  "onboarding2Desc": "AI analyzes your schedule and chooses the best time to remind you.",
+  "onboarding3Title": "Your Personal AI Assistant",
+  "onboarding3Desc": "Organizes your tasks and priorities to help you achieve more.",
+  "loginButton": "Login",
+  "welcome": "Welcome Back",
+  "welcomeSub": "Sign in to view and manage your reminders",
+  "email": "Email",
+  "continueWith": "OR Continue With",
+  "forget": "Forgot Password?",
+  "password": "Password",
+  "goodMorning": "Good Morning",
+  "goodAfternoon": "Good Afternoon",
+  "goodEvening": "Good Evening",
+  "goodNight": "Good Night",
+  "appSlogan": "Forget it... We'll remember it for you.",
+     "todayTasksNum": "You have {count} tasks today",
+     "@todayTasksNum": {
+       "placeholders": {
+         "count": {}
+       }
+     }
+}
+

@@ -83,7 +83,10 @@ class _OnboardingViewState extends State<OnboardingView> {
                   });
                 },
                 itemBuilder: (context, index) {
-                  return OnboardingItem(model: onboardingData[index]);
+                  return OnboardingItem(
+                    model: onboardingData[index],
+                    index: index,
+                  );
                 },
               ),
             ),

@@ -1,0 +1,27 @@
+{
+  "appName": "فكرني",
+  "onboarding1Title": "تذكيرات بلغتك الطبيعية",
+  "onboarding1Desc": "فقط اكتب ما تريد تذكره... وسنقوم بكل شيء.",
+  "onboarding2Title": "إشعارات ذكية في الوقت المناسب",
+  "onboarding2Desc": "يحلل الذكاء الاصطناعي جدولك ويختار أنسب وقت للتذكير.",
+  "onboarding3Title": "مساعدك الشخصي بالذكاء الاصطناعي",
+  "onboarding3Desc": "ينظم مهامك وأولوياتك ويساعدك على إنجاز أكثر.",
+  "loginButton": "تسجيل الدخول",
+  "welcome": "مرحبًا بعودتك",
+  "welcomeSub": "سجل دخولك للوصول الى تذكيراتك",
+  "forget": "نسيت كلمه المرور؟",
+  "email": "البريد الإلكتروني",
+  "continueWith": "أو أكمل باستخدام",
+  "password": "كلمة المرور",
+  "goodMorning": "صباح الخير",
+  "goodAfternoon": "مساء الخير",
+  "goodEvening": "مساء الخير",
+  "goodNight": "تصبح على خير",
+  "appSlogan": "انسى... وإحنا نفكرك",
+    "todayTasksNum": "لديك {count} مهام اليوم",
+    "@todayTasksNum": {
+      "placeholders": {
+        "count": {}
+      }
+    }
+}
