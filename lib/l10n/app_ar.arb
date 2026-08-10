@@ -17,6 +17,11 @@
   "goodAfternoon": "مساء الخير",
   "goodEvening": "مساء الخير",
   "goodNight": "تصبح على خير",
+  "smartSuggestion":"اقتراح ذكي",
+  "smartSuggestionText":"قت تركيزك الامثل بين 9 و 12 و لديك اجتماع الساعه 2 انصح انجاز مهامك الان",
+  "showMore":"عرض المزيد",
+  "showAll":"عرض الكل",
+  "today":"اليوم",
   "appSlogan": "انسى... وإحنا نفكرك",
     "todayTasksNum": "لديك {count} مهام اليوم",
     "@todayTasksNum": {

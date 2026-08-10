@@ -17,6 +17,11 @@
   "goodAfternoon": "Good Afternoon",
   "goodEvening": "Good Evening",
   "goodNight": "Good Night",
+  "smartSuggestion":"Smart Suggestion",
+   "smartSuggestionText":"Your optimal focus time is between 9 AM and 12 PM, and you have a meeting at 2 PM. I recommend getting your tasks done now.",
+   "showMore":"Show more",
+     "today":"Today",
+       "showAll":"Show All",
   "appSlogan": "Forget it... We'll remember it for you.",
      "todayTasksNum": "You have {count} tasks today",
      "@todayTasksNum": {

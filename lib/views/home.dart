@@ -35,59 +35,130 @@ class HomeView extends StatelessWidget {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.only(top: 35.0, left: 14),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Column(
-                  children: [
-                    Text(
-                      "${getGreeting(context)}, Rahma",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 26,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 20, left: 14, right: 14),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "${getGreeting(context)}, Rahma",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 26,
+                        ),
                       ),
-                    ),
-                    Text(
-                      AppLocalizations.of(context)!.todayTasksNum(5),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Colors.grey,
+                      Text(
+                        AppLocalizations.of(context)!.todayTasksNum(5),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                Spacer(),
-                Padding(
-                  padding: const EdgeInsets.all(18.0),
-                  child: CircleAvatar(
+                    ],
+                  ),
+
+                  const Spacer(),
+
+                  CircleAvatar(
                     backgroundColor: AppColor.Grad3,
                     child: Text(
                       getIntials("Rahma Ahmed"),
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              Center(
+                child: Stack(
+                  children: [
+                    Container(
+                      height: MediaQuery.of(context).size.height * .3,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(18),
+                        gradient: AppGradient.primary,
+                      ),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.all(18.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)!.smartSuggestion,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            AppLocalizations.of(context)!.smartSuggestionText,
+                            style: TextStyle(color: Colors.white, fontSize: 18),
+                          ),
+                          SizedBox(height: 10),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue.shade200,
+                              foregroundColor: Colors.white,
+                            ),
+                            onPressed: () {},
+                            child: Text(AppLocalizations.of(context)!.showMore),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
 
-            SizedBox(height: 20),
-
-            Container(
-              height: MediaQuery.of(context).size.height * .2,
-              width: MediaQuery.of(context).size.height * .4,
-              decoration: const BoxDecoration(gradient: AppGradient.primary),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: Row(
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.today,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                      ),
+                    ),
+                    Spacer(),
+                    TextButton(
+                      onPressed: () {},
+                      child: Text(
+                        AppLocalizations.of(context)!.showAll,
+                        style: TextStyle(
+                          color: Colors.deepPurple,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w400
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
