@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:untitled/core/design/theme/gradiant_colors.dart';
+import 'package:untitled/core/design/theme/gradiant_colored_container.dart';
 
 import '../../../core/design/theme/app_color.dart';
 import '../../../core/design/widgets/onboarding_item.dart';

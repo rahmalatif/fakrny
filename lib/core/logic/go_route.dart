@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:untitled/views/calender.dart';
 import 'package:untitled/views/home.dart';
 import 'package:untitled/views/login.dart';
 import 'package:untitled/views/splash.dart';
@@ -24,6 +25,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.home,
       builder: (context, state) => const HomeView(),
+    ),
+    GoRoute(
+      path: AppRoutes.calender,
+      builder: (context, state) => const CalenderView(),
     ),
   ],
 );

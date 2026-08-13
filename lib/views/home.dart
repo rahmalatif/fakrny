@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_randomcolor/flutter_randomcolor.dart';
 import 'package:untitled/core/design/theme/app_color.dart';
+import 'package:untitled/core/design/widgets/tasks_contanier.dart';
 import 'package:untitled/l10n/app_localizations.dart';
 
 import '../core/design/theme/app_gradiant.dart';
+import '../core/design/widgets/nav_bar.dart';
+import '../model/tasks.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -34,7 +38,48 @@ class HomeView extends StatelessWidget {
     return "${parts[0][0]}${parts[1][0]}".toUpperCase();
   }
 
-  @override
+  static final List<Task> tasks = [
+    Task(
+      title: 'مراجعة تقرير المشروع',
+      time: '10:00 ص',
+      category: 'عمل',
+      priority: 'أولوية عالية',
+      color: RandomColor.getColorObject(Options(luminosity: Luminosity.light)),
+    ),
+
+    Task(
+      title: 'مذاكرة Flutter',
+      time: '12:00 م',
+      category: 'دراسة',
+      priority: 'متوسطة',
+      color: RandomColor.getColorObject(Options(luminosity: Luminosity.light)),
+    ),
+
+    Task(
+      title: 'الذهاب إلى الجيم',
+      time: '5:00 م',
+      category: 'رياضة',
+      priority: 'منخفضة',
+      color: RandomColor.getColorObject(Options(luminosity: Luminosity.light)),
+    ),
+
+    Task(
+      title: 'قراءة كتاب',
+      time: '7:00 م',
+      category: 'شخصي',
+      priority: 'متوسطة',
+      color: RandomColor.getColorObject(Options(luminosity: Luminosity.light)),
+    ),
+
+    Task(
+      title: 'مكالمة مع العميل',
+      time: '9:00 م',
+      category: 'عمل',
+      priority: 'أولوية عالية',
+      color: RandomColor.getColorObject(Options(luminosity: Luminosity.light)),
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,8 +100,11 @@ class HomeView extends StatelessWidget {
                           fontSize: 26,
                         ),
                       ),
+
                       Text(
-                        AppLocalizations.of(context)!.todayTasksNum(5),
+                        AppLocalizations.of(
+                          context,
+                        )!.todayTasksNum(tasks.length),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -103,18 +151,25 @@ class HomeView extends StatelessWidget {
                         children: [
                           Text(
                             AppLocalizations.of(context)!.smartSuggestion,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 5),
+
+                          const SizedBox(height: 5),
+
                           Text(
                             AppLocalizations.of(context)!.smartSuggestionText,
-                            style: TextStyle(color: Colors.white, fontSize: 18),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
                           ),
-                          SizedBox(height: 10),
+
+                          const SizedBox(height: 10),
+
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue.shade200,
@@ -131,18 +186,20 @@ class HomeView extends StatelessWidget {
               ),
 
               Padding(
-                padding: const EdgeInsets.all(18.0),
+                padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
                     Text(
                       AppLocalizations.of(context)!.today,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
                         fontSize: 24,
                       ),
                     ),
-                    Spacer(),
+
+                    const Spacer(),
+
                     TextButton(
                       onPressed: () {},
                       child: Text(
@@ -150,17 +207,45 @@ class HomeView extends StatelessWidget {
                         style: TextStyle(
                           color: Colors.deepPurple,
                           fontSize: 18,
-                          fontWeight: FontWeight.w400
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
+              Expanded(
+                child: ListView.separated(
+                  itemCount: tasks.length,
+                  separatorBuilder: (context, index) {
+                    return const SizedBox(height: 10);
+                  },
+                  itemBuilder: (context, index) {
+                    final task = tasks[index];
+
+                    return TasksContanier(
+                      title: task.title,
+                      time: task.time,
+                      category: task.category,
+                      priority: task.priority,
+                      color: task.color,
+                      onTap: () {
+                        print(task.title);
+                      },
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: Icon(Icons.add, color: Colors.white),
+        backgroundColor: AppColor.Grad3,
+      ),
+      bottomNavigationBar: const CustomNavBar(currentIndex: 0),
     );
   }
 }
