@@ -129,62 +129,7 @@ class HomeView extends StatelessWidget {
                   ),
                 ],
               ),
-
               const SizedBox(height: 20),
-
-              Center(
-                child: Stack(
-                  children: [
-                    Container(
-                      height: MediaQuery.of(context).size.height * .3,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18),
-                        gradient: AppGradient.primary,
-                      ),
-                    ),
-
-                    Padding(
-                      padding: const EdgeInsets.all(18.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            AppLocalizations.of(context)!.smartSuggestion,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-
-                          const SizedBox(height: 5),
-
-                          Text(
-                            AppLocalizations.of(context)!.smartSuggestionText,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                            ),
-                          ),
-
-                          const SizedBox(height: 10),
-
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue.shade200,
-                              foregroundColor: Colors.white,
-                            ),
-                            onPressed: () {},
-                            child: Text(AppLocalizations.of(context)!.showMore),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
@@ -197,9 +142,7 @@ class HomeView extends StatelessWidget {
                         fontSize: 24,
                       ),
                     ),
-
                     const Spacer(),
-
                     TextButton(
                       onPressed: () {},
                       child: Text(

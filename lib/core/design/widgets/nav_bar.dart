@@ -27,7 +27,7 @@ class CustomNavBar extends StatelessWidget {
         break;
 
       case 3:
-        context.go('/profile');
+        context.go('/Profile');
         break;
     }
   }
@@ -263,32 +263,16 @@ class _AddTaskBottomSheet extends StatelessWidget {
             style: TextStyle(fontSize: 13, color: AppColor.textSecondary),
           ),
 
-          const SizedBox(height: 24),
-
-          _AddOption(
-            icon: Icons.auto_awesome_rounded,
-            title: 'Smart Task',
-            subtitle: 'Let AI organize it for you',
-            gradient: AppGradient.primary,
-            onTap: () {
-              Navigator.pop(context);
-
-              // Navigate to Smart Task
-            },
-          ),
-
           const SizedBox(height: 12),
 
           _AddOption(
-            icon: Icons.edit_note_rounded,
-            title: 'New Task',
-            subtitle: 'Create a task manually',
+            icon: Icons.notifications,
+            title: 'Reminder',
+            subtitle: 'What would you like to create?',
             color: AppColor.secondary,
             iconColor: AppColor.primary,
             onTap: () {
               Navigator.pop(context);
-
-              // Navigate to Add Task
             },
           ),
 
@@ -296,31 +280,28 @@ class _AddTaskBottomSheet extends StatelessWidget {
 
           _AddOption(
             icon: Icons.flag_rounded,
-            title: 'New Goal',
-            subtitle: 'Set something you want to achieve',
+            title: 'Task',
+            subtitle: 'Something you need to get done',
             color: AppColor.secondary,
             iconColor: AppColor.primary,
             onTap: () {
               Navigator.pop(context);
-
-              // Navigate to Add Goal
             },
           ),
 
           const SizedBox(height: 12),
 
-          _AddOption(
+          /*          _AddOption(
             icon: Icons.notifications_active_rounded,
-            title: 'Reminder',
-            subtitle: 'Never forget something important',
+            title: 'Goal',
+            subtitle: 'Something you want to achieve',
             color: AppColor.secondary,
             iconColor: AppColor.primary,
             onTap: () {
               Navigator.pop(context);
-
-              // Navigate to Reminder
             },
           ),
+          */
         ],
       ),
     );

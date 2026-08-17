@@ -33,7 +33,6 @@ class _CalenderViewState extends State<CalenderView> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               const SizedBox(height: 20),
-
               Text(
                 AppLocalizations.of(context)!.calender,
                 style: const TextStyle(
