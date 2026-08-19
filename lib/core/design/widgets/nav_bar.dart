@@ -272,7 +272,7 @@ class _AddTaskBottomSheet extends StatelessWidget {
             color: AppColor.secondary,
             iconColor: AppColor.primary,
             onTap: () {
-              Navigator.pop(context);
+              context.go('/Reminder');
             },
           ),
 

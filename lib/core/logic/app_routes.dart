@@ -5,5 +5,6 @@ class AppRoutes {
   static const home = '/Home';
   static const calender = '/Calender';
   static const profile = '/Profile';
+  static const reminder = '/Reminder';
 
 }
