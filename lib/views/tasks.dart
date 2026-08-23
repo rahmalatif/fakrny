@@ -110,7 +110,6 @@ class _TasksViewState extends State<TasksView> {
                 ),
               ),
 
-
               Container(
                 width: MediaQuery.of(context).size.width * 0.9,
                 height: MediaQuery.of(context).size.width * 0.1,
