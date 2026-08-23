@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_randomcolor/flutter_randomcolor.dart';
+import 'package:go_router/go_router.dart';
 import 'package:untitled/core/design/theme/app_color.dart';
 import 'package:untitled/core/design/widgets/tasks_contanier.dart';
 import 'package:untitled/l10n/app_localizations.dart';
@@ -173,7 +174,7 @@ class HomeView extends StatelessWidget {
                       priority: task.priority,
                       color: task.color,
                       onTap: () {
-                        print(task.title);
+                  context.go('/ReminderDetails');
                       },
                     );
                   },

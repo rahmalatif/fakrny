@@ -62,7 +62,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: _skip,
-                  child:  Text(
+                  child: Text(
                     AppLocalizations.of(context)!.skip,
                     style: TextStyle(
                       color: AppColor.primary,
@@ -123,8 +123,8 @@ class _OnboardingViewState extends State<OnboardingView> {
                       onPressed: _nextPage,
                       child: Text(
                         currentIndex == onboardingData.length - 1
-                            ? "ابدأ الآن"
-                            : "التالي",
+                            ? AppLocalizations.of(context)!.start
+                            : AppLocalizations.of(context)!.next,
                       ),
                     ),
                   ),

@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @appName.
   ///
   /// In en, this message translates to:
-  /// **'Fakrny'**
+  /// **'Fakkarny'**
   String get appName;
 
   /// No description provided for @onboarding1Title.
@@ -445,6 +445,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save Reminder'**
   String get saveReminder;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @start.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Now'**
+  String get start;
+
+  /// No description provided for @reminderDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder Details'**
+  String get reminderDetails;
+
+  /// No description provided for @repeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat'**
+  String get repeat;
+
+  /// No description provided for @markCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as Completed'**
+  String get markCompleted;
+
+  /// No description provided for @completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completed;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @deleteReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Reminder?'**
+  String get deleteReminder;
+
+  /// No description provided for @deleteReminderConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this reminder?'**
+  String get deleteReminderConfirmation;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
 
   /// No description provided for @appSlogan.
   ///

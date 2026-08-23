@@ -360,7 +360,7 @@ class _AddOption extends StatelessWidget {
             const SizedBox(width: 14),
 
             Expanded(
-              child: Column(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(

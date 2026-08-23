@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appName => 'Fakrny';
+  String get appName => 'Fakkarny';
 
   @override
   String get onboarding1Title => 'Simple Reminders, Made Easy';
@@ -185,6 +185,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get saveReminder => 'Save Reminder';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get start => 'Start Now';
+
+  @override
+  String get reminderDetails => 'Reminder Details';
+
+  @override
+  String get repeat => 'Repeat';
+
+  @override
+  String get markCompleted => 'Mark as Completed';
+
+  @override
+  String get completed => 'Completed';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get deleteReminder => 'Delete Reminder?';
+
+  @override
+  String get deleteReminderConfirmation =>
+      'Are you sure you want to delete this reminder?';
+
+  @override
+  String get cancel => 'Cancel';
 
   @override
   String get appSlogan => 'Forget it... We\'ll remember it for you.';

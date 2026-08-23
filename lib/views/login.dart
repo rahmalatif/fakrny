@@ -37,11 +37,9 @@ class _LoginViewState extends State<LoginView> {
         body: Stack(
           children: [
             Container(
-              height: screenHeight * .4,
+              height: screenHeight * .3,
               width: double.infinity,
-              decoration: const BoxDecoration(
-                gradient: AppGradient.primary,
-              ),
+              decoration: const BoxDecoration(gradient: AppGradient.primary),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -64,9 +62,7 @@ class _LoginViewState extends State<LoginView> {
                       backgroundColor: Colors.transparent,
                       child: const Padding(
                         padding: EdgeInsets.all(12),
-                        child: AppImage(
-                          image: 'assets/JPG_Images/logo.png',
-                        ),
+                        child: AppImage(image: 'assets/JPG_Images/logo.png'),
                       ),
                     ),
                   ),
@@ -77,22 +73,17 @@ class _LoginViewState extends State<LoginView> {
               alignment: Alignment.bottomCenter,
               child: Container(
                 width: double.infinity,
-                constraints: BoxConstraints(
-                  minHeight: screenHeight * .68,
-                ),
+                constraints: BoxConstraints(minHeight: screenHeight * .68),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: const [
-                    BoxShadow(
-                      blurRadius: 20,
-                      color: Colors.black12,
-                    ),
+                    BoxShadow(blurRadius: 20, color: Colors.black12),
                   ],
                 ),
                 child: SingleChildScrollView(
                   keyboardDismissBehavior:
-                  ScrollViewKeyboardDismissBehavior.onDrag,
+                      ScrollViewKeyboardDismissBehavior.onDrag,
                   padding: const EdgeInsets.all(18),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -117,21 +108,15 @@ class _LoginViewState extends State<LoginView> {
                       AppTextField(
                         controller: emailController,
                         keyboardType: TextInputType.emailAddress,
-                        prefixIcon: const Icon(
-                          Icons.email_outlined,
-                        ),
+                        prefixIcon: const Icon(Icons.email_outlined),
                         title: AppLocalizations.of(context)!.email,
                       ),
                       const SizedBox(height: 16),
                       AppTextField(
                         controller: passwordController,
                         obscureText: true,
-                        prefixIcon: const Icon(
-                          Icons.lock_outline,
-                        ),
-                        suffixIcon: const Icon(
-                          Icons.visibility_off_outlined,
-                        ),
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        suffixIcon: const Icon(Icons.visibility_off_outlined),
                         title: AppLocalizations.of(context)!.password,
                       ),
                       Row(
@@ -177,9 +162,7 @@ class _LoginViewState extends State<LoginView> {
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Text(
                               AppLocalizations.of(context)!.continueWith,
                               style: const TextStyle(
@@ -227,10 +210,7 @@ class _LoginViewState extends State<LoginView> {
   }
 }
 
-Widget _socialButton({
-  required String icon,
-  required String text,
-}) {
+Widget _socialButton({required String icon, required String text}) {
   return Container(
     width: 145,
     height: 55,
@@ -244,27 +224,18 @@ Widget _socialButton({
           offset: const Offset(0, 4),
         ),
       ],
-      border: Border.all(
-        color: Colors.grey.shade200,
-      ),
+      border: Border.all(color: Colors.grey.shade200),
     ),
     child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          AppImage(
-            image: icon,
-            width: 24,
-            height: 24,
-          ),
+          AppImage(image: icon, width: 24, height: 24),
           const SizedBox(width: 10),
           Text(
             text,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-            ),
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
           ),
         ],
       ),

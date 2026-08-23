@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:untitled/l10n/app_localizations.dart';
 
 import '../core/design/widgets/form.dart';
@@ -152,7 +153,9 @@ class _ReminderViewState extends State<ReminderView> {
                   width: MediaQuery.of(context).size.width * .9,
                   height: 54,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      context.go('/Home');
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.deepPurple,
                       foregroundColor: Colors.white,
@@ -166,9 +169,7 @@ class _ReminderViewState extends State<ReminderView> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Icon(Icons.notifications_none, size: 20),
-        
                         const SizedBox(width: 8),
-        
                         Text(
                           AppLocalizations.of(context)!.saveReminder,
                           style: const TextStyle(

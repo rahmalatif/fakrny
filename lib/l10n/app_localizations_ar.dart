@@ -185,6 +185,40 @@ class AppLocalizationsAr extends AppLocalizations {
   String get saveReminder => 'حفظ التذكير';
 
   @override
+  String get next => 'التالي';
+
+  @override
+  String get start => 'ابدأ الآن';
+
+  @override
+  String get reminderDetails => 'تفاصيل التذكير';
+
+  @override
+  String get repeat => 'التكرار';
+
+  @override
+  String get markCompleted => 'تمت المهمة';
+
+  @override
+  String get completed => 'تم الإنجاز';
+
+  @override
+  String get edit => 'تعديل';
+
+  @override
+  String get delete => 'حذف';
+
+  @override
+  String get deleteReminder => 'حذف التذكير؟';
+
+  @override
+  String get deleteReminderConfirmation =>
+      'هل أنت متأكد أنك تريد حذف هذا التذكير؟';
+
+  @override
+  String get cancel => 'إلغاء';
+
+  @override
   String get appSlogan => 'انسى... وإحنا نفكرك';
 
   @override
