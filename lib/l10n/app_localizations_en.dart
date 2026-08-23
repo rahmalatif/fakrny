@@ -221,6 +221,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cancel => 'Cancel';
 
   @override
+  String get tasks => 'Tasks';
+
+  @override
+  String get all => 'All';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get totalTasks => 'Total Tasks';
+
+  @override
+  String get completedTasks => 'Completed';
+
+  @override
+  String get pendingTasks => 'Pending';
+
+  @override
   String get appSlogan => 'Forget it... We\'ll remember it for you.';
 
   @override

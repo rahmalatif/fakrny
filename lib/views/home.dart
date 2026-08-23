@@ -5,13 +5,17 @@ import 'package:untitled/core/design/theme/app_color.dart';
 import 'package:untitled/core/design/widgets/tasks_contanier.dart';
 import 'package:untitled/l10n/app_localizations.dart';
 
-import '../core/design/theme/app_gradiant.dart';
 import '../core/design/widgets/nav_bar.dart';
 import '../model/tasks.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   const HomeView({super.key});
 
+  @override
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
   String getGreeting(BuildContext context) {
     final hour = DateTime.now().hour;
     final localizations = AppLocalizations.of(context)!;
@@ -33,60 +37,74 @@ class HomeView extends StatelessWidget {
     List<String> parts = name.trim().split(" ");
 
     if (parts.length == 1) {
-      return parts[0].substring(0, parts[0].length >= 2 ? 2 : 1).toUpperCase();
+      return parts[0]
+          .substring(0, parts[0].length >= 2 ? 2 : 1)
+          .toUpperCase();
     }
 
     return "${parts[0][0]}${parts[1][0]}".toUpperCase();
   }
 
-  static final List<Task> tasks = [
+  final List<Task> tasks = [
     Task(
       title: 'مراجعة تقرير المشروع',
       time: '10:00 ص',
       category: 'عمل',
       priority: 'أولوية عالية',
-      color: RandomColor.getColorObject(Options(luminosity: Luminosity.light)),
+      color: RandomColor.getColorObject(
+        Options(luminosity: Luminosity.light),
+      ),
     ),
-
     Task(
       title: 'مذاكرة Flutter',
       time: '12:00 م',
       category: 'دراسة',
       priority: 'متوسطة',
-      color: RandomColor.getColorObject(Options(luminosity: Luminosity.light)),
+      color: RandomColor.getColorObject(
+        Options(luminosity: Luminosity.light),
+      ),
     ),
-
     Task(
       title: 'الذهاب إلى الجيم',
       time: '5:00 م',
       category: 'رياضة',
       priority: 'منخفضة',
-      color: RandomColor.getColorObject(Options(luminosity: Luminosity.light)),
+      color: RandomColor.getColorObject(
+        Options(luminosity: Luminosity.light),
+      ),
     ),
-
     Task(
       title: 'قراءة كتاب',
       time: '7:00 م',
       category: 'شخصي',
       priority: 'متوسطة',
-      color: RandomColor.getColorObject(Options(luminosity: Luminosity.light)),
+      color: RandomColor.getColorObject(
+        Options(luminosity: Luminosity.light),
+      ),
     ),
-
     Task(
       title: 'مكالمة مع العميل',
       time: '9:00 م',
       category: 'عمل',
       priority: 'أولوية عالية',
-      color: RandomColor.getColorObject(Options(luminosity: Luminosity.light)),
+      color: RandomColor.getColorObject(
+        Options(luminosity: Luminosity.light),
+      ),
     ),
   ];
+
+  final Set<int> completedTasks = {};
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(top: 20, left: 14, right: 14),
+          padding: const EdgeInsets.only(
+            top: 20,
+            left: 14,
+            right: 14,
+          ),
           child: Column(
             children: [
               Row(
@@ -101,7 +119,6 @@ class HomeView extends StatelessWidget {
                           fontSize: 26,
                         ),
                       ),
-
                       Text(
                         AppLocalizations.of(
                           context,
@@ -130,7 +147,9 @@ class HomeView extends StatelessWidget {
                   ),
                 ],
               ),
+
               const SizedBox(height: 20),
+
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
@@ -143,12 +162,14 @@ class HomeView extends StatelessWidget {
                         fontSize: 24,
                       ),
                     ),
+
                     const Spacer(),
+
                     TextButton(
                       onPressed: () {},
                       child: Text(
                         AppLocalizations.of(context)!.showAll,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.deepPurple,
                           fontSize: 18,
                           fontWeight: FontWeight.w400,
@@ -158,6 +179,7 @@ class HomeView extends StatelessWidget {
                   ],
                 ),
               ),
+
               Expanded(
                 child: ListView.separated(
                   itemCount: tasks.length,
@@ -166,6 +188,8 @@ class HomeView extends StatelessWidget {
                   },
                   itemBuilder: (context, index) {
                     final task = tasks[index];
+                    final isCompleted =
+                    completedTasks.contains(index);
 
                     return TasksContanier(
                       title: task.title,
@@ -173,8 +197,18 @@ class HomeView extends StatelessWidget {
                       category: task.category,
                       priority: task.priority,
                       color: task.color,
+                      isCompleted: isCompleted,
+                      onCheck: () {
+                        setState(() {
+                          if (isCompleted) {
+                            completedTasks.remove(index);
+                          } else {
+                            completedTasks.add(index);
+                          }
+                        });
+                      },
                       onTap: () {
-                  context.go('/ReminderDetails');
+                        context.go('/ReminderDetails');
                       },
                     );
                   },
@@ -184,12 +218,19 @@ class HomeView extends StatelessWidget {
           ),
         ),
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
-        child: Icon(Icons.add, color: Colors.white),
         backgroundColor: AppColor.Grad3,
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
       ),
-      bottomNavigationBar: const CustomNavBar(currentIndex: 0),
+
+      bottomNavigationBar: const CustomNavBar(
+        currentIndex: 0,
+      ),
     );
   }
 }

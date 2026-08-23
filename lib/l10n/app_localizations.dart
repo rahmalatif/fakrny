@@ -512,6 +512,42 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get cancel;
 
+  /// No description provided for @tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks'**
+  String get tasks;
+
+  /// No description provided for @all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get all;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// No description provided for @totalTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Tasks'**
+  String get totalTasks;
+
+  /// No description provided for @completedTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completedTasks;
+
+  /// No description provided for @pendingTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get pendingTasks;
+
   /// No description provided for @appSlogan.
   ///
   /// In en, this message translates to:

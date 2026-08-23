@@ -6,7 +6,9 @@ class TasksContanier extends StatelessWidget {
   final String category;
   final String priority;
   final Color color;
+  final bool isCompleted;
   final VoidCallback? onTap;
+  final VoidCallback? onCheck;
 
   const TasksContanier({
     super.key,
@@ -15,7 +17,9 @@ class TasksContanier extends StatelessWidget {
     required this.category,
     required this.priority,
     required this.color,
+    required this.isCompleted,
     this.onTap,
+    this.onCheck,
   });
 
   @override
@@ -24,7 +28,10 @@ class TasksContanier extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
@@ -34,7 +41,10 @@ class TasksContanier extends StatelessWidget {
             Container(
               width: 10,
               height: 10,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+              ),
             ),
 
             const SizedBox(width: 12),
@@ -46,10 +56,15 @@ class TasksContanier extends StatelessWidget {
                   Text(
                     title,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF202020),
+                      color: isCompleted
+                          ? Colors.grey
+                          : const Color(0xFF202020),
+                      decoration: isCompleted
+                          ? TextDecoration.lineThrough
+                          : TextDecoration.none,
                     ),
                   ),
 
@@ -60,9 +75,11 @@ class TasksContanier extends StatelessWidget {
                     children: [
                       Text(
                         time,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey,
+                          color: isCompleted
+                              ? Colors.grey.shade400
+                              : Colors.grey,
                         ),
                       ),
 
@@ -70,9 +87,11 @@ class TasksContanier extends StatelessWidget {
 
                       Text(
                         category,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey,
+                          color: isCompleted
+                              ? Colors.grey.shade400
+                              : Colors.grey,
                         ),
                       ),
 
@@ -83,7 +102,9 @@ class TasksContanier extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: color,
+                          color: isCompleted
+                              ? Colors.grey.shade400
+                              : color,
                         ),
                       ),
                     ],
@@ -94,7 +115,16 @@ class TasksContanier extends StatelessWidget {
 
             const SizedBox(width: 10),
 
-            Checkbox(value: true, onChanged: (bool? value) {}),
+            GestureDetector(
+              onTap: onCheck,
+              child: Checkbox(
+                value: isCompleted,
+                onChanged: (_) {
+                  onCheck?.call();
+                },
+                activeColor: Colors.green,
+              ),
+            ),
           ],
         ),
       ),

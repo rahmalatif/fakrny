@@ -5,6 +5,7 @@ import 'package:untitled/views/login.dart';
 import 'package:untitled/views/profile.dart';
 import 'package:untitled/views/reminder.dart';
 import 'package:untitled/views/splash.dart';
+import 'package:untitled/views/tasks.dart';
 import '../../views/on_boarding.dart';
 import '../../views/reminder_details.dart';
 import 'app_routes.dart';
@@ -40,9 +41,14 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.reminder,
       builder: (context, state) => const ReminderView(),
-    ),  GoRoute(
+    ),
+    GoRoute(
       path: AppRoutes.reminderDetails,
       builder: (context, state) => const ReminderDetailsView(),
+    ),
+    GoRoute(
+      path: AppRoutes.tasks,
+      builder: (context, state) => const TasksView(),
     ),
   ],
 );

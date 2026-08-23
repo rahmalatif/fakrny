@@ -19,7 +19,7 @@ class CustomNavBar extends StatelessWidget {
         break;
 
       case 1:
-        context.go('/tasks');
+        context.go('/Tasks');
         break;
 
       case 2:
@@ -152,7 +152,7 @@ class _NavItem extends StatelessWidget {
             );
           },
           child: isSelected
-              ? Row(
+              ? Column(
                   key: const ValueKey('selected'),
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -278,17 +278,6 @@ class _AddTaskBottomSheet extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          _AddOption(
-            icon: Icons.flag_rounded,
-            title: 'Task',
-            subtitle: 'Something you need to get done',
-            color: AppColor.secondary,
-            iconColor: AppColor.primary,
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-
           const SizedBox(height: 12),
 
           /*          _AddOption(
@@ -373,7 +362,7 @@ class _AddOption extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 3),
+                  const SizedBox(width: 3),
                   Text(
                     subtitle,
                     style: TextStyle(
@@ -381,6 +370,7 @@ class _AddOption extends StatelessWidget {
                           ? AppColor.textWhite.withOpacity(0.8)
                           : AppColor.textSecondary,
                       fontSize: 11,
+                      fontWeight: FontWeight.w200,
                     ),
                   ),
                 ],

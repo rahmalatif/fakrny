@@ -7,5 +7,6 @@ class AppRoutes {
   static const profile = '/Profile';
   static const reminder = '/Reminder';
   static const reminderDetails = '/ReminderDetails';
+  static const tasks = '/Tasks';
 
 }

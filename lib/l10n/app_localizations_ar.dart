@@ -219,6 +219,24 @@ class AppLocalizationsAr extends AppLocalizations {
   String get cancel => 'إلغاء';
 
   @override
+  String get tasks => 'المهام';
+
+  @override
+  String get all => 'الكل';
+
+  @override
+  String get done => 'تمت';
+
+  @override
+  String get totalTasks => 'إجمالي المهام';
+
+  @override
+  String get completedTasks => 'مكتملة';
+
+  @override
+  String get pendingTasks => 'معلقة';
+
+  @override
   String get appSlogan => 'انسى... وإحنا نفكرك';
 
   @override

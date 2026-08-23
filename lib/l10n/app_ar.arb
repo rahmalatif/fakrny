@@ -69,6 +69,12 @@
   "deleteReminder": "حذف التذكير؟",
   "deleteReminderConfirmation": "هل أنت متأكد أنك تريد حذف هذا التذكير؟",
   "cancel": "إلغاء",
+  "tasks":"المهام",
+  "all":"الكل",
+  "done":"تمت",
+   "totalTasks": "إجمالي المهام",
+    "completedTasks": "مكتملة",
+    "pendingTasks": "معلقة",
     "todayTasksNum": "لديك {count} مهام اليوم",
     "@todayTasksNum": {
       "placeholders": {
