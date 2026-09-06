@@ -1,8 +1,10 @@
 import 'package:go_router/go_router.dart';
 import 'package:untitled/views/calender.dart';
+import 'package:untitled/views/forget_password.dart';
 import 'package:untitled/views/home.dart';
 import 'package:untitled/views/login.dart';
 import 'package:untitled/views/profile.dart';
+import 'package:untitled/views/register.dart';
 import 'package:untitled/views/reminder.dart';
 import 'package:untitled/views/splash.dart';
 import 'package:untitled/views/tasks.dart';
@@ -49,6 +51,14 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.tasks,
       builder: (context, state) => const TasksView(),
+    ),
+    GoRoute(
+      path: AppRoutes.register,
+      builder: (context, state) => const RegisterView(),
+    ),
+    GoRoute(
+      path: AppRoutes.forgetPass,
+      builder: (context, state) => const ForgetPasswordView(),
     ),
   ],
 );

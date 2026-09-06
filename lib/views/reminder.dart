@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:untitled/l10n/app_localizations.dart';
 
+import '../core/design/theme/app_color.dart';
 import '../core/design/widgets/form.dart';
 
 class ReminderView extends StatefulWidget {
@@ -65,7 +66,13 @@ class _ReminderViewState extends State<ReminderView> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
+      backgroundColor: isDark
+          ? AppColor.darkBackground
+          : AppColor.background,
+
       body: SingleChildScrollView(
         child: SafeArea(
           child: Center(
@@ -80,75 +87,103 @@ class _ReminderViewState extends State<ReminderView> {
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        icon: const Icon(Icons.arrow_back),
-                      ),
-        
-                      const Spacer(),
-        
-                      Text(
-                        AppLocalizations.of(context)!.createReminder,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
+                        icon: Icon(
+                          Icons.arrow_back,
+                          color: isDark
+                              ? AppColor.textWhite
+                              : AppColor.textPrimary,
                         ),
                       ),
-        
+
                       const Spacer(),
-        
+
+                      Text(
+                        AppLocalizations.of(context)!.createReminder,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: isDark
+                              ? AppColor.textWhite
+                              : AppColor.textPrimary,
+                        ),
+                      ),
+
+                      const Spacer(),
+
                       const SizedBox(width: 48),
                     ],
                   ),
                 ),
-        
+
                 Text(
                   AppLocalizations.of(context)!.createReminderSub,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w300,
                     fontSize: 12,
+                    color: isDark
+                        ? AppColor.textHint
+                        : AppColor.textSecondary,
                   ),
                 ),
-        
+
                 const SizedBox(height: 15),
-        
+
                 SizedBox(
                   width: MediaQuery.of(context).size.width * .9,
                   child: AppTextField(
                     hintText: AppLocalizations.of(context)!.titleHint,
                     keyboardType: TextInputType.text,
-                    prefixIcon: const Icon(Icons.file_copy_outlined),
+                    prefixIcon: Icon(
+                      Icons.file_copy_outlined,
+                      color: isDark
+                          ? AppColor.textHint
+                          : AppColor.textSecondary,
+                    ),
                     title: AppLocalizations.of(context)!.title,
                     controller: _titleController,
                   ),
                 ),
+
                 const SizedBox(height: 15),
-        
+
                 _container(
                   value: _getDateText(),
                   title: AppLocalizations.of(context)!.date,
-                  icon: const Icon(Icons.date_range),
+                  icon: Icon(
+                    Icons.date_range,
+                    color: isDark
+                        ? AppColor.textHint
+                        : AppColor.textSecondary,
+                  ),
                   onTap: _selectDate,
                   height: 50,
                 ),
-        
+
                 const SizedBox(height: 20),
-        
+
                 _container(
                   value: _getTimeText(),
                   title: AppLocalizations.of(context)!.time,
-                  icon: const Icon(Icons.access_time),
+                  icon: Icon(
+                    Icons.access_time,
+                    color: isDark
+                        ? AppColor.textHint
+                        : AppColor.textSecondary,
+                  ),
                   onTap: _selectTime,
                   height: 50,
                 ),
-        
+
                 const SizedBox(height: 10),
-        
+
                 _categorycontainer(),
+
                 const SizedBox(height: 10),
-        
+
                 _prioritySection(),
-        
+
                 SizedBox(height: 120),
-        
+
                 SizedBox(
                   width: MediaQuery.of(context).size.width * .9,
                   height: 54,
@@ -157,10 +192,10 @@ class _ReminderViewState extends State<ReminderView> {
                       context.go('/Home');
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      foregroundColor: Colors.white,
+                      backgroundColor: AppColor.primary,
+                      foregroundColor: AppColor.textWhite,
                       elevation: 3,
-                      shadowColor: Colors.deepPurple.withOpacity(.3),
+                      shadowColor: AppColor.primary.withOpacity(.3),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
@@ -168,8 +203,13 @@ class _ReminderViewState extends State<ReminderView> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.notifications_none, size: 20),
+                        const Icon(
+                          Icons.notifications_none,
+                          size: 20,
+                        ),
+
                         const SizedBox(width: 8),
+
                         Text(
                           AppLocalizations.of(context)!.saveReminder,
                           style: const TextStyle(
@@ -196,6 +236,8 @@ class _ReminderViewState extends State<ReminderView> {
     required VoidCallback onTap,
     required double height,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -203,17 +245,24 @@ class _ReminderViewState extends State<ReminderView> {
         width: MediaQuery.of(context).size.width * .9,
         padding: const EdgeInsets.symmetric(horizontal: 15),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark
+              ? AppColor.darkSurface
+              : AppColor.surface,
+
           borderRadius: BorderRadius.circular(10),
+
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withOpacity(
+                isDark ? 0.20 : 0.05,
+              ),
               blurRadius: 8,
               spreadRadius: 1,
               offset: const Offset(0, 2),
             ),
           ],
         ),
+
         child: Row(
           children: [
             Column(
@@ -222,15 +271,22 @@ class _ReminderViewState extends State<ReminderView> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(color: Colors.grey, fontSize: 10),
+                  style: TextStyle(
+                    color: isDark
+                        ? AppColor.textHint
+                        : AppColor.textSecondary,
+                    fontSize: 10,
+                  ),
                 ),
 
                 const SizedBox(height: 4),
 
                 Text(
                   value,
-                  style: const TextStyle(
-                    color: Colors.black,
+                  style: TextStyle(
+                    color: isDark
+                        ? AppColor.textWhite
+                        : AppColor.textPrimary,
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                   ),
@@ -240,7 +296,10 @@ class _ReminderViewState extends State<ReminderView> {
 
             const Spacer(),
 
-            IconButton(onPressed: onTap, icon: icon),
+            IconButton(
+              onPressed: onTap,
+              icon: icon,
+            ),
           ],
         ),
       ),
@@ -248,6 +307,8 @@ class _ReminderViewState extends State<ReminderView> {
   }
 
   Widget _categorycontainer() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -257,9 +318,12 @@ class _ReminderViewState extends State<ReminderView> {
             children: [
               Text(
                 AppLocalizations.of(context)!.category,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 13,
+                  color: isDark
+                      ? AppColor.textWhite
+                      : AppColor.textPrimary,
                 ),
               ),
 
@@ -267,7 +331,12 @@ class _ReminderViewState extends State<ReminderView> {
 
               Text(
                 AppLocalizations.of(context)!.chooseCategory,
-                style: const TextStyle(color: Colors.grey, fontSize: 11),
+                style: TextStyle(
+                  color: isDark
+                      ? AppColor.textHint
+                      : AppColor.textSecondary,
+                  fontSize: 11,
+                ),
               ),
             ],
           ),
@@ -319,6 +388,7 @@ class _ReminderViewState extends State<ReminderView> {
     required IconData icon,
   }) {
     final bool isSelected = selectedCategory == value;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GestureDetector(
       onTap: () {
@@ -330,21 +400,34 @@ class _ReminderViewState extends State<ReminderView> {
         width: 68,
         height: 60,
         decoration: BoxDecoration(
-          color: isSelected ? Colors.deepPurple.withOpacity(.08) : Colors.white,
+          color: isSelected
+              ? AppColor.primary.withOpacity(.08)
+              : isDark
+              ? AppColor.darkSurface
+              : AppColor.surface,
+
           borderRadius: BorderRadius.circular(12),
+
           border: Border.all(
             color: isSelected
-                ? Colors.deepPurple.withOpacity(.3)
-                : Colors.grey.withOpacity(.1),
+                ? AppColor.primary.withOpacity(.3)
+                : isDark
+                ? AppColor.darkCard.withOpacity(.4)
+                : AppColor.border.withOpacity(.5),
           ),
         ),
+
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
               size: 20,
-              color: isSelected ? Colors.deepPurple : Colors.grey,
+              color: isSelected
+                  ? AppColor.primary
+                  : isDark
+                  ? AppColor.textHint
+                  : AppColor.textSecondary,
             ),
 
             const SizedBox(height: 4),
@@ -353,8 +436,14 @@ class _ReminderViewState extends State<ReminderView> {
               title,
               style: TextStyle(
                 fontSize: 10,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? Colors.deepPurple : Colors.grey,
+                fontWeight: isSelected
+                    ? FontWeight.bold
+                    : FontWeight.normal,
+                color: isSelected
+                    ? AppColor.primary
+                    : isDark
+                    ? AppColor.textHint
+                    : AppColor.textSecondary,
               ),
             ),
           ],
@@ -364,15 +453,22 @@ class _ReminderViewState extends State<ReminderView> {
   }
 
   Widget _prioritySection() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 25),
-
           child: Text(
             AppLocalizations.of(context)!.priority,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+              color: isDark
+                  ? AppColor.textWhite
+                  : AppColor.textPrimary,
+            ),
           ),
         ),
 
@@ -384,7 +480,7 @@ class _ReminderViewState extends State<ReminderView> {
             _priorityItem(
               value: 'high',
               title: AppLocalizations.of(context)!.high,
-              iconColor: Colors.red,
+              iconColor: AppColor.error,
             ),
 
             const SizedBox(width: 8),
@@ -392,7 +488,7 @@ class _ReminderViewState extends State<ReminderView> {
             _priorityItem(
               value: 'medium',
               title: AppLocalizations.of(context)!.medium,
-              iconColor: Colors.orange,
+              iconColor: AppColor.warning,
             ),
 
             const SizedBox(width: 8),
@@ -400,7 +496,7 @@ class _ReminderViewState extends State<ReminderView> {
             _priorityItem(
               value: 'low',
               title: AppLocalizations.of(context)!.low,
-              iconColor: Colors.green,
+              iconColor: AppColor.success,
             ),
           ],
         ),
@@ -414,6 +510,7 @@ class _ReminderViewState extends State<ReminderView> {
     required Color iconColor,
   }) {
     final bool isSelected = selectedPriority == value;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GestureDetector(
       onTap: () {
@@ -425,14 +522,23 @@ class _ReminderViewState extends State<ReminderView> {
         width: 92,
         height: 38,
         decoration: BoxDecoration(
-          color: isSelected ? iconColor.withOpacity(.06) : Colors.white,
+          color: isSelected
+              ? iconColor.withOpacity(.06)
+              : isDark
+              ? AppColor.darkSurface
+              : AppColor.surface,
+
           borderRadius: BorderRadius.circular(10),
+
           border: Border.all(
             color: isSelected
                 ? iconColor.withOpacity(.25)
-                : Colors.grey.withOpacity(.1),
+                : isDark
+                ? AppColor.darkCard.withOpacity(.4)
+                : AppColor.border.withOpacity(.5),
           ),
         ),
+
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -440,14 +546,24 @@ class _ReminderViewState extends State<ReminderView> {
               title,
               style: TextStyle(
                 fontSize: 10,
-                color: isSelected ? iconColor : Colors.grey,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected
+                    ? iconColor
+                    : isDark
+                    ? AppColor.textHint
+                    : AppColor.textSecondary,
+                fontWeight: isSelected
+                    ? FontWeight.bold
+                    : FontWeight.normal,
               ),
             ),
 
             const SizedBox(width: 8),
 
-            Icon(Icons.flag_outlined, size: 16, color: iconColor),
+            Icon(
+              Icons.flag_outlined,
+              size: 16,
+              color: iconColor,
+            ),
           ],
         ),
       ),

@@ -6,6 +6,7 @@ import '../../../model/on_boarding_model.dart';
 import '../../logic/context_extension.dart';
 import '../theme/app_color.dart';
 import 'app_image.dart';
+
 class OnboardingItem extends StatelessWidget {
   final OnboardingModel model;
   final int index;
@@ -58,12 +59,16 @@ class OnboardingItem extends StatelessWidget {
                     width: 260,
                     height: 260,
                     decoration: const BoxDecoration(
-                      color: Colors.white,
+                      color: AppColor.surface,
                       shape: BoxShape.circle,
                     ),
                   ),
 
-                  AppImage(image: model.image, width: 260, height: 260),
+                  AppImage(
+                    image: model.image,
+                    width: 260,
+                    height: 260,
+                  ),
                 ],
               ),
             ),
@@ -80,7 +85,7 @@ class OnboardingItem extends StatelessWidget {
                   vertical: 35,
                 ),
                 decoration: const BoxDecoration(
-                  color: Colors.white,
+                  color: AppColor.surface,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(35),
                     topRight: Radius.circular(35),
@@ -94,6 +99,7 @@ class OnboardingItem extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
+                        color: AppColor.textPrimary,
                       ),
                     ),
 
@@ -104,7 +110,7 @@ class OnboardingItem extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 16,
-                        color: Colors.grey,
+                        color: AppColor.textSecondary,
                         height: 1.6,
                       ),
                     ),

@@ -51,20 +51,25 @@ class _OnboardingViewState extends State<OnboardingView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Onboarding is shown before the user chooses Dark/Light mode,
+      // so it always uses the Light colors.
       backgroundColor: AppColor.background,
 
       body: SafeArea(
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 10,
+              ),
               child: Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: _skip,
                   child: Text(
                     AppLocalizations.of(context)!.skip,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: AppColor.primary,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -94,10 +99,15 @@ class _OnboardingViewState extends State<OnboardingView> {
 
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 24,
+              ),
               decoration: const BoxDecoration(
                 color: AppColor.surface,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(30),
+                ),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -105,12 +115,12 @@ class _OnboardingViewState extends State<OnboardingView> {
                   SmoothPageIndicator(
                     controller: _pageController,
                     count: onboardingData.length,
-                    effect: WormEffect(
+                    effect: const WormEffect(
                       dotHeight: 8,
                       dotWidth: 8,
                       spacing: 8,
                       activeDotColor: AppColor.primary,
-                      dotColor: Colors.grey.shade300,
+                      dotColor: AppColor.border,
                     ),
                   ),
 

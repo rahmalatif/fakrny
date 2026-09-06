@@ -237,6 +237,40 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pendingTasks => 'معلقة';
 
   @override
+  String get createAccount => 'إنشاء حساب';
+
+  @override
+  String get createAccountSub => 'أنشئ حسابك وابدأ الآن';
+
+  @override
+  String get fullName => 'الاسم بالكامل';
+
+  @override
+  String get confirmPassword => 'تأكيد كلمة المرور';
+
+  @override
+  String get alreadyHaveAccount => 'لديك حساب بالفعل؟';
+
+  @override
+  String get dontHaveAccount => 'ليس لديك حساب؟';
+
+  @override
+  String get register => 'إنشاء حساب';
+
+  @override
+  String get forgetPassword => 'نسيت كلمة المرور؟';
+
+  @override
+  String get forgetPasswordSub =>
+      'أدخل بريدك الإلكتروني وسنرسل لك رابطًا لإعادة تعيين كلمة المرور.';
+
+  @override
+  String get sendResetLink => 'إرسال رابط إعادة التعيين';
+
+  @override
+  String get backToLogin => 'العودة لتسجيل الدخول';
+
+  @override
   String get appSlogan => 'انسى... وإحنا نفكرك';
 
   @override

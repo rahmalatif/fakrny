@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_color.dart';
 
 class TasksContanier extends StatelessWidget {
   final String title;
@@ -24,6 +25,8 @@ class TasksContanier extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -33,7 +36,9 @@ class TasksContanier extends StatelessWidget {
           vertical: 12,
         ),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark
+              ? AppColor.darkSurface
+              : AppColor.surface,
           borderRadius: BorderRadius.circular(18),
         ),
         child: Row(
@@ -60,8 +65,10 @@ class TasksContanier extends StatelessWidget {
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
                       color: isCompleted
-                          ? Colors.grey
-                          : const Color(0xFF202020),
+                          ? AppColor.textHint
+                          : isDark
+                          ? AppColor.textWhite
+                          : AppColor.textPrimary,
                       decoration: isCompleted
                           ? TextDecoration.lineThrough
                           : TextDecoration.none,
@@ -78,8 +85,8 @@ class TasksContanier extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 14,
                           color: isCompleted
-                              ? Colors.grey.shade400
-                              : Colors.grey,
+                              ? AppColor.disabled
+                              : AppColor.textSecondary,
                         ),
                       ),
 
@@ -90,8 +97,8 @@ class TasksContanier extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 14,
                           color: isCompleted
-                              ? Colors.grey.shade400
-                              : Colors.grey,
+                              ? AppColor.disabled
+                              : AppColor.textSecondary,
                         ),
                       ),
 
@@ -103,7 +110,7 @@ class TasksContanier extends StatelessWidget {
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: isCompleted
-                              ? Colors.grey.shade400
+                              ? AppColor.disabled
                               : color,
                         ),
                       ),
@@ -122,7 +129,7 @@ class TasksContanier extends StatelessWidget {
                 onChanged: (_) {
                   onCheck?.call();
                 },
-                activeColor: Colors.green,
+                activeColor: AppColor.success,
               ),
             ),
           ],

@@ -11,34 +11,48 @@ import '../core/design/widgets/star.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_services.dart';
 
-class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+class RegisterView extends StatefulWidget {
+  const RegisterView({super.key});
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  State<RegisterView> createState() => _RegisterViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
+class _RegisterViewState extends State<RegisterView> {
+  final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
   bool isPasswordVisible = false;
+  bool isConfirmPasswordVisible = false;
   final AuthServices authServices = AuthServices();
   bool isLoading = false;
-  bool isGoogleLoading = false;
 
   @override
   void dispose() {
+    nameController.dispose();
     emailController.dispose();
     passwordController.dispose();
+    confirmPasswordController.dispose();
     super.dispose();
   }
 
-  Future<void> loginUser() async {
-    if (emailController.text.trim().isEmpty ||
-        passwordController.text.isEmpty) {
+  Future<void> registerUser() async {
+    if (nameController.text.trim().isEmpty ||
+        emailController.text.trim().isEmpty ||
+        passwordController.text.isEmpty ||
+        confirmPasswordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your email and password')),
+        const SnackBar(content: Text('Please fill in all fields')),
       );
+      return;
+    }
+
+    if (passwordController.text != confirmPasswordController.text) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
       return;
     }
 
@@ -47,25 +61,24 @@ class _LoginViewState extends State<LoginView> {
         isLoading = true;
       });
 
-      await authServices.login(
+      await authServices.register(
+        name: nameController.text.trim(),
         email: emailController.text.trim(),
         password: passwordController.text,
       );
 
       if (!mounted) return;
 
-      context.go('/Home');
+      context.go('/Login');
     } on FirebaseAuthException catch (e) {
       String message = 'Something went wrong';
 
-      if (e.code == 'invalid-credential' ||
-          e.code == 'wrong-password' ||
-          e.code == 'user-not-found') {
-        message = 'Invalid email or password';
+      if (e.code == 'email-already-in-use') {
+        message = 'This email is already registered';
       } else if (e.code == 'invalid-email') {
         message = 'Please enter a valid email';
-      } else if (e.code == 'user-disabled') {
-        message = 'This account has been disabled';
+      } else if (e.code == 'weak-password') {
+        message = 'Password is too weak';
       }
 
       if (!mounted) return;
@@ -82,51 +95,6 @@ class _LoginViewState extends State<LoginView> {
     }
   }
 
-  Future<void> signInWithGoogle() async {
-    try {
-      setState(() {
-        isGoogleLoading = true;
-      });
-
-      await authServices.signInWithGoogle();
-
-      if (!mounted) return;
-
-      context.go('/Home');
-    } on FirebaseAuthException catch (e) {
-      debugPrint('🔥 Firebase Auth Error');
-      debugPrint('Code: ${e.code}');
-      debugPrint('Message: ${e.message}');
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '${e.code}: ${e.message}',
-          ),
-        ),
-      );
-    } catch (e, stackTrace) {
-      debugPrint('🔥 Google Sign In Error: $e');
-      debugPrint('StackTrace: $stackTrace');
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-        ),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          isGoogleLoading = false;
-        });
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -135,41 +103,6 @@ class _LoginViewState extends State<LoginView> {
         resizeToAvoidBottomInset: true,
         body: Stack(
           children: [
-            Container(
-              height: MediaQuery.of(context).size.height * .2,
-              width: double.infinity,
-              decoration: const BoxDecoration(gradient: AppGradient.primary),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Star(top: 25, left: 35),
-                  Star(top: 45, left: 170),
-                  Star(top: 95, left: 15),
-                  Star(top: 110, left: 25),
-                  Star(top: 80, left: 85),
-                  Star(top: 170, left: 50),
-                  Star(top: 25, left: 235),
-                  Star(top: 45, left: 370),
-                  Star(top: 95, left: 215),
-                  Star(top: 110, left: 225),
-                  Star(top: 80, left: 285),
-                  Star(top: 170, left: 250),
-                  Star(top: 270, left: 250),
-
-                  Center(
-                    child: CircleAvatar(
-                      radius: 100,
-                      backgroundColor: AppColor.transparent,
-                      child: const Padding(
-                        padding: EdgeInsets.all(12),
-                        child: AppImage(image: 'assets/JPG_Images/logo.png'),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
@@ -192,26 +125,32 @@ class _LoginViewState extends State<LoginView> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        AppLocalizations.of(context)!.welcome,
+                        AppLocalizations.of(context)!.createAccount,
                         style: const TextStyle(
                           fontSize: 28,
                           color: AppColor.textPrimary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-
                       const SizedBox(height: 5),
-
                       Text(
-                        AppLocalizations.of(context)!.welcomeSub,
+                        AppLocalizations.of(context)!.createAccountSub,
                         style: const TextStyle(
                           fontSize: 16,
                           color: AppColor.textSecondary,
                         ),
                       ),
-
                       const SizedBox(height: 24),
-
+                      AppTextField(
+                        controller: nameController,
+                        keyboardType: TextInputType.name,
+                        prefixIcon: const Icon(
+                          Icons.person_outline,
+                          color: AppColor.textSecondary,
+                        ),
+                        title: AppLocalizations.of(context)!.fullName,
+                      ),
+                      const SizedBox(height: 16),
                       AppTextField(
                         controller: emailController,
                         keyboardType: TextInputType.emailAddress,
@@ -221,9 +160,7 @@ class _LoginViewState extends State<LoginView> {
                         ),
                         title: AppLocalizations.of(context)!.email,
                       ),
-
                       const SizedBox(height: 16),
-
                       AppTextField(
                         controller: passwordController,
                         obscureText: !isPasswordVisible,
@@ -246,36 +183,35 @@ class _LoginViewState extends State<LoginView> {
                         ),
                         title: AppLocalizations.of(context)!.password,
                       ),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: GestureDetector(
-                              onTap: () {
-                                context.go('/ForgetPass');
-                              },
-
-                              child: Text(
-                                AppLocalizations.of(context)!.forget,
-                                style: const TextStyle(
-                                  color: AppColor.primary,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
+                      const SizedBox(height: 16),
+                      AppTextField(
+                        controller: confirmPasswordController,
+                        obscureText: !isConfirmPasswordVisible,
+                        prefixIcon: const Icon(
+                          Icons.lock_outline,
+                          color: AppColor.textSecondary,
+                        ),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              isConfirmPasswordVisible =
+                                  !isConfirmPasswordVisible;
+                            });
+                          },
+                          icon: Icon(
+                            isConfirmPasswordVisible
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            color: AppColor.textSecondary,
                           ),
-                        ],
+                        ),
+                        title: AppLocalizations.of(context)!.confirmPassword,
                       ),
-
-                      const SizedBox(height: 20),
-
+                      const SizedBox(height: 24),
                       GradiantButton(
                         onPressed: () {
                           if (!isLoading) {
-                            loginUser();
+                            registerUser();
                           }
                         },
                         child: Padding(
@@ -290,7 +226,7 @@ class _LoginViewState extends State<LoginView> {
                                   ),
                                 )
                               : Text(
-                                  AppLocalizations.of(context)!.loginButton,
+                                  AppLocalizations.of(context)!.createAccount,
                                   style: const TextStyle(
                                     color: AppColor.textWhite,
                                     fontWeight: FontWeight.bold,
@@ -299,37 +235,7 @@ class _LoginViewState extends State<LoginView> {
                                 ),
                         ),
                       ),
-
-                      const SizedBox(height: 30),
-                      const SizedBox(height: 18),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            AppLocalizations.of(context)!.dontHaveAccount,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: AppColor.textSecondary,
-                            ),
-                          ),
-                          const SizedBox(width: 5),
-                          GestureDetector(
-                            onTap: () {
-                              context.go('/Register');
-                            },
-                            child: Text(
-                              AppLocalizations.of(context)!.register,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: AppColor.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 25),
                       Row(
                         children: [
                           Expanded(
@@ -338,7 +244,6 @@ class _LoginViewState extends State<LoginView> {
                               thickness: 1,
                             ),
                           ),
-
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Text(
@@ -350,7 +255,6 @@ class _LoginViewState extends State<LoginView> {
                               ),
                             ),
                           ),
-
                           Expanded(
                             child: Divider(
                               color: AppColor.border,
@@ -359,24 +263,53 @@ class _LoginViewState extends State<LoginView> {
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 20),
-
                       Padding(
                         padding: const EdgeInsets.all(18.0),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             _socialButton(
                               icon: 'assets/SVG/google_icon.svg',
                               text: 'Google',
-                              onTap: isGoogleLoading ? null : signInWithGoogle,
+                            ),
+                            _socialButton(
+                              icon: 'assets/SVG/apple_icon.svg',
+                              text: 'Apple',
                             ),
                           ],
                         ),
                       ),
-
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 18),
+                      Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)!.alreadyHaveAccount,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: AppColor.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            GestureDetector(
+                              onTap: () {
+                                context.go('/Login');
+                              },
+                              child: Text(
+                                AppLocalizations.of(context)!.loginButton,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: AppColor.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
                     ],
                   ),
                 ),
@@ -389,49 +322,38 @@ class _LoginViewState extends State<LoginView> {
   }
 }
 
-Widget _socialButton({
-  required String icon,
-  required String text,
-  required VoidCallback? onTap,
-}) {
-  return GestureDetector(
-    onTap: onTap,
-    child: Container(
-      width: 145,
-      height: 55,
-      decoration: BoxDecoration(
-        color: AppColor.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+Widget _socialButton({required String icon, required String text}) {
+  return Container(
+    width: 145,
+    height: 55,
+    decoration: BoxDecoration(
+      color: AppColor.surface,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.08),
+          blurRadius: 12,
+          offset: const Offset(0, 4),
+        ),
+      ],
+      border: Border.all(color: AppColor.border),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AppImage(image: icon, width: 24, height: 24),
+          const SizedBox(width: 10),
+          Text(
+            text,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: AppColor.textPrimary,
+            ),
           ),
         ],
-        border: Border.all(color: AppColor.border),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AppImage(
-              image: icon,
-              width: 24,
-              height: 24,
-            ),
-            const SizedBox(width: 10),
-            Text(
-              text,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: AppColor.textPrimary,
-              ),
-            ),
-          ],
-        ),
       ),
     ),
   );

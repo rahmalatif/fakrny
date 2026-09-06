@@ -25,7 +25,13 @@ class _CalenderViewState extends State<CalenderView> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
+      backgroundColor: isDark
+          ? AppColor.darkBackground
+          : AppColor.background,
+
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -33,14 +39,20 @@ class _CalenderViewState extends State<CalenderView> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               const SizedBox(height: 20),
+
               Text(
                 AppLocalizations.of(context)!.calender,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 25,
                   fontWeight: FontWeight.bold,
+                  color: isDark
+                      ? AppColor.textWhite
+                      : AppColor.textPrimary,
                 ),
               ),
+
               SizedBox(height: 30),
+
               _buildCalendar(),
 
               Column(
@@ -48,7 +60,13 @@ class _CalenderViewState extends State<CalenderView> {
                 children: [
                   Text(
                     AppLocalizations.of(context)!.todaysSchadule,
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: isDark
+                          ? AppColor.textWhite
+                          : AppColor.textPrimary,
+                    ),
                   ),
 
                   const SizedBox(height: 15),
@@ -74,6 +92,7 @@ class _CalenderViewState extends State<CalenderView> {
                     time: '4:00 - 6:00 م',
                     icon: Icons.menu_book_outlined,
                   ),
+
                   SizedBox(height: 50),
                 ],
               ),
@@ -81,28 +100,40 @@ class _CalenderViewState extends State<CalenderView> {
           ),
         ),
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
-        child: Icon(Icons.add, color: Colors.white),
+        child: const Icon(
+          Icons.add,
+          color: AppColor.textWhite,
+        ),
         backgroundColor: AppColor.Grad3,
       ),
+
       bottomNavigationBar: const CustomNavBar(currentIndex: 2),
     );
   }
 
   Widget _buildCalendar() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       width: double.infinity,
 
       padding: const EdgeInsets.all(12),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark
+            ? AppColor.darkSurface
+            : AppColor.surface,
+
         borderRadius: BorderRadius.circular(18),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withOpacity(
+              isDark ? 0.20 : 0.04,
+            ),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -133,42 +164,87 @@ class _CalenderViewState extends State<CalenderView> {
           _focusedDay = focusedDay;
         },
 
-        headerStyle: const HeaderStyle(
+        headerStyle: HeaderStyle(
           formatButtonVisible: false,
           titleCentered: true,
 
-          leftChevronIcon: Icon(Icons.chevron_left, size: 20),
+          titleTextStyle: TextStyle(
+            color: isDark
+                ? AppColor.textWhite
+                : AppColor.textPrimary,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
 
-          rightChevronIcon: Icon(Icons.chevron_right, size: 20),
+          leftChevronIcon: Icon(
+            Icons.chevron_left,
+            size: 20,
+            color: isDark
+                ? AppColor.textWhite
+                : AppColor.textPrimary,
+          ),
+
+          rightChevronIcon: Icon(
+            Icons.chevron_right,
+            size: 20,
+            color: isDark
+                ? AppColor.textWhite
+                : AppColor.textPrimary,
+          ),
         ),
 
-        daysOfWeekStyle: const DaysOfWeekStyle(
-          weekdayStyle: TextStyle(fontSize: 11, color: Colors.grey),
+        daysOfWeekStyle: DaysOfWeekStyle(
+          weekdayStyle: TextStyle(
+            fontSize: 11,
+            color: isDark
+                ? AppColor.textHint
+                : AppColor.textSecondary,
+          ),
 
-          weekendStyle: TextStyle(fontSize: 11, color: Colors.grey),
+          weekendStyle: TextStyle(
+            fontSize: 11,
+            color: isDark
+                ? AppColor.textHint
+                : AppColor.textSecondary,
+          ),
         ),
 
         calendarStyle: CalendarStyle(
           outsideDaysVisible: false,
 
-          defaultTextStyle: const TextStyle(fontSize: 11),
+          defaultTextStyle: TextStyle(
+            fontSize: 11,
+            color: isDark
+                ? AppColor.textWhite
+                : AppColor.textPrimary,
+          ),
 
-          weekendTextStyle: const TextStyle(fontSize: 11),
+          weekendTextStyle: TextStyle(
+            fontSize: 11,
+            color: isDark
+                ? AppColor.textWhite
+                : AppColor.textPrimary,
+          ),
 
-          todayDecoration: BoxDecoration(
-            color: Colors.transparent,
+          todayDecoration: const BoxDecoration(
+            color: AppColor.transparent,
             shape: BoxShape.circle,
           ),
 
-          todayTextStyle: const TextStyle(color: Colors.black, fontSize: 11),
+          todayTextStyle: TextStyle(
+            color: isDark
+                ? AppColor.textWhite
+                : AppColor.textPrimary,
+            fontSize: 11,
+          ),
 
           selectedDecoration: const BoxDecoration(
-            color: Color(0xff5B5BFF),
+            color: AppColor.primary,
             shape: BoxShape.circle,
           ),
 
           selectedTextStyle: const TextStyle(
-            color: Colors.white,
+            color: AppColor.textWhite,
             fontSize: 11,
             fontWeight: FontWeight.bold,
           ),
@@ -184,12 +260,18 @@ class _CalenderViewState extends State<CalenderView> {
     required String time,
     required IconData icon,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       width: double.infinity,
+
       padding: const EdgeInsets.all(14),
 
       decoration: BoxDecoration(
-        color: const Color(0xffEEEEFF),
+        color: isDark
+            ? AppColor.darkCard
+            : AppColor.secondary,
+
         borderRadius: BorderRadius.circular(12),
       ),
 
@@ -200,11 +282,15 @@ class _CalenderViewState extends State<CalenderView> {
             height: 42,
 
             decoration: BoxDecoration(
-              color: const Color(0xff5B5BFF),
+              color: AppColor.primary,
               borderRadius: BorderRadius.circular(10),
             ),
 
-            child: Icon(icon, color: Colors.white, size: 20),
+            child: Icon(
+              icon,
+              color: AppColor.textWhite,
+              size: 20,
+            ),
           ),
 
           const SizedBox(width: 12),
@@ -216,9 +302,12 @@ class _CalenderViewState extends State<CalenderView> {
                 Text(
                   title,
                   textAlign: TextAlign.right,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
+                    color: isDark
+                        ? AppColor.textWhite
+                        : AppColor.textPrimary,
                   ),
                 ),
 
@@ -226,7 +315,12 @@ class _CalenderViewState extends State<CalenderView> {
 
                 Text(
                   time,
-                  style: const TextStyle(fontSize: 11, color: Colors.grey),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isDark
+                        ? AppColor.textHint
+                        : AppColor.textSecondary,
+                  ),
                 ),
               ],
             ),

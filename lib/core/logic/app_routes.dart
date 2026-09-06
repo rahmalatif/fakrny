@@ -8,5 +8,7 @@ class AppRoutes {
   static const reminder = '/Reminder';
   static const reminderDetails = '/ReminderDetails';
   static const tasks = '/Tasks';
+  static const register = '/Register';
+  static const forgetPass = '/ForgetPass';
 
 }

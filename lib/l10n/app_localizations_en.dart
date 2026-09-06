@@ -239,6 +239,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pendingTasks => 'Pending';
 
   @override
+  String get createAccount => 'Create Account';
+
+  @override
+  String get createAccountSub => 'Create your account and get started';
+
+  @override
+  String get fullName => 'Full Name';
+
+  @override
+  String get confirmPassword => 'Confirm Password';
+
+  @override
+  String get alreadyHaveAccount => 'Already have an account?';
+
+  @override
+  String get dontHaveAccount => 'Don\'t have an account?';
+
+  @override
+  String get register => 'Register';
+
+  @override
+  String get forgetPassword => 'Forgot Password?';
+
+  @override
+  String get forgetPasswordSub =>
+      'Enter your email and we will send you a link to reset your password.';
+
+  @override
+  String get sendResetLink => 'Send Reset Link';
+
+  @override
+  String get backToLogin => 'Back to Login';
+
+  @override
   String get appSlogan => 'Forget it... We\'ll remember it for you.';
 
   @override
