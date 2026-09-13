@@ -8,7 +8,7 @@ class TaskModel {
   final String category;
   final String priority;
   final String color;
-  final bool isCompleted;
+   bool isCompleted;
   final String repeat;
   final int remindBefore;
   final DateTime? createdAt;
