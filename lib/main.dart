@@ -13,6 +13,10 @@ import 'l10n/app_localizations.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   await GoogleSignIn.instance.initialize(
     serverClientId: '441958759662-5bmcor94ojfnt3ufa5lj12vl96sfunkf.apps.googleusercontent.com',
   );

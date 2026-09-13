@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_randomcolor/flutter_randomcolor.dart';
 import 'package:go_router/go_router.dart';
 import 'package:untitled/core/design/theme/app_color.dart';
 import 'package:untitled/core/design/widgets/tasks_contanier.dart';
@@ -7,7 +6,10 @@ import 'package:untitled/l10n/app_localizations.dart';
 
 import '../core/design/widgets/nav_bar.dart';
 import '../model/tasks.dart';
+import '../model/user_model.dart';
 import '../services/auth_services.dart';
+import '../services/user_firestore_service.dart';
+import '../services/task_firestore_service.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -18,10 +20,107 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   final AuthServices authServices = AuthServices();
+  final UserFirestoreService userFirestoreService = UserFirestoreService();
+  final TaskFirestoreService taskFirestoreService = TaskFirestoreService();
+
+  UserModel? user;
+
+  List<TaskModel> tasks = [];
+
+  bool isUserLoading = true;
+  bool isTasksLoading = true;
+
+  Future<void> loadUser() async {
+    final currentUser = authServices.currentUser;
+
+    if (currentUser == null) {
+      if (mounted) {
+        setState(() {
+          isUserLoading = false;
+        });
+      }
+      return;
+    }
+
+    final userData = await userFirestoreService.getUser(currentUser.uid);
+
+    if (!mounted) return;
+
+    setState(() {
+      user = userData;
+      isUserLoading = false;
+    });
+  }
+
+  Future<void> loadTasks() async {
+    final currentUser = authServices.currentUser;
+
+    if (currentUser == null) {
+      if (mounted) {
+        setState(() {
+          isTasksLoading = false;
+        });
+      }
+      return;
+    }
+
+    try {
+      final userTasks = await taskFirestoreService.getTasks(currentUser.uid);
+
+      if (!mounted) return;
+
+      setState(() {
+        tasks = userTasks;
+        isTasksLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Load Tasks Error: $e');
+
+      if (!mounted) return;
+
+      setState(() {
+        isTasksLoading = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadUser();
+    loadTasks();
+  }
+
+  String get firstName {
+    final name = user?.name.trim() ?? '';
+
+    if (name.isEmpty) {
+      return 'User';
+    }
+
+    return name.split(RegExp(r'\s+')).first;
+  }
+
+  String getInitials(String name) {
+    if (name.trim().isEmpty) {
+      return '';
+    }
+
+    final parts = name.trim().split(RegExp(r'\s+'));
+
+    if (parts.length == 1) {
+      return parts[0].substring(0, parts[0].length >= 2 ? 2 : 1).toUpperCase();
+    }
+
+    return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+  }
 
   String getGreeting(BuildContext context) {
     final hour = DateTime.now().hour;
+
     final localizations = AppLocalizations.of(context)!;
+
     if (hour >= 5 && hour < 12) {
       return localizations.goodMorning;
     } else if (hour >= 12 && hour < 17) {
@@ -33,61 +132,62 @@ class _HomeViewState extends State<HomeView> {
     }
   }
 
-  String get userName {
-    return authServices.currentUser?.displayName ?? 'User';
-  }
-
-  String getIntials(String name) {
-    if (name.trim().isEmpty) return "";
-
-    List<String> parts = name.trim().split(" ");
-
-    if (parts.length == 1) {
-      return parts[0].substring(0, parts[0].length >= 2 ? 2 : 1).toUpperCase();
+  Color getTaskColor(String color) {
+    if (color.isEmpty) {
+      return AppColor.primary;
     }
 
-    return "${parts[0][0]}${parts[1][0]}".toUpperCase();
+    try {
+      return Color(int.parse(color, radix: 16));
+    } catch (_) {
+      return AppColor.primary;
+    }
   }
 
-  final List<Task> tasks = [
-    Task(
-      title: 'مراجعة تقرير المشروع',
-      time: '10:00 ص',
-      category: 'عمل',
-      priority: 'أولوية عالية',
-      color: RandomColor.getColorObject(Options(luminosity: Luminosity.light)),
-    ),
-    Task(
-      title: 'مذاكرة Flutter',
-      time: '12:00 م',
-      category: 'دراسة',
-      priority: 'متوسطة',
-      color: RandomColor.getColorObject(Options(luminosity: Luminosity.light)),
-    ),
-    Task(
-      title: 'الذهاب إلى الجيم',
-      time: '5:00 م',
-      category: 'رياضة',
-      priority: 'منخفضة',
-      color: RandomColor.getColorObject(Options(luminosity: Luminosity.light)),
-    ),
-    Task(
-      title: 'قراءة كتاب',
-      time: '7:00 م',
-      category: 'شخصي',
-      priority: 'متوسطة',
-      color: RandomColor.getColorObject(Options(luminosity: Luminosity.light)),
-    ),
-    Task(
-      title: 'مكالمة مع العميل',
-      time: '9:00 م',
-      category: 'عمل',
-      priority: 'أولوية عالية',
-      color: RandomColor.getColorObject(Options(luminosity: Luminosity.light)),
-    ),
-  ];
+  List<TaskModel> get todayTasks {
+    final now = DateTime.now();
 
-  final Set<int> completedTasks = {};
+    return tasks.where((task) {
+      return task.scheduledAt.year == now.year &&
+          task.scheduledAt.month == now.month &&
+          task.scheduledAt.day == now.day;
+    }).toList();
+  }
+
+  Future<void> toggleTask(TaskModel task) async {
+    final currentUser = authServices.currentUser;
+
+    if (currentUser == null) return;
+
+    final newValue = !task.isCompleted;
+
+    setState(() {
+      final index = tasks.indexWhere((element) => element.id == task.id);
+
+      if (index != -1) {
+        tasks[index] = TaskModel(
+          id: task.id,
+          title: task.title,
+          description: task.description,
+          scheduledAt: task.scheduledAt,
+          category: task.category,
+          priority: task.priority,
+          color: task.color,
+          isCompleted: newValue,
+          repeat: task.repeat,
+          remindBefore: task.remindBefore,
+          createdAt: task.createdAt,
+          updatedAt: task.updatedAt,
+        );
+      }
+    });
+
+    await taskFirestoreService.updateTask(
+      uid: currentUser.uid,
+      taskId: task.id,
+      data: {'isCompleted': newValue},
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,18 +199,22 @@ class _HomeViewState extends State<HomeView> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(top: 20, left: 14, right: 14),
+
           child: Column(
             children: [
               Row(
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+
                     children: [
                       Text(
-                        "${getGreeting(context)}, $userName",
+                        '${getGreeting(context)}, $firstName',
+
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 26,
+
                           color: isDark
                               ? AppColor.textWhite
                               : AppColor.textPrimary,
@@ -120,10 +224,12 @@ class _HomeViewState extends State<HomeView> {
                       Text(
                         AppLocalizations.of(
                           context,
-                        )!.todayTasksNum(tasks.length),
+                        )!.todayTasksNum(todayTasks.length),
+
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
+
                           color: isDark
                               ? AppColor.textHint
                               : AppColor.textSecondary,
@@ -138,10 +244,13 @@ class _HomeViewState extends State<HomeView> {
                     onTap: () {
                       context.go('/Profile');
                     },
+
                     child: CircleAvatar(
                       backgroundColor: AppColor.Grad3,
+
                       child: Text(
-                        getIntials(userName),
+                        getInitials(user?.name ?? 'User'),
+
                         style: const TextStyle(
                           color: AppColor.textWhite,
                           fontSize: 18,
@@ -157,15 +266,19 @@ class _HomeViewState extends State<HomeView> {
 
               Padding(
                 padding: const EdgeInsets.all(8.0),
+
                 child: Row(
                   children: [
                     Text(
                       AppLocalizations.of(context)!.today,
+
                       style: TextStyle(
                         color: isDark
                             ? AppColor.textWhite
                             : AppColor.textPrimary,
+
                         fontWeight: FontWeight.bold,
+
                         fontSize: 24,
                       ),
                     ),
@@ -176,9 +289,11 @@ class _HomeViewState extends State<HomeView> {
                       onPressed: () {
                         context.go('/Tasks');
                       },
+
                       child: Text(
                         AppLocalizations.of(context)!.showAll,
-                        style: TextStyle(
+
+                        style: const TextStyle(
                           color: AppColor.primary,
                           fontSize: 18,
                           fontWeight: FontWeight.w400,
@@ -190,51 +305,72 @@ class _HomeViewState extends State<HomeView> {
               ),
 
               Expanded(
-                child: ListView.separated(
-                  itemCount: tasks.length,
+                child: isTasksLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : todayTasks.isEmpty
+                    ? Center(
+                        child: Text(
+                          'No tasks for today',
+                          style: TextStyle(
+                            color: isDark
+                                ? AppColor.textHint
+                                : AppColor.textSecondary,
+                          ),
+                        ),
+                      )
+                    : ListView.separated(
+                        itemCount: todayTasks.length,
 
-                  separatorBuilder: (context, index) {
-                    return const SizedBox(height: 10);
-                  },
+                        separatorBuilder: (context, index) {
+                          return const SizedBox(height: 10);
+                        },
 
-                  itemBuilder: (context, index) {
-                    final task = tasks[index];
+                        itemBuilder: (context, index) {
+                          final task = todayTasks[index];
 
-                    final isCompleted = completedTasks.contains(index);
+                          return TasksContanier(
+                            title: task.title,
+                            category: task.category,
 
-                    return TasksContanier(
-                      title: task.title,
-                      time: task.time,
-                      category: task.category,
-                      priority: task.priority,
-                      color: task.color,
-                      isCompleted: isCompleted,
+                            priority: task.priority,
 
-                      onCheck: () {
-                        setState(() {
-                          if (isCompleted) {
-                            completedTasks.remove(index);
-                          } else {
-                            completedTasks.add(index);
-                          }
-                        });
-                      },
+                            color: getTaskColor(task.color),
 
-                      onTap: () {
-                        context.go('/ReminderDetails');
-                      },
-                    );
-                  },
-                ),
+                            isCompleted: task.isCompleted,
+
+                            onCheck: () {
+                              toggleTask(task);
+                            },
+
+                            onTap: () async {
+                              final result = await context.push(
+                                '/ReminderDetails',
+                                extra: task,
+                              );
+
+                              if (result == true && mounted) {
+                                await loadTasks();
+                              }
+                            },
+                          );
+                        },
+                      ),
               ),
             ],
           ),
         ),
       ),
-
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () async {
+          final result = await context.push('/Reminder');
+
+          if (result == true && mounted) {
+            await loadTasks();
+          }
+        },
+
         backgroundColor: AppColor.Grad3,
+
         child: const Icon(Icons.add, color: AppColor.textWhite),
       ),
 

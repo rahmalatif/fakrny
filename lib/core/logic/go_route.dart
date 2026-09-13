@@ -8,6 +8,7 @@ import 'package:untitled/views/register.dart';
 import 'package:untitled/views/reminder.dart';
 import 'package:untitled/views/splash.dart';
 import 'package:untitled/views/tasks.dart';
+import '../../model/tasks.dart';
 import '../../views/on_boarding.dart';
 import '../../views/reminder_details.dart';
 import 'app_routes.dart';
@@ -42,11 +43,21 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.reminder,
-      builder: (context, state) => const ReminderView(),
+      builder: (context, state) {
+        final task = state.extra as TaskModel?;
+
+        return ReminderView(
+          task: task,
+        );
+      },
     ),
     GoRoute(
       path: AppRoutes.reminderDetails,
-      builder: (context, state) => const ReminderDetailsView(),
+      builder: (context, state) {
+        final task = state.extra as TaskModel;
+
+        return ReminderDetailsView(task: task);
+      },
     ),
     GoRoute(
       path: AppRoutes.tasks,

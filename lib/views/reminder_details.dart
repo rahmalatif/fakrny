@@ -1,34 +1,173 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:untitled/l10n/app_localizations.dart';
+import 'package:untitled/model/tasks.dart';
 
 import '../core/design/theme/app_color.dart';
+import '../services/auth_services.dart';
+import '../services/task_firestore_service.dart';
 
 class ReminderDetailsView extends StatefulWidget {
-  const ReminderDetailsView({super.key});
+  final TaskModel task;
+
+  const ReminderDetailsView({super.key, required this.task});
 
   @override
   State<ReminderDetailsView> createState() => _ReminderDetailsViewState();
 }
 
 class _ReminderDetailsViewState extends State<ReminderDetailsView> {
-  bool isCompleted = false;
+  final TaskFirestoreService taskFirestoreService = TaskFirestoreService();
+
+  final AuthServices authServices = AuthServices();
+  late TaskModel task;
+  late bool isCompleted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    task = widget.task;
+    isCompleted = task.isCompleted;
+  }
+
+  bool isUpdating = false;
+
+  Future<void> toggleCompleted() async {
+    final currentUser = authServices.currentUser;
+
+    if (currentUser == null) return;
+
+    final newValue = !isCompleted;
+
+    setState(() {
+      isUpdating = true;
+      isCompleted = newValue;
+
+      task = TaskModel(
+        id: task.id,
+        title: task.title,
+        description: task.description,
+        scheduledAt: task.scheduledAt,
+        category: task.category,
+        priority: task.priority,
+        color: task.color,
+        isCompleted: newValue,
+        repeat: task.repeat,
+        remindBefore: task.remindBefore,
+        createdAt: task.createdAt,
+        updatedAt: task.updatedAt,
+      );
+    });
+
+    try {
+      await taskFirestoreService.updateTask(
+        uid: currentUser.uid,
+        taskId: task.id,
+        data: {'isCompleted': newValue},
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isCompleted = !newValue;
+
+        task = TaskModel(
+          id: task.id,
+          title: task.title,
+          description: task.description,
+          scheduledAt: task.scheduledAt,
+          category: task.category,
+          priority: task.priority,
+          color: task.color,
+          isCompleted: !newValue,
+          repeat: task.repeat,
+          remindBefore: task.remindBefore,
+          createdAt: task.createdAt,
+          updatedAt: task.updatedAt,
+        );
+      });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to update task: $e')));
+    } finally {
+      if (mounted) {
+        setState(() {
+          isUpdating = false;
+        });
+      }
+    }
+  }
+
+  String formatTime(DateTime dateTime) {
+    final hour = dateTime.hour % 12 == 0 ? 12 : dateTime.hour % 12;
+
+    final minute = dateTime.minute.toString().padLeft(2, '0');
+
+    final period = dateTime.hour >= 12 ? 'م' : 'ص';
+
+    return '$hour:$minute $period';
+  }
+
+  Future<void> _deleteReminder() async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Delete Reminder'),
+          content: const Text('Are you sure you want to delete this reminder?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete != true) return;
+
+    final currentUser = authServices.currentUser;
+
+    if (currentUser == null) return;
+
+    try {
+      await taskFirestoreService.deleteTask(
+        uid: currentUser.uid,
+        taskId: task.id,
+      );
+
+      if (!mounted) return;
+
+      context.pop(true);
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to delete reminder')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? AppColor.darkBackground
-          : AppColor.background,
+      backgroundColor: isDark ? AppColor.darkBackground : AppColor.background,
 
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 12,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
             children: [
               _header(),
@@ -66,9 +205,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
           width: 38,
           height: 38,
           decoration: BoxDecoration(
-            color: isDark
-                ? AppColor.darkSurface
-                : AppColor.surface,
+            color: isDark ? AppColor.darkSurface : AppColor.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isDark
@@ -78,14 +215,12 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
           ),
           child: IconButton(
             onPressed: () {
-              context.go('/Home');
+              context.pop(true);
             },
             icon: Icon(
               Icons.arrow_back_ios_new,
               size: 16,
-              color: isDark
-                  ? AppColor.textWhite
-                  : AppColor.textPrimary,
+              color: isDark ? AppColor.textWhite : AppColor.textPrimary,
             ),
           ),
         ),
@@ -99,9 +234,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: isDark
-                    ? AppColor.textWhite
-                    : AppColor.textPrimary,
+                color: isDark ? AppColor.textWhite : AppColor.textPrimary,
               ),
             ),
 
@@ -109,9 +242,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
               'Reminder Details',
               style: TextStyle(
                 fontSize: 9,
-                color: isDark
-                    ? AppColor.textHint
-                    : AppColor.textSecondary,
+                color: isDark ? AppColor.textHint : AppColor.textSecondary,
               ),
             ),
           ],
@@ -123,9 +254,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
           width: 38,
           height: 38,
           decoration: BoxDecoration(
-            color: isDark
-                ? AppColor.darkSurface
-                : AppColor.surface,
+            color: isDark ? AppColor.darkSurface : AppColor.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isDark
@@ -140,9 +269,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
             icon: Icon(
               Icons.more_horiz,
               size: 20,
-              color: isDark
-                  ? AppColor.textWhite
-                  : AppColor.textPrimary,
+              color: isDark ? AppColor.textWhite : AppColor.textPrimary,
             ),
           ),
         ),
@@ -157,15 +284,11 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark
-            ? AppColor.darkSurface
-            : AppColor.surface,
+        color: isDark ? AppColor.darkSurface : AppColor.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(
-              isDark ? .15 : .04,
-            ),
+            color: Colors.black.withOpacity(isDark ? .15 : .04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -180,10 +303,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
               color: AppColor.primary.withOpacity(.08),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.school_outlined,
-              color: AppColor.primary,
-            ),
+            child: const Icon(Icons.school_outlined, color: AppColor.primary),
           ),
 
           const SizedBox(width: 12),
@@ -193,13 +313,11 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'مراجعة تقرير المشروع',
+                  task.title,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: isDark
-                        ? AppColor.textWhite
-                        : AppColor.textPrimary,
+                    color: isDark ? AppColor.textWhite : AppColor.textPrimary,
                   ),
                 ),
 
@@ -207,9 +325,9 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
 
                 Row(
                   children: [
-                    const Text(
-                      'دراسة',
-                      style: TextStyle(
+                    Text(
+                      task.category,
+                      style: const TextStyle(
                         color: AppColor.primary,
                         fontSize: 11,
                       ),
@@ -231,7 +349,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
                     const SizedBox(width: 8),
 
                     Text(
-                      'High',
+                      task.priority,
                       style: TextStyle(
                         color: AppColor.error.withOpacity(.8),
                         fontSize: 11,
@@ -254,9 +372,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: isDark
-            ? AppColor.darkSurface
-            : AppColor.surface,
+        color: isDark ? AppColor.darkSurface : AppColor.surface,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -264,7 +380,8 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
           _infoRow(
             icon: Icons.calendar_today_outlined,
             title: AppLocalizations.of(context)!.date,
-            value: 'السبت، 14 يونيو 2026',
+            value:
+                '${task.scheduledAt.day}/${task.scheduledAt.month}/${task.scheduledAt.year}',
           ),
 
           _divider(),
@@ -272,7 +389,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
           _infoRow(
             icon: Icons.access_time,
             title: AppLocalizations.of(context)!.time,
-            value: '10:00 ص',
+            value: formatTime(task.scheduledAt),
           ),
 
           _divider(),
@@ -280,26 +397,11 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
           _infoRow(
             icon: Icons.notifications_none,
             title: AppLocalizations.of(context)!.reminderBefore,
-            value: '30 دقيقة',
+            value:
+                '${task.remindBefore} ${AppLocalizations.of(context)!.minutes}',
           ),
 
           _divider(),
-
-          _infoRow(
-            icon: Icons.flag_outlined,
-            title: AppLocalizations.of(context)!.priority,
-            value: 'عالية',
-            valueColor: AppColor.error,
-          ),
-
-          _divider(),
-
-          _infoRow(
-            icon: Icons.category_outlined,
-            title: AppLocalizations.of(context)!.category,
-            value: 'دراسة',
-            valueColor: AppColor.primary,
-          ),
         ],
       ),
     );
@@ -314,18 +416,13 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 15,
-        vertical: 13,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 13),
       child: Row(
         children: [
           Icon(
             icon,
             size: 17,
-            color: isDark
-                ? AppColor.textHint
-                : AppColor.textSecondary,
+            color: isDark ? AppColor.textHint : AppColor.textSecondary,
           ),
 
           const SizedBox(width: 10),
@@ -334,9 +431,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
             title,
             style: TextStyle(
               fontSize: 11,
-              color: isDark
-                  ? AppColor.textHint
-                  : AppColor.textSecondary,
+              color: isDark ? AppColor.textHint : AppColor.textSecondary,
             ),
           ),
 
@@ -347,10 +442,9 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.bold,
-              color: valueColor ??
-                  (isDark
-                      ? AppColor.textWhite
-                      : AppColor.textPrimary),
+              color:
+                  valueColor ??
+                  (isDark ? AppColor.textWhite : AppColor.textPrimary),
             ),
           ),
         ],
@@ -365,9 +459,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
       height: 1,
       indent: 15,
       endIndent: 15,
-      color: isDark
-          ? AppColor.darkCard
-          : AppColor.divider,
+      color: isDark ? AppColor.darkCard : AppColor.divider,
     );
   }
 
@@ -376,44 +468,51 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
       width: double.infinity,
       height: 52,
       child: ElevatedButton(
-        onPressed: () {
-          setState(() {
-            isCompleted = !isCompleted;
-          });
-        },
+        onPressed: isUpdating ? null : toggleCompleted,
+
         style: ElevatedButton.styleFrom(
-          backgroundColor: isCompleted
-              ? AppColor.success
-              : AppColor.primary,
+          backgroundColor: isCompleted ? AppColor.success : AppColor.primary,
+
           foregroundColor: AppColor.textWhite,
+
           elevation: 2,
+
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(13),
           ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              isCompleted
-                  ? Icons.check_circle_outline
-                  : Icons.check,
-              size: 19,
-            ),
 
-            const SizedBox(width: 8),
+        child: isUpdating
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColor.textWhite,
+                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    isCompleted ? Icons.check_circle_outline : Icons.check,
+                    size: 19,
+                  ),
 
-            Text(
-              isCompleted
-                  ? AppLocalizations.of(context)!.completed
-                  : AppLocalizations.of(context)!.markCompleted,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
+                  const SizedBox(width: 8),
+
+                  Text(
+                    isCompleted
+                        ? AppLocalizations.of(context)!.completed
+                        : AppLocalizations.of(context)!.markCompleted,
+
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -428,26 +527,13 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
             onPressed: () {
               _editReminder();
             },
-            icon: Icon(
-              Icons.edit_outlined,
-              size: 18,
-              color: AppColor.primary,
-            ),
-            label: Text(
-              AppLocalizations.of(context)!.edit,
-            ),
+            icon: Icon(Icons.edit_outlined, size: 18, color: AppColor.primary),
+            label: Text(AppLocalizations.of(context)!.edit),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColor.primary,
-              backgroundColor: isDark
-                  ? AppColor.darkSurface
-                  : AppColor.surface,
-              side: BorderSide(
-                color: AppColor.primary.withOpacity(.15),
-              ),
-              minimumSize: const Size(
-                double.infinity,
-                50,
-              ),
+              backgroundColor: isDark ? AppColor.darkSurface : AppColor.surface,
+              side: BorderSide(color: AppColor.primary.withOpacity(.15)),
+              minimumSize: const Size(double.infinity, 50),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(13),
               ),
@@ -467,21 +553,12 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
               size: 18,
               color: AppColor.error,
             ),
-            label: Text(
-              AppLocalizations.of(context)!.delete,
-            ),
+            label: Text(AppLocalizations.of(context)!.delete),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColor.error,
-              backgroundColor: isDark
-                  ? AppColor.darkSurface
-                  : AppColor.surface,
-              side: BorderSide(
-                color: AppColor.error.withOpacity(.15),
-              ),
-              minimumSize: const Size(
-                double.infinity,
-                50,
-              ),
+              backgroundColor: isDark ? AppColor.darkSurface : AppColor.surface,
+              side: BorderSide(color: AppColor.error.withOpacity(.15)),
+              minimumSize: const Size(double.infinity, 50),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(13),
               ),
@@ -492,75 +569,26 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
     );
   }
 
-  void _editReminder() {
-    context.push('/Reminder');
-  }
+  Future<void> _editReminder() async {
+    final result = await context.push('/Reminder', extra: task);
 
-  void _deleteReminder() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    if (result == true && mounted) {
+      final currentUser = authServices.currentUser;
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: isDark
-              ? AppColor.darkSurface
-              : AppColor.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Text(
-            AppLocalizations.of(context)!.deleteReminder,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: isDark
-                  ? AppColor.textWhite
-                  : AppColor.textPrimary,
-            ),
-          ),
-          content: Text(
-            AppLocalizations.of(context)!.deleteReminderConfirmation,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: isDark
-                  ? AppColor.textHint
-                  : AppColor.textSecondary,
-            ),
-          ),
-          actionsAlignment: MainAxisAlignment.center,
-          actions: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text(
-                  AppLocalizations.of(context)!.cancel,
-                ),
-              ),
-            ),
+      if (currentUser == null) return;
 
-            const SizedBox(width: 8),
+      final updatedTask = await taskFirestoreService.getTask(
+        uid: currentUser.uid,
+        taskId: task.id,
+      );
 
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  context.pop();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.error,
-                  foregroundColor: AppColor.textWhite,
-                ),
-                child: Text(
-                  AppLocalizations.of(context)!.delete,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
+      if (updatedTask == null || !mounted) return;
+
+      setState(() {
+        task = updatedTask;
+        isCompleted = updatedTask.isCompleted;
+      });
+    }
   }
 
   void _showMoreOptions() {
@@ -568,13 +596,9 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: isDark
-          ? AppColor.darkSurface
-          : AppColor.surface,
+      backgroundColor: isDark ? AppColor.darkSurface : AppColor.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(20),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
         return SafeArea(
@@ -584,16 +608,12 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
               ListTile(
                 leading: Icon(
                   Icons.edit_outlined,
-                  color: isDark
-                      ? AppColor.textWhite
-                      : AppColor.textPrimary,
+                  color: isDark ? AppColor.textWhite : AppColor.textPrimary,
                 ),
                 title: Text(
                   AppLocalizations.of(context)!.edit,
                   style: TextStyle(
-                    color: isDark
-                        ? AppColor.textWhite
-                        : AppColor.textPrimary,
+                    color: isDark ? AppColor.textWhite : AppColor.textPrimary,
                   ),
                 ),
                 onTap: () {
@@ -609,9 +629,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
                 ),
                 title: const Text(
                   'Delete',
-                  style: TextStyle(
-                    color: AppColor.error,
-                  ),
+                  style: TextStyle(color: AppColor.error),
                 ),
                 onTap: () {
                   Navigator.pop(context);

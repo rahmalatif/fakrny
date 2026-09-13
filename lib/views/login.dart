@@ -88,6 +88,7 @@ class _LoginViewState extends State<LoginView> {
         isGoogleLoading = true;
       });
 
+
       await authServices.signInWithGoogle();
 
       if (!mounted) return;

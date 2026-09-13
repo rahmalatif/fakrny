@@ -1,8 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:untitled/services/user_firestore_service.dart';
+
+import '../model/user_model.dart';
+
 class AuthServices {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   User? get currentUser => firebaseAuth.currentUser;
 
@@ -11,15 +18,24 @@ class AuthServices {
     required String password,
     required String name,
   }) async {
-    final UserCredential userCredential =
-    await firebaseAuth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
+    final UserCredential userCredential = await firebaseAuth
+        .createUserWithEmailAndPassword(email: email, password: password);
 
-    await userCredential.user?.updateDisplayName(name);
+    final user = userCredential.user;
 
-    await userCredential.user?.reload();
+    if (user != null) {
+      final userModel = UserModel(
+        uid: user.uid,
+        name: name.trim(),
+        email: email.trim(),
+        photoUrl: null,
+        language: 'en',
+        createdAt: null,
+        updatedAt: null,
+      );
+
+      await UserFirestoreService().createUser(userModel);
+    }
 
     return userCredential;
   }
@@ -39,21 +55,43 @@ class AuthServices {
   }
 
   Future<void> resetPassword(String email) async {
-    await firebaseAuth.sendPasswordResetEmail(
-      email: email,
-    );
+    await firebaseAuth.sendPasswordResetEmail(email: email);
   }
-  Future<UserCredential> signInWithGoogle() async {
-    final GoogleSignInAccount googleUser =
-    await GoogleSignIn.instance.authenticate();
 
-    final GoogleSignInAuthentication googleAuth =
-        googleUser.authentication;
+  Future<UserCredential?> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount googleUser = await GoogleSignIn.instance
+          .authenticate();
 
-    final credential = GoogleAuthProvider.credential(
-      idToken: googleAuth.idToken,
-    );
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
 
-    return await firebaseAuth.signInWithCredential(credential);
+      final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential userCredential = await firebaseAuth
+          .signInWithCredential(credential);
+
+      final user = userCredential.user;
+
+      if (user != null) {
+        final userModel = UserModel(
+          uid: user.uid,
+          name: user.displayName ?? 'User',
+          email: user.email ?? '',
+          photoUrl: user.photoURL,
+          language: 'en',
+          createdAt: null,
+          updatedAt: null,
+        );
+
+        await UserFirestoreService().createUser(userModel);
+      }
+
+      return userCredential;
+    } catch (e) {
+      print('Google Sign In Error: $e');
+      return null;
+    }
   }
 }

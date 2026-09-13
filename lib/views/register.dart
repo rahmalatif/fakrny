@@ -68,7 +68,9 @@ class _RegisterViewState extends State<RegisterView> {
       );
 
       if (!mounted) return;
-
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('account created successfully')));
       context.go('/Login');
     } on FirebaseAuthException catch (e) {
       String message = 'Something went wrong';

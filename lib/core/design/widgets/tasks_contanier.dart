@@ -3,7 +3,6 @@ import '../theme/app_color.dart';
 
 class TasksContanier extends StatelessWidget {
   final String title;
-  final String time;
   final String category;
   final String priority;
   final Color color;
@@ -14,7 +13,6 @@ class TasksContanier extends StatelessWidget {
   const TasksContanier({
     super.key,
     required this.title,
-    required this.time,
     required this.category,
     required this.priority,
     required this.color,
@@ -26,19 +24,13 @@ class TasksContanier extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isDark
-              ? AppColor.darkSurface
-              : AppColor.surface,
+          color: isDark ? AppColor.darkSurface : AppColor.surface,
           borderRadius: BorderRadius.circular(18),
         ),
         child: Row(
@@ -46,10 +38,7 @@ class TasksContanier extends StatelessWidget {
             Container(
               width: 10,
               height: 10,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             ),
 
             const SizedBox(width: 12),
@@ -81,18 +70,6 @@ class TasksContanier extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        time,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: isCompleted
-                              ? AppColor.disabled
-                              : AppColor.textSecondary,
-                        ),
-                      ),
-
-                      const SizedBox(width: 12),
-
-                      Text(
                         category,
                         style: TextStyle(
                           fontSize: 14,
@@ -109,9 +86,7 @@ class TasksContanier extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: isCompleted
-                              ? AppColor.disabled
-                              : color,
+                          color: isCompleted ? AppColor.disabled : color,
                         ),
                       ),
                     ],
