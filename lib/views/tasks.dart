@@ -5,7 +5,7 @@ import '../core/design/theme/app_color.dart';
 import '../core/design/widgets/nav_bar.dart';
 import '../l10n/app_localizations.dart';
 import '../model/tasks.dart';
-import '../services/tasks_services.dart';
+import '../services/all_tasks_services.dart';
 
 class TasksView extends StatefulWidget {
   const TasksView({super.key});

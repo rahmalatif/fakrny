@@ -38,6 +38,9 @@ dependencies:
   flutter_randomcolor: ^1.0.18
   provider: ^6.1.5
   firebase_auth: ^6.6.0
+  flutter_local_notifications: ^19.4.0
+  timezone: ^0.10.1
+  flutter_timezone: ^4.1.0
   table_calendar: ^3.2.1
   shared_preferences: ^2.5.5
   flutter_localizations:

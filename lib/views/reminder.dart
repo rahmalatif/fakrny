@@ -4,11 +4,11 @@ import 'package:flutter_randomcolor/flutter_randomcolor.dart';
 import 'package:go_router/go_router.dart';
 import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/services/task_firestore_service.dart';
-
 import '../core/design/theme/app_color.dart';
 import '../core/design/widgets/form.dart';
 import '../core/design/widgets/snack_bar.dart';
 import '../model/tasks.dart';
+import '../services/notification_services.dart';
 
 class ReminderView extends StatefulWidget {
   final TaskModel? task;
@@ -34,7 +34,6 @@ class _ReminderViewState extends State<ReminderView> {
     super.initState();
 
     final task = widget.task;
-
     if (task != null) {
       _titleController.text = task.title;
 
@@ -118,7 +117,27 @@ class _ReminderViewState extends State<ReminderView> {
           remindBefore: reminderBefore,
         );
 
-        await taskFirestoreService.addTask(uid: user.uid, task: task);
+        final taskId = await taskFirestoreService.addTask(
+          uid: user.uid,
+          task: task,
+        );
+
+        final taskWithId = TaskModel(
+          id: taskId,
+          title: task.title,
+          description: task.description,
+          scheduledAt: task.scheduledAt,
+          category: task.category,
+          priority: task.priority,
+          color: task.color,
+          isCompleted: task.isCompleted,
+          repeat: task.repeat,
+          remindBefore: task.remindBefore,
+          createdAt: task.createdAt,
+          updatedAt: task.updatedAt,
+        );
+
+        await NotificationServices().scheduleTaskNotification(taskWithId);
       } else {
         await taskFirestoreService.updateTask(
           uid: user.uid,
@@ -131,6 +150,24 @@ class _ReminderViewState extends State<ReminderView> {
             'remindBefore': reminderBefore,
           },
         );
+        await NotificationServices().cancelAllNotifications();
+
+        final updatedTask = TaskModel(
+          id: widget.task!.id,
+          title: _titleController.text.trim(),
+          description: widget.task!.description,
+          scheduledAt: scheduledAt,
+          category: selectedCategory,
+          priority: selectedPriority,
+          color: widget.task!.color,
+          isCompleted: widget.task!.isCompleted,
+          repeat: widget.task!.repeat,
+          remindBefore: reminderBefore,
+          createdAt: widget.task!.createdAt,
+          updatedAt: DateTime.now(),
+        );
+
+        await NotificationServices().scheduleTaskNotification(updatedTask);
       }
       SnackBarHelper.show(
         context,
@@ -185,6 +222,12 @@ class _ReminderViewState extends State<ReminderView> {
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
       initialTime: selectedTime ?? TimeOfDay.now(),
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+          child: child!,
+        );
+      },
     );
 
     if (pickedTime != null) {
@@ -319,6 +362,10 @@ class _ReminderViewState extends State<ReminderView> {
                 const SizedBox(height: 10),
 
                 _categorycontainer(),
+
+                const SizedBox(height: 10),
+
+                _remindBeforeSection(),
 
                 const SizedBox(height: 10),
 
@@ -686,6 +733,88 @@ class _ReminderViewState extends State<ReminderView> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _remindBeforeSection() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final options = [
+      {'value': 0, 'title': 'At time of task'},
+      {'value': 5, 'title': '5 minutes before'},
+      {'value': 10, 'title': '10 minutes before'},
+      {'value': 15, 'title': '15 minutes before'},
+      {'value': 30, 'title': '30 minutes before'},
+      {'value': 60, 'title': '1 hour before'},
+      {'value': 1440, 'title': '1 day before'},
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25),
+          child: Text(
+            'Remind me',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+              color: isDark ? AppColor.textWhite : AppColor.textPrimary,
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25),
+          child: Container(
+            width: double.infinity,
+            height: 52,
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            decoration: BoxDecoration(
+              color: isDark ? AppColor.darkSurface : AppColor.surface,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isDark
+                    ? AppColor.darkCard.withOpacity(.4)
+                    : AppColor.border.withOpacity(.5),
+              ),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<int>(
+                value:
+                    options.any((option) => option['value'] == reminderBefore)
+                    ? reminderBefore
+                    : 30,
+                isExpanded: true,
+                icon: Icon(
+                  Icons.keyboard_arrow_down,
+                  color: isDark ? AppColor.textHint : AppColor.textSecondary,
+                ),
+                dropdownColor: isDark ? AppColor.darkSurface : AppColor.surface,
+                style: TextStyle(
+                  color: isDark ? AppColor.textWhite : AppColor.textPrimary,
+                  fontSize: 14,
+                ),
+                items: options.map((option) {
+                  return DropdownMenuItem<int>(
+                    value: option['value'] as int,
+                    child: Text(option['title'] as String),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value == null) return;
+
+                  setState(() {
+                    reminderBefore = value;
+                  });
+                },
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:untitled/core/design/theme/lang_controller.dart';
 import 'package:untitled/core/design/theme/theme_controller.dart';
 import 'package:untitled/core/logic/go_route.dart';
+import 'package:untitled/services/notification_services.dart';
 
 import 'core/design/theme/app_theme.dart';
 import 'firebase_options.dart';
@@ -16,6 +17,8 @@ void main() async{
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  await NotificationServices.init();
 
   await GoogleSignIn.instance.initialize(
     serverClientId: '441958759662-5bmcor94ojfnt3ufa5lj12vl96sfunkf.apps.googleusercontent.com',
