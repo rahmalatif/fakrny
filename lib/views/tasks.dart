@@ -41,17 +41,14 @@ class _TasksViewState extends State<TasksView> {
 
           final allTasks = snapshot.data ?? [];
 
-          // Tasks that are completed
           final completedTaskList = allTasks
               .where((task) => task.isCompleted == true)
               .toList();
 
-          // Tasks displayed depending on selected tab
           final tasks = selectedTab == 0 ? allTasks : completedTaskList;
 
           final now = DateTime.now();
 
-          // Only used for ALL tab
           final todayTasks = tasks.where((task) {
             return task.scheduledAt.year == now.year &&
                 task.scheduledAt.month == now.month &&
@@ -80,9 +77,7 @@ class _TasksViewState extends State<TasksView> {
             child: SafeArea(
               child: Column(
                 children: [
-                  // =========================
-                  // Your existing header
-                  // =========================
+
                   Padding(
                     padding: const EdgeInsets.all(18.0),
                     child: Row(
@@ -106,9 +101,6 @@ class _TasksViewState extends State<TasksView> {
                     ),
                   ),
 
-                  // =========================
-                  // Tabs
-                  // =========================
                   Container(
                     width: MediaQuery.of(context).size.width * 0.9,
                     height: MediaQuery.of(context).size.width * 0.1,
@@ -187,9 +179,7 @@ class _TasksViewState extends State<TasksView> {
 
                   const SizedBox(height: 30),
 
-                  // =========================
-                  // Statistics
-                  // =========================
+
                   Padding(
                     padding: const EdgeInsets.only(left: 30.0, right: 30.0),
                     child: Row(
@@ -218,9 +208,6 @@ class _TasksViewState extends State<TasksView> {
 
                   const SizedBox(height: 25),
 
-                  // =====================================================
-                  // DONE TAB
-                  // =====================================================
                   if (selectedTab == 1) ...[
                     if (completedTaskList.isNotEmpty) ...[
                       _sectionTitle(
@@ -251,11 +238,9 @@ class _TasksViewState extends State<TasksView> {
                         ),
                       ),
                   ]
-                  // =====================================================
-                  // ALL TAB
-                  // =====================================================
+
                   else ...[
-                    // TODAY
+
                     if (todayTasks.isNotEmpty) ...[
                       _sectionTitle(
                         context,
@@ -276,7 +261,6 @@ class _TasksViewState extends State<TasksView> {
                       ),
                     ],
 
-                    // TOMORROW
                     if (tomorrowTasks.isNotEmpty) ...[
                       const SizedBox(height: 10),
 
@@ -298,8 +282,6 @@ class _TasksViewState extends State<TasksView> {
                         ),
                       ),
                     ],
-
-                    // LATER
                     if (laterTasks.isNotEmpty) ...[
                       const SizedBox(height: 10),
 
