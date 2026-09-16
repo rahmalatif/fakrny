@@ -6,7 +6,10 @@ import 'package:provider/provider.dart';
 import 'package:untitled/core/design/theme/lang_controller.dart';
 import 'package:untitled/core/design/theme/theme_controller.dart';
 import 'package:untitled/core/logic/go_route.dart';
+import 'package:untitled/provider/task_provider.dart';
+import 'package:untitled/services/auth_services.dart';
 import 'package:untitled/services/notification_services.dart';
+import 'package:untitled/services/task_firestore_service.dart';
 
 import 'core/design/theme/app_theme.dart';
 import 'firebase_options.dart';
@@ -36,7 +39,12 @@ void main() async{
         ChangeNotifierProvider(
           create: (_) => LangController(),
         ),
-
+        ChangeNotifierProvider(
+          create: (_) => TaskProvider(
+            taskFirestoreService: TaskFirestoreService(),
+            authServices: AuthServices(),
+          ),
+        ),
       ],
       child: const MyApp(),
     ),

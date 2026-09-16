@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:untitled/core/design/theme/app_color.dart';
 import 'package:untitled/core/design/widgets/tasks_contanier.dart';
 import 'package:untitled/l10n/app_localizations.dart';
+import 'package:untitled/provider/task_provider.dart';
 
 import '../core/design/widgets/nav_bar.dart';
 import '../model/tasks.dart';
@@ -21,14 +23,9 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   final AuthServices authServices = AuthServices();
   final UserFirestoreService userFirestoreService = UserFirestoreService();
-  final TaskFirestoreService taskFirestoreService = TaskFirestoreService();
 
   UserModel? user;
-
-  List<TaskModel> tasks = [];
-
   bool isUserLoading = true;
-  bool isTasksLoading = true;
 
   Future<void> loadUser() async {
     final currentUser = authServices.currentUser;
@@ -52,44 +49,14 @@ class _HomeViewState extends State<HomeView> {
     });
   }
 
-  Future<void> loadTasks() async {
-    final currentUser = authServices.currentUser;
-
-    if (currentUser == null) {
-      if (mounted) {
-        setState(() {
-          isTasksLoading = false;
-        });
-      }
-      return;
-    }
-
-    try {
-      final userTasks = await taskFirestoreService.getTasks(currentUser.uid);
-
-      if (!mounted) return;
-
-      setState(() {
-        tasks = userTasks;
-        isTasksLoading = false;
-      });
-    } catch (e) {
-      debugPrint('Load Tasks Error: $e');
-
-      if (!mounted) return;
-
-      setState(() {
-        isTasksLoading = false;
-      });
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-
     loadUser();
-    loadTasks();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<TaskProvider>().loadTasks();
+    });
   }
 
   String get firstName {
@@ -144,53 +111,10 @@ class _HomeViewState extends State<HomeView> {
     }
   }
 
-  List<TaskModel> get todayTasks {
-    final now = DateTime.now();
-
-    return tasks.where((task) {
-      return task.scheduledAt.year == now.year &&
-          task.scheduledAt.month == now.month &&
-          task.scheduledAt.day == now.day;
-    }).toList();
-  }
-
-  Future<void> toggleTask(TaskModel task) async {
-    final currentUser = authServices.currentUser;
-
-    if (currentUser == null) return;
-
-    final newValue = !task.isCompleted;
-
-    setState(() {
-      final index = tasks.indexWhere((element) => element.id == task.id);
-
-      if (index != -1) {
-        tasks[index] = TaskModel(
-          id: task.id,
-          title: task.title,
-          description: task.description,
-          scheduledAt: task.scheduledAt,
-          category: task.category,
-          priority: task.priority,
-          color: task.color,
-          isCompleted: newValue,
-          repeat: task.repeat,
-          remindBefore: task.remindBefore,
-          createdAt: task.createdAt,
-          updatedAt: task.updatedAt,
-        );
-      }
-    });
-
-    await taskFirestoreService.updateTask(
-      uid: currentUser.uid,
-      taskId: task.id,
-      data: {'isCompleted': newValue},
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final taskProvider = context.watch<TaskProvider>();
+    final todayTasks = taskProvider.todayTasks;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
@@ -305,7 +229,7 @@ class _HomeViewState extends State<HomeView> {
               ),
 
               Expanded(
-                child: isTasksLoading
+                child: taskProvider.isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : todayTasks.isEmpty
                     ? Center(
@@ -331,15 +255,11 @@ class _HomeViewState extends State<HomeView> {
                           return TasksContanier(
                             title: task.title,
                             category: task.category,
-
                             priority: task.priority,
-
                             color: getTaskColor(task.color),
-
                             isCompleted: task.isCompleted,
-
                             onCheck: () {
-                              toggleTask(task);
+                              context.read<TaskProvider>().toggleTask(task);
                             },
 
                             onTap: () async {
@@ -349,7 +269,7 @@ class _HomeViewState extends State<HomeView> {
                               );
 
                               if (result == true && mounted) {
-                                await loadTasks();
+                                context.read<TaskProvider>().loadTasks();
                               }
                             },
                           );
@@ -365,7 +285,7 @@ class _HomeViewState extends State<HomeView> {
           final result = await context.push('/Reminder');
 
           if (result == true && mounted) {
-            await loadTasks();
+            context.read<TaskProvider>().loadTasks();
           }
         },
 
