@@ -85,21 +85,6 @@ class NotificationServices {
   }) async {
     final scheduledDate = tz.TZDateTime.from(dateTime, tz.local);
 
-    final now = tz.TZDateTime.now(tz.local);
-
-    print('==============================');
-    print('NOTIFICATION ID: $id');
-    print('TASK DATE: $dateTime');
-    print('SCHEDULED DATE: $scheduledDate');
-    print('NOW: $now');
-    print('TIMEZONE: ${tz.local}');
-    print('==============================');
-
-    if (scheduledDate.isBefore(now)) {
-      print('❌ NOTIFICATION TIME IS IN THE PAST');
-      return;
-    }
-
     await notificationsPlugin.zonedSchedule(
       id,
       title,
@@ -117,20 +102,6 @@ class NotificationServices {
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
     );
     final pending = await notificationsPlugin.pendingNotificationRequests();
-
-    print('==============================');
-    print('PENDING NOTIFICATIONS:');
-
-    for (final notification in pending) {
-      print(
-        'ID: ${notification.id} | '
-        'TITLE: ${notification.title}',
-      );
-    }
-
-    print('==============================');
-
-    print('✅ NOTIFICATION SCHEDULED');
   }
 
   Future<void> cancelAllNotifications() async {
