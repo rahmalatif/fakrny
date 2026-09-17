@@ -105,4 +105,9 @@ class NotificationServices {
   Future<void> cancelAllNotifications() async {
     await notificationsPlugin.cancelAll();
   }
+  Future<void> cancelTaskNotification(String taskId) async {
+    final notificationId = notificationIdForTask(taskId);
+
+    await notificationsPlugin.cancel(notificationId);
+  }
 }

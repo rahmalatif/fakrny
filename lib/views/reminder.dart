@@ -1,13 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_randomcolor/flutter_randomcolor.dart';
 import 'package:go_router/go_router.dart';
-import 'package:untitled/l10n/app_localizations.dart';
-import 'package:untitled/services/task_firestore_service.dart';
-import '../core/design/theme/app_color.dart';
-import '../core/design/widgets/form.dart';
+import 'package:provider/provider.dart';
+
 import '../core/design/widgets/snack_bar.dart';
 import '../model/tasks.dart';
+import '../provider/task_provider.dart';
 import '../services/notification_services.dart';
 
 class ReminderView extends StatefulWidget {
@@ -22,27 +20,29 @@ class ReminderView extends StatefulWidget {
 class _ReminderViewState extends State<ReminderView> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
+
   final TextEditingController _titleController = TextEditingController();
+
   String selectedCategory = 'study';
   String selectedPriority = 'high';
+
   int reminderBefore = 30;
-  final TaskFirestoreService taskFirestoreService = TaskFirestoreService();
+
   bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
 
-    final task = widget.task;
-    if (task != null) {
-      _titleController.text = task.title;
+    if (widget.task != null) {
+      final task = widget.task!;
 
+      _titleController.text = task.title;
       selectedDate = task.scheduledAt;
       selectedTime = TimeOfDay.fromDateTime(task.scheduledAt);
 
       selectedCategory = task.category;
       selectedPriority = task.priority;
-
       reminderBefore = task.remindBefore;
     }
   }
@@ -53,17 +53,36 @@ class _ReminderViewState extends State<ReminderView> {
     super.dispose();
   }
 
-  Future<void> saveReminder() async {
-    final user = FirebaseAuth.instance.currentUser;
+  Future<void> selectDate() async {
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: selectedDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
 
-    if (user == null) {
-      SnackBarHelper.show(
-        context,
-        message: 'Please Login first',
-        type: SnackBarType.error,
-      );
-      return;
+    if (pickedDate != null) {
+      setState(() {
+        selectedDate = pickedDate;
+      });
     }
+  }
+
+  Future<void> selectTime() async {
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: selectedTime ?? TimeOfDay.now(),
+    );
+
+    if (pickedTime != null) {
+      setState(() {
+        selectedTime = pickedTime;
+      });
+    }
+  }
+
+  Future<void> saveReminder() async {
+
     if (selectedDate == null || selectedTime == null) {
       SnackBarHelper.show(
         context,
@@ -76,15 +95,6 @@ class _ReminderViewState extends State<ReminderView> {
       SnackBarHelper.show(
         context,
         message: 'Please enter a task title',
-        type: SnackBarType.warning,
-      );
-      return;
-    }
-
-    if (selectedDate == null || selectedTime == null) {
-      SnackBarHelper.show(
-        context,
-        message: 'Please enter a Date and Time',
         type: SnackBarType.warning,
       );
       return;
@@ -103,6 +113,8 @@ class _ReminderViewState extends State<ReminderView> {
         isLoading = true;
       });
 
+      final taskProvider = context.read<TaskProvider>();
+
       if (widget.task == null) {
         final task = TaskModel(
           id: '',
@@ -117,39 +129,14 @@ class _ReminderViewState extends State<ReminderView> {
           remindBefore: reminderBefore,
         );
 
-        final taskId = await taskFirestoreService.addTask(
-          uid: user.uid,
-          task: task,
-        );
+        final taskWithId = await taskProvider.addTask(task);
 
-        final taskWithId = TaskModel(
-          id: taskId,
-          title: task.title,
-          description: task.description,
-          scheduledAt: task.scheduledAt,
-          category: task.category,
-          priority: task.priority,
-          color: task.color,
-          isCompleted: task.isCompleted,
-          repeat: task.repeat,
-          remindBefore: task.remindBefore,
-          createdAt: task.createdAt,
-          updatedAt: task.updatedAt,
-        );
+        if (taskWithId == null) {
+          throw Exception(taskProvider.error ?? 'Failed to create task');
+        }
 
         await NotificationServices().scheduleTaskNotification(taskWithId);
       } else {
-        await taskFirestoreService.updateTask(
-          uid: user.uid,
-          taskId: widget.task!.id,
-          data: {
-            'title': _titleController.text.trim(),
-            'scheduledAt': scheduledAt,
-            'category': selectedCategory,
-            'priority': selectedPriority,
-            'remindBefore': reminderBefore,
-          },
-        );
         await NotificationServices().cancelAllNotifications();
 
         final updatedTask = TaskModel(
@@ -167,13 +154,24 @@ class _ReminderViewState extends State<ReminderView> {
           updatedAt: DateTime.now(),
         );
 
+        final success = await taskProvider.updateTask(updatedTask);
+
+        if (!success) {
+          throw Exception(taskProvider.error ?? 'Failed to update task');
+        }
+
+        await NotificationServices().cancelAllNotifications();
+
         await NotificationServices().scheduleTaskNotification(updatedTask);
       }
+
+      if (!mounted) return;
+
       SnackBarHelper.show(
         context,
         message: widget.task == null
-            ? 'Reminder created successfully'
-            : 'Reminder updated successfully',
+            ? 'Task added successfully'
+            : 'Task updated successfully',
         type: SnackBarType.success,
       );
 
@@ -181,9 +179,11 @@ class _ReminderViewState extends State<ReminderView> {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(
+      SnackBarHelper.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Failed to save reminder: $e')));
+        message: 'Something went wrong: $e',
+        type: SnackBarType.error,
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -194,627 +194,196 @@ class _ReminderViewState extends State<ReminderView> {
   }
 
   void _closeAfterSave() {
-    if (!mounted) return;
-
-    if (context.canPop()) {
-      context.pop(true);
-    } else {
-      context.go('/Home');
-    }
-  }
-
-  Future<void> _selectDate() async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: selectedDate ?? DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2100),
-    );
-
-    if (pickedDate != null) {
-      setState(() {
-        selectedDate = pickedDate;
-      });
-    }
-  }
-
-  Future<void> _selectTime() async {
-    final TimeOfDay? pickedTime = await showTimePicker(
-      context: context,
-      initialTime: selectedTime ?? TimeOfDay.now(),
-      builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
-          child: child!,
-        );
-      },
-    );
-
-    if (pickedTime != null) {
-      setState(() {
-        selectedTime = pickedTime;
-      });
-    }
-  }
-
-  String _getDateText() {
-    if (selectedDate == null) {
-      return AppLocalizations.of(context)!.chooseDate;
-    }
-
-    return '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}';
-  }
-
-  String _getTimeText() {
-    if (selectedTime == null) {
-      return AppLocalizations.of(context)!.chooseTime;
-    }
-
-    return selectedTime!.format(context);
+    context.pop(true);
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
-      backgroundColor: isDark ? AppColor.darkBackground : AppColor.background,
-
+      appBar: AppBar(
+        title: Text(widget.task == null ? 'Add Reminder' : 'Edit Reminder'),
+      ),
       body: SingleChildScrollView(
-        child: SafeArea(
-          child: Center(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 18.0),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          if (widget.task == null) {
-                            context.go('/Home');
-                          } else {
-                            context.pop();
-                          }
-                        },
-                        icon: Icon(
-                          Icons.arrow_back,
-                          color: isDark
-                              ? AppColor.textWhite
-                              : AppColor.textPrimary,
-                        ),
-                      ),
-
-                      const Spacer(),
-
-                      Text(
-                        AppLocalizations.of(context)!.createReminder,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: isDark
-                              ? AppColor.textWhite
-                              : AppColor.textPrimary,
-                        ),
-                      ),
-
-                      const Spacer(),
-
-                      const SizedBox(width: 48),
-                    ],
-                  ),
-                ),
-
-                Text(
-                  AppLocalizations.of(context)!.createReminderSub,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w300,
-                    fontSize: 12,
-                    color: isDark ? AppColor.textHint : AppColor.textSecondary,
-                  ),
-                ),
-
-                const SizedBox(height: 15),
-
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * .9,
-                  child: AppTextField(
-                    hintText: AppLocalizations.of(context)!.titleHint,
-                    keyboardType: TextInputType.text,
-                    prefixIcon: Icon(
-                      Icons.file_copy_outlined,
-                      color: isDark
-                          ? AppColor.textHint
-                          : AppColor.textSecondary,
-                    ),
-                    title: AppLocalizations.of(context)!.title,
-                    controller: _titleController,
-                  ),
-                ),
-
-                const SizedBox(height: 15),
-
-                _container(
-                  value: _getDateText(),
-                  title: AppLocalizations.of(context)!.date,
-                  icon: Icon(
-                    Icons.date_range,
-                    color: isDark ? AppColor.textHint : AppColor.textSecondary,
-                  ),
-                  onTap: _selectDate,
-                  height: 50,
-                ),
-
-                const SizedBox(height: 20),
-
-                _container(
-                  value: _getTimeText(),
-                  title: AppLocalizations.of(context)!.time,
-                  icon: Icon(
-                    Icons.access_time,
-                    color: isDark ? AppColor.textHint : AppColor.textSecondary,
-                  ),
-                  onTap: _selectTime,
-                  height: 50,
-                ),
-
-                const SizedBox(height: 10),
-
-                _categorycontainer(),
-
-                const SizedBox(height: 10),
-
-                _remindBeforeSection(),
-
-                const SizedBox(height: 10),
-
-                _prioritySection(),
-
-                SizedBox(height: 120),
-
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * .9,
-                  height: 54,
-                  child: ElevatedButton(
-                    onPressed: isLoading ? null : saveReminder,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColor.primary,
-                      foregroundColor: AppColor.textWhite,
-                      elevation: 3,
-                      shadowColor: AppColor.primary.withOpacity(.3),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    child: isLoading
-                        ? const SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: AppColor.textWhite,
-                            ),
-                          )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.notifications_none, size: 20),
-                              const SizedBox(width: 8),
-                              Text(
-                                AppLocalizations.of(context)!.saveReminder,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _container({
-    required String value,
-    required String title,
-    required Icon icon,
-    required VoidCallback onTap,
-    required double height,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: height,
-        width: MediaQuery.of(context).size.width * .9,
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        decoration: BoxDecoration(
-          color: isDark ? AppColor.darkSurface : AppColor.surface,
-
-          borderRadius: BorderRadius.circular(10),
-
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.20 : 0.05),
-              blurRadius: 8,
-              spreadRadius: 1,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-
-        child: Row(
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: isDark ? AppColor.textHint : AppColor.textSecondary,
-                    fontSize: 10,
-                  ),
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  value,
-                  style: TextStyle(
-                    color: isDark ? AppColor.textWhite : AppColor.textPrimary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
-              ],
-            ),
-
-            const Spacer(),
-
-            IconButton(onPressed: onTap, icon: icon),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _categorycontainer() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25),
-          child: Row(
-            children: [
-              Text(
-                AppLocalizations.of(context)!.category,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                  color: isDark ? AppColor.textWhite : AppColor.textPrimary,
-                ),
-              ),
-
-              const Spacer(),
-
-              Text(
-                AppLocalizations.of(context)!.chooseCategory,
-                style: TextStyle(
-                  color: isDark ? AppColor.textHint : AppColor.textSecondary,
-                  fontSize: 11,
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 8),
-
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _categoryItem(
-              value: 'study',
-              title: AppLocalizations.of(context)!.study,
-              icon: Icons.school_outlined,
-            ),
-
-            const SizedBox(width: 8),
-
-            _categoryItem(
-              value: 'work',
-              title: AppLocalizations.of(context)!.work,
-              icon: Icons.work_outline,
-            ),
-
-            const SizedBox(width: 8),
-
-            _categoryItem(
-              value: 'health',
-              title: AppLocalizations.of(context)!.health,
-              icon: Icons.favorite_border,
-            ),
-
-            const SizedBox(width: 8),
-
-            _categoryItem(
-              value: 'other',
-              title: AppLocalizations.of(context)!.other,
-              icon: Icons.more_horiz,
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _categoryItem({
-    required String value,
-    required String title,
-    required IconData icon,
-  }) {
-    final bool isSelected = selectedCategory == value;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedCategory = value;
-        });
-      },
-      child: Container(
-        width: 68,
-        height: 60,
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppColor.primary.withOpacity(.08)
-              : isDark
-              ? AppColor.darkSurface
-              : AppColor.surface,
-
-          borderRadius: BorderRadius.circular(12),
-
-          border: Border.all(
-            color: isSelected
-                ? AppColor.primary.withOpacity(.3)
-                : isDark
-                ? AppColor.darkCard.withOpacity(.4)
-                : AppColor.border.withOpacity(.5),
-          ),
-        ),
-
+        padding: const EdgeInsets.all(20),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(
-              icon,
-              size: 20,
-              color: isSelected
-                  ? AppColor.primary
-                  : isDark
-                  ? AppColor.textHint
-                  : AppColor.textSecondary,
+            const Text(
+              'Task Title',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _titleController,
+              decoration: InputDecoration(
+                hintText: 'Enter task title',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Date',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            InkWell(
+              onTap: selectDate,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border.all(),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.calendar_today),
+                    const SizedBox(width: 12),
+                    Text(
+                      selectedDate == null
+                          ? 'Select date'
+                          : '${selectedDate!.day}/'
+                                '${selectedDate!.month}/'
+                                '${selectedDate!.year}',
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Time',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            InkWell(
+              onTap: selectTime,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border.all(),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.access_time),
+                    const SizedBox(width: 12),
+                    Text(
+                      selectedTime == null
+                          ? 'Select time'
+                          : selectedTime!.format(context),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Category',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              value: selectedCategory,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              items: const [
+                DropdownMenuItem(value: 'study', child: Text('Study')),
+                DropdownMenuItem(value: 'work', child: Text('Work')),
+                DropdownMenuItem(value: 'personal', child: Text('Personal')),
+                DropdownMenuItem(value: 'health', child: Text('Health')),
+              ],
+              onChanged: (value) {
+                if (value == null) return;
 
-            const SizedBox(height: 4),
+                setState(() {
+                  selectedCategory = value;
+                });
+              },
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Priority',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              value: selectedPriority,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              items: const [
+                DropdownMenuItem(value: 'low', child: Text('Low')),
+                DropdownMenuItem(value: 'medium', child: Text('Medium')),
+                DropdownMenuItem(value: 'high', child: Text('High')),
+              ],
+              onChanged: (value) {
+                if (value == null) return;
 
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected
-                    ? AppColor.primary
-                    : isDark
-                    ? AppColor.textHint
-                    : AppColor.textSecondary,
+                setState(() {
+                  selectedPriority = value;
+                });
+              },
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Remind me before',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<int>(
+              value: reminderBefore,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              items: const [
+                DropdownMenuItem(value: 0, child: Text('At time of task')),
+                DropdownMenuItem(value: 5, child: Text('5 minutes before')),
+                DropdownMenuItem(value: 10, child: Text('10 minutes before')),
+                DropdownMenuItem(value: 15, child: Text('15 minutes before')),
+                DropdownMenuItem(value: 30, child: Text('30 minutes before')),
+                DropdownMenuItem(value: 60, child: Text('1 hour before')),
+              ],
+              onChanged: (value) {
+                if (value == null) return;
+
+                setState(() {
+                  reminderBefore = value;
+                });
+              },
+            ),
+            const SizedBox(height: 40),
+            SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton(
+                onPressed: isLoading ? null : saveReminder,
+                child: isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(
+                        widget.task == null
+                            ? 'Add Reminder'
+                            : 'Update Reminder',
+                      ),
               ),
             ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _prioritySection() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25),
-          child: Text(
-            AppLocalizations.of(context)!.priority,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-              color: isDark ? AppColor.textWhite : AppColor.textPrimary,
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 8),
-
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _priorityItem(
-              value: 'high',
-              title: AppLocalizations.of(context)!.high,
-              iconColor: AppColor.error,
-            ),
-
-            const SizedBox(width: 8),
-
-            _priorityItem(
-              value: 'medium',
-              title: AppLocalizations.of(context)!.medium,
-              iconColor: AppColor.warning,
-            ),
-
-            const SizedBox(width: 8),
-
-            _priorityItem(
-              value: 'low',
-              title: AppLocalizations.of(context)!.low,
-              iconColor: AppColor.success,
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _priorityItem({
-    required String value,
-    required String title,
-    required Color iconColor,
-  }) {
-    final bool isSelected = selectedPriority == value;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedPriority = value;
-        });
-      },
-      child: Container(
-        width: 92,
-        height: 38,
-        decoration: BoxDecoration(
-          color: isSelected
-              ? iconColor.withOpacity(.06)
-              : isDark
-              ? AppColor.darkSurface
-              : AppColor.surface,
-
-          borderRadius: BorderRadius.circular(10),
-
-          border: Border.all(
-            color: isSelected
-                ? iconColor.withOpacity(.25)
-                : isDark
-                ? AppColor.darkCard.withOpacity(.4)
-                : AppColor.border.withOpacity(.5),
-          ),
-        ),
-
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 10,
-                color: isSelected
-                    ? iconColor
-                    : isDark
-                    ? AppColor.textHint
-                    : AppColor.textSecondary,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-
-            const SizedBox(width: 8),
-
-            Icon(Icons.flag_outlined, size: 16, color: iconColor),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _remindBeforeSection() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    final options = [
-      {'value': 0, 'title': 'At time of task'},
-      {'value': 5, 'title': '5 minutes before'},
-      {'value': 10, 'title': '10 minutes before'},
-      {'value': 15, 'title': '15 minutes before'},
-      {'value': 30, 'title': '30 minutes before'},
-      {'value': 60, 'title': '1 hour before'},
-      {'value': 1440, 'title': '1 day before'},
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25),
-          child: Text(
-            'Remind me',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-              color: isDark ? AppColor.textWhite : AppColor.textPrimary,
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 8),
-
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25),
-          child: Container(
-            width: double.infinity,
-            height: 52,
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            decoration: BoxDecoration(
-              color: isDark ? AppColor.darkSurface : AppColor.surface,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: isDark
-                    ? AppColor.darkCard.withOpacity(.4)
-                    : AppColor.border.withOpacity(.5),
-              ),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<int>(
-                value:
-                    options.any((option) => option['value'] == reminderBefore)
-                    ? reminderBefore
-                    : 30,
-                isExpanded: true,
-                icon: Icon(
-                  Icons.keyboard_arrow_down,
-                  color: isDark ? AppColor.textHint : AppColor.textSecondary,
-                ),
-                dropdownColor: isDark ? AppColor.darkSurface : AppColor.surface,
-                style: TextStyle(
-                  color: isDark ? AppColor.textWhite : AppColor.textPrimary,
-                  fontSize: 14,
-                ),
-                items: options.map((option) {
-                  return DropdownMenuItem<int>(
-                    value: option['value'] as int,
-                    child: Text(option['title'] as String),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  if (value == null) return;
-
-                  setState(() {
-                    reminderBefore = value;
-                  });
-                },
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
