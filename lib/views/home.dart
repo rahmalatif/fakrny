@@ -5,13 +5,11 @@ import 'package:untitled/core/design/theme/app_color.dart';
 import 'package:untitled/core/design/widgets/tasks_contanier.dart';
 import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/provider/task_provider.dart';
-
 import '../core/design/widgets/nav_bar.dart';
 import '../model/tasks.dart';
 import '../model/user_model.dart';
 import '../services/auth_services.dart';
 import '../services/user_firestore_service.dart';
-import '../services/task_firestore_service.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});

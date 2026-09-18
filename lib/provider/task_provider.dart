@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../model/tasks.dart';
+import '../services/notification_services.dart';
 import '../services/task_firestore_service.dart';
 import '../services/auth_services.dart';
 
@@ -47,6 +48,7 @@ class TaskProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
   Future<TaskModel?> addTask(TaskModel task) async {
     final currentUser = authServices.currentUser;
 
@@ -83,9 +85,7 @@ class TaskProvider extends ChangeNotifier {
 
       _tasks.add(newTask);
 
-      _tasks.sort(
-            (a, b) => a.scheduledAt.compareTo(b.scheduledAt),
-      );
+      _tasks.sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
 
       return newTask;
     } catch (e) {
@@ -96,7 +96,6 @@ class TaskProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-
 
   Future<void> toggleTask(TaskModel task) async {
     final currentUser = authServices.currentUser;
@@ -109,7 +108,7 @@ class TaskProvider extends ChangeNotifier {
 
     if (index == -1) return;
 
-    _tasks[index] = TaskModel(
+    final updatedTask = TaskModel(
       id: task.id,
       title: task.title,
       description: task.description,
@@ -121,17 +120,36 @@ class TaskProvider extends ChangeNotifier {
       repeat: task.repeat,
       remindBefore: task.remindBefore,
       createdAt: task.createdAt,
-      updatedAt: task.updatedAt,
+      updatedAt: DateTime.now(),
     );
+
+    _tasks[index] = updatedTask;
 
     notifyListeners();
 
-    await taskFirestoreService.updateTask(
-      uid: currentUser.uid,
-      taskId: task.id,
-      data: {'isCompleted': newValue},
-    );
+    try {
+      await taskFirestoreService.updateTask(
+        uid: currentUser.uid,
+        taskId: task.id,
+        data: {'isCompleted': newValue},
+      );
+
+      final notificationServices = NotificationServices();
+
+      if (newValue) {
+        await notificationServices.cancelTaskNotification(task.id);
+      } else {
+        await notificationServices.scheduleTaskNotification(updatedTask);
+      }
+    } catch (e) {
+      _tasks[index] = task;
+
+      _error = e.toString();
+
+      notifyListeners();
+    }
   }
+
   List<TaskModel> get todayTasks {
     final now = DateTime.now();
 
@@ -141,6 +159,7 @@ class TaskProvider extends ChangeNotifier {
           task.scheduledAt.day == now.day;
     }).toList();
   }
+
   Future<bool> updateTask(TaskModel task) async {
     final currentUser = authServices.currentUser;
 
@@ -171,16 +190,12 @@ class TaskProvider extends ChangeNotifier {
         },
       );
 
-      final index = _tasks.indexWhere(
-            (element) => element.id == task.id,
-      );
+      final index = _tasks.indexWhere((element) => element.id == task.id);
 
       if (index != -1) {
         _tasks[index] = task;
 
-        _tasks.sort(
-              (a, b) => a.scheduledAt.compareTo(b.scheduledAt),
-        );
+        _tasks.sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
       }
 
       return true;
@@ -192,6 +207,7 @@ class TaskProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
   Future<bool> deleteTask(String taskId) async {
     final currentUser = authServices.currentUser;
 
@@ -211,10 +227,8 @@ class TaskProvider extends ChangeNotifier {
         taskId: taskId,
       );
 
-      _tasks.removeWhere(
-            (task) => task.id == taskId,
-      );
-
+      _tasks.removeWhere((task) => task.id == taskId);
+      await NotificationServices().cancelTaskNotification(taskId);
       return true;
     } catch (e) {
       _error = e.toString();

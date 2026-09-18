@@ -271,6 +271,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get backToLogin => 'العودة لتسجيل الدخول';
 
   @override
+  String get noCompletedTasks => 'لا توجد مهام مكتملة';
+
+  @override
+  String get noTasks => 'لا توجد مهام';
+
+  @override
+  String get errorUpdatingTask => 'حدث خطأ أثناء تحديث المهمة';
+
+  @override
+  String get tomorrow => 'غداً';
+
+  @override
+  String get upcomingTasks => 'مهام قادمة';
+
+  @override
   String get appSlogan => 'انسى... وإحنا نفكرك';
 
   @override

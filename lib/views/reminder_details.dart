@@ -75,6 +75,14 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
     });
   }
 
+  void _closeAfterSave() {
+    if (context.canPop()) {
+      context.pop(true);
+    } else {
+      context.go('/Home');
+    }
+  }
+
   String formatTime(DateTime dateTime) {
     final hour = dateTime.hour % 12 == 0 ? 12 : dateTime.hour % 12;
 
@@ -141,7 +149,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
         type: SnackBarType.success,
       );
 
-      context.pop(true);
+      _closeAfterSave();
     } catch (e) {
       if (!mounted) return;
 

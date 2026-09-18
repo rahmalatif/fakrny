@@ -10,35 +10,27 @@ import 'package:untitled/provider/task_provider.dart';
 import 'package:untitled/services/auth_services.dart';
 import 'package:untitled/services/notification_services.dart';
 import 'package:untitled/services/task_firestore_service.dart';
-
 import 'core/design/theme/app_theme.dart';
 import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await NotificationServices.init();
 
   await GoogleSignIn.instance.initialize(
-    serverClientId: '441958759662-5bmcor94ojfnt3ufa5lj12vl96sfunkf.apps.googleusercontent.com',
-  );
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+    serverClientId:
+        '441958759662-5bmcor94ojfnt3ufa5lj12vl96sfunkf.apps.googleusercontent.com',
   );
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => ThemeController(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => LangController(),
-        ),
+        ChangeNotifierProvider(create: (_) => ThemeController()),
+        ChangeNotifierProvider(create: (_) => LangController()),
         ChangeNotifierProvider(
           create: (_) => TaskProvider(
             taskFirestoreService: TaskFirestoreService(),
@@ -65,9 +57,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
 
-      themeMode: themeController.isDark
-          ? ThemeMode.dark
-          : ThemeMode.light,
+      themeMode: themeController.isDark ? ThemeMode.dark : ThemeMode.light,
 
       locale: localeController.locale,
 
@@ -78,10 +68,7 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
 
-      supportedLocales: const [
-        Locale('en'),
-        Locale('ar'),
-      ],
+      supportedLocales: const [Locale('en'), Locale('ar')],
 
       routerConfig: appRouter,
     );

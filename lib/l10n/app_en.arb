@@ -85,6 +85,11 @@
       "forgetPasswordSub": "Enter your email and we will send you a link to reset your password.",
       "sendResetLink": "Send Reset Link",
       "backToLogin": "Back to Login",
+      "noCompletedTasks": "No completed tasks",
+      "noTasks": "No tasks",
+      "errorUpdatingTask": "An error occurred while updating the task",
+      "tomorrow": "Tomorrow",
+      "upcomingTasks": "Upcoming Tasks",
   "appSlogan": "Forget it... We'll remember it for you.",
      "todayTasksNum": "You have {count} tasks today",
      "@todayTasksNum": {

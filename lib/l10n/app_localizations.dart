@@ -614,6 +614,36 @@ abstract class AppLocalizations {
   /// **'Back to Login'**
   String get backToLogin;
 
+  /// No description provided for @noCompletedTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'No completed tasks'**
+  String get noCompletedTasks;
+
+  /// No description provided for @noTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks'**
+  String get noTasks;
+
+  /// No description provided for @errorUpdatingTask.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred while updating the task'**
+  String get errorUpdatingTask;
+
+  /// No description provided for @tomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get tomorrow;
+
+  /// No description provided for @upcomingTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming Tasks'**
+  String get upcomingTasks;
+
   /// No description provided for @appSlogan.
   ///
   /// In en, this message translates to:

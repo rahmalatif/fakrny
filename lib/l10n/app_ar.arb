@@ -87,6 +87,11 @@
     "completedTasks": "مكتملة",
     "pendingTasks": "معلقة",
     "todayTasksNum": "لديك {count} مهام اليوم",
+    "noCompletedTasks": "لا توجد مهام مكتملة",
+    "noTasks": "لا توجد مهام",
+    "errorUpdatingTask": "حدث خطأ أثناء تحديث المهمة",
+    "tomorrow": "غداً",
+    "upcomingTasks": "مهام قادمة",
     "@todayTasksNum": {
       "placeholders": {
         "count": {}

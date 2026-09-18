@@ -1,12 +1,19 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
 import 'package:untitled/core/design/theme/lang_controller.dart';
+import 'package:untitled/core/design/theme/theme_controller.dart';
 import 'package:untitled/l10n/app_localizations.dart';
 
 import '../core/design/theme/app_color.dart';
-import '../core/design/theme/theme_controller.dart';
 import '../core/design/widgets/nav_bar.dart';
+import '../core/design/widgets/snack_bar.dart';
+import '../model/user_model.dart';
+import '../provider/task_provider.dart';
+import '../services/auth_services.dart';
+import '../services/user_firestore_service.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -16,32 +23,249 @@ class ProfileView extends StatefulWidget {
 }
 
 class _ProfileViewState extends State<ProfileView> {
+  final AuthServices authServices = AuthServices();
+  final UserFirestoreService userFirestoreService =
+  UserFirestoreService();
+
+  UserModel? user;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _loadProfile();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<TaskProvider>().loadTasks();
+    });
+  }
+
+  Future<void> _loadProfile() async {
+    final currentUser = authServices.currentUser;
+
+    if (currentUser == null) {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+      return;
+    }
+
+    try {
+      final userData =
+      await userFirestoreService.getUser(currentUser.uid);
+
+      if (!mounted) return;
+
+      setState(() {
+        user = userData;
+        isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   String getInitials(String name) {
     if (name.trim().isEmpty) {
-      return "";
+      return '';
     }
 
-    List<String> parts = name.trim().split(" ");
+    final parts =
+    name.trim().split(RegExp(r'\s+'));
 
     if (parts.length == 1) {
-      return parts[0].substring(0, parts[0].length >= 2 ? 2 : 1).toUpperCase();
+      return parts[0]
+          .substring(0, parts[0].length >= 2 ? 2 : 1)
+          .toUpperCase();
     }
 
-    return "${parts[0][0]}${parts[1][0]}".toUpperCase();
+    return '${parts[0][0]}${parts[1][0]}'
+        .toUpperCase();
+  }
+
+  int get completedTasks {
+    final taskProvider = context.read<TaskProvider>();
+
+    return taskProvider.tasks
+        .where((task) => task.isCompleted)
+        .length;
+  }
+
+  int get totalTasks {
+    final taskProvider = context.read<TaskProvider>();
+
+    return taskProvider.tasks.length;
+  }
+
+  int get progressPercentage {
+    if (totalTasks == 0) {
+      return 0;
+    }
+
+    return ((completedTasks / totalTasks) * 100)
+        .round();
+  }
+
+  int get streak {
+    final taskProvider = context.read<TaskProvider>();
+
+    final completedDays = <DateTime>{};
+
+    for (final task in taskProvider.tasks) {
+      if (!task.isCompleted) continue;
+
+      final date = DateTime(
+        task.scheduledAt.year,
+        task.scheduledAt.month,
+        task.scheduledAt.day,
+      );
+
+      completedDays.add(date);
+    }
+
+    if (completedDays.isEmpty) {
+      return 0;
+    }
+
+    final sortedDays = completedDays.toList()
+      ..sort((a, b) => b.compareTo(a));
+
+    int currentStreak = 0;
+
+    DateTime expectedDay = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
+
+    for (final day in sortedDays) {
+      if (day == expectedDay) {
+        currentStreak++;
+        expectedDay =
+            expectedDay.subtract(const Duration(days: 1));
+      } else if (day.isBefore(expectedDay)) {
+        break;
+      }
+    }
+
+    return currentStreak;
+  }
+
+  Future<void> _logout() async {
+    final localizations =
+    AppLocalizations.of(context)!;
+
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        final isDark =
+            Theme.of(dialogContext).brightness ==
+                Brightness.dark;
+
+        return AlertDialog(
+          backgroundColor: isDark
+              ? AppColor.darkSurface
+              : AppColor.surface,
+          title: Text(
+            localizations.logout,
+            style: TextStyle(
+              color: isDark
+                  ? AppColor.textWhite
+                  : AppColor.textPrimary,
+            ),
+          ),
+          content: Text(
+            localizations.logout,
+            style: TextStyle(
+              color: isDark
+                  ? AppColor.textHint
+                  : AppColor.textSecondary,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: Text(
+                localizations.cancel,
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+              child: Text(
+                localizations.logout,
+                style: const TextStyle(
+                  color: AppColor.error,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldLogout != true) {
+      return;
+    }
+
+    try {
+      await FirebaseAuth.instance.signOut();
+
+      if (!mounted) return;
+
+      context.go('/Login');
+    } catch (e) {
+      if (!mounted) return;
+
+      SnackBarHelper.show(
+        context,
+        message: e.toString(),
+        type: SnackBarType.error,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations =
+    AppLocalizations.of(context)!;
 
-    final themeController = context.watch<ThemeController>();
-    final localeController = context.watch<LangController>();
+    final themeController =
+    context.watch<ThemeController>();
+
+    final localeController =
+    context.watch<LangController>();
+
+    final taskProvider =
+    context.watch<TaskProvider>();
 
     final isDark = themeController.isDark;
-    final isArabic = localeController.locale.languageCode == 'ar';
+
+    final isArabic =
+        localeController.locale.languageCode == 'ar';
+
+    final displayName =
+    user?.name.trim().isNotEmpty == true
+        ? user!.name
+        : 'User';
+
+    final displayEmail =
+        user?.email ?? '';
 
     return Scaffold(
-      backgroundColor: isDark ? AppColor.darkBackground : AppColor.background,
+      backgroundColor: isDark
+          ? AppColor.darkBackground
+          : AppColor.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(18.0),
@@ -53,7 +277,9 @@ class _ProfileViewState extends State<ProfileView> {
                   style: TextStyle(
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? AppColor.textWhite : AppColor.textPrimary,
+                    color: isDark
+                        ? AppColor.textWhite
+                        : AppColor.textPrimary,
                   ),
                 ),
               ),
@@ -66,11 +292,17 @@ class _ProfileViewState extends State<ProfileView> {
                   height: 80,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isDark ? AppColor.darkSurface : AppColor.surface,
-                    border: Border.all(color: AppColor.Grad1, width: 2),
+                    color: isDark
+                        ? AppColor.darkSurface
+                        : AppColor.surface,
+                    border: Border.all(
+                      color: AppColor.Grad1,
+                      width: 2,
+                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColor.Grad1.withOpacity(0.18),
+                        color: AppColor.Grad1
+                            .withOpacity(0.18),
                         blurRadius: 10,
                         spreadRadius: 2,
                         offset: const Offset(0, 3),
@@ -78,8 +310,18 @@ class _ProfileViewState extends State<ProfileView> {
                     ],
                   ),
                   child: Center(
-                    child: Text(
-                      getInitials("Rahma Ahmed"),
+                    child: isLoading
+                        ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child:
+                      CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColor.Grad1,
+                      ),
+                    )
+                        : Text(
+                      getInitials(displayName),
                       style: const TextStyle(
                         color: AppColor.Grad1,
                         fontSize: 21,
@@ -94,39 +336,60 @@ class _ProfileViewState extends State<ProfileView> {
 
               Center(
                 child: Text(
-                  localizations.userName,
+                  displayName,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
-                    color: isDark ? AppColor.textWhite : AppColor.textPrimary,
+                    color: isDark
+                        ? AppColor.textWhite
+                        : AppColor.textPrimary,
                   ),
                 ),
               ),
 
-              const SizedBox(height: 5),
+              const SizedBox(height: 4),
+
+              if (displayEmail.isNotEmpty)
+                Center(
+                  child: Text(
+                    displayEmail,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isDark
+                          ? AppColor.textHint
+                          : AppColor.textSecondary,
+                    ),
+                  ),
+                ),
+
+              const SizedBox(height: 10),
 
               Row(
                 children: [
                   Expanded(
                     child: profileContainer(
                       context: context,
-                      value: "15",
+                      value: '$streak',
                       title: localizations.streak,
                     ),
                   ),
+
                   const SizedBox(width: 10),
+
                   Expanded(
                     child: profileContainer(
                       context: context,
-                      value: "89%",
+                      value: '$progressPercentage%',
                       title: localizations.progress,
                     ),
                   ),
+
                   const SizedBox(width: 10),
+
                   Expanded(
                     child: profileContainer(
                       context: context,
-                      value: "127",
+                      value: '${taskProvider.tasks.length}',
                       title: localizations.task,
                     ),
                   ),
@@ -142,7 +405,9 @@ class _ProfileViewState extends State<ProfileView> {
                 child: Text(
                   localizations.settings,
                   style: TextStyle(
-                    color: isDark ? AppColor.textWhite : AppColor.textPrimary,
+                    color: isDark
+                        ? AppColor.textWhite
+                        : AppColor.textPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -180,9 +445,13 @@ class _ProfileViewState extends State<ProfileView> {
                 title: localizations.lang,
                 icon: Icons.language,
                 trailing: Text(
-                  isArabic ? 'العربية' : 'English',
+                  isArabic
+                      ? 'العربية'
+                      : 'English',
                   style: TextStyle(
-                    color: isDark ? AppColor.textHint : AppColor.textSecondary,
+                    color: isDark
+                        ? AppColor.textHint
+                        : AppColor.textSecondary,
                     fontSize: 12,
                   ),
                 ),
@@ -195,16 +464,16 @@ class _ProfileViewState extends State<ProfileView> {
                 context: context,
                 title: localizations.logout,
                 icon: Icons.logout,
-                trailing: IconButton(
-                  onPressed: () {
-                    context.go('/Login');
-                  },
-                  icon: Icon(
-                    Icons.arrow_forward_ios,
-                    size: 14,
-                    color: isDark ? AppColor.textHint : AppColor.textSecondary,
-                  ),
+                trailing: Icon(
+                  isArabic
+                      ? Icons.arrow_back_ios
+                      : Icons.arrow_forward_ios,
+                  size: 14,
+                  color: isDark
+                      ? AppColor.textHint
+                      : AppColor.textSecondary,
                 ),
+                onTap: _logout,
               ),
 
               const SizedBox(height: 10),
@@ -212,7 +481,8 @@ class _ProfileViewState extends State<ProfileView> {
           ),
         ),
       ),
-      bottomNavigationBar: const CustomNavBar(currentIndex: 3),
+      bottomNavigationBar:
+      const CustomNavBar(currentIndex: 3),
     );
   }
 }
@@ -222,12 +492,16 @@ Widget profileContainer({
   required String value,
   required String title,
 }) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
+  final isDark =
+      Theme.of(context).brightness ==
+          Brightness.dark;
 
   return Container(
     height: 80,
     decoration: BoxDecoration(
-      color: isDark ? AppColor.darkCard : AppColor.surface,
+      color: isDark
+          ? AppColor.darkCard
+          : AppColor.surface,
       borderRadius: BorderRadius.circular(10),
       boxShadow: [
         BoxShadow(
@@ -241,12 +515,15 @@ Widget profileContainer({
       ],
     ),
     child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment:
+      MainAxisAlignment.center,
       children: [
         Text(
           value,
           style: TextStyle(
-            color: isDark ? AppColor.textWhite : AppColor.textPrimary,
+            color: isDark
+                ? AppColor.textWhite
+                : AppColor.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 17,
           ),
@@ -256,7 +533,9 @@ Widget profileContainer({
           title,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: isDark ? AppColor.textHint : AppColor.textSecondary,
+            color: isDark
+                ? AppColor.textHint
+                : AppColor.textSecondary,
             fontSize: 10,
           ),
         ),
@@ -272,41 +551,62 @@ Widget buildSettingTile({
   required Widget trailing,
   VoidCallback? onTap,
 }) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
+  final isDark =
+      Theme.of(context).brightness ==
+          Brightness.dark;
 
-  final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+  final isArabic =
+      Localizations.localeOf(context)
+          .languageCode == 'ar';
 
   return InkWell(
     onTap: onTap,
     child: Container(
       height: 60,
       margin: const EdgeInsets.only(bottom: 2),
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding:
+      const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: isDark ? AppColor.darkSurface : AppColor.surface,
+        color: isDark
+            ? AppColor.darkSurface
+            : AppColor.surface,
         border: Border(
           bottom: BorderSide(
             color: isDark
-                ? AppColor.darkCard.withOpacity(0.4)
+                ? AppColor.darkCard
+                .withOpacity(0.4)
                 : Colors.grey.withOpacity(0.08),
           ),
         ),
       ),
       child: Row(
-        textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+        textDirection: isArabic
+            ? TextDirection.rtl
+            : TextDirection.ltr,
         children: [
-          Icon(icon, size: 20, color: AppColor.Grad1),
+          Icon(
+            icon,
+            size: 20,
+            color: AppColor.Grad1,
+          ),
+
           const SizedBox(width: 10),
+
           Expanded(
             child: Text(
               title,
-              textAlign: isArabic ? TextAlign.right : TextAlign.left,
+              textAlign: isArabic
+                  ? TextAlign.right
+                  : TextAlign.left,
               style: TextStyle(
                 fontSize: 13,
-                color: isDark ? AppColor.textWhite : AppColor.textPrimary,
+                color: isDark
+                    ? AppColor.textWhite
+                    : AppColor.textPrimary,
               ),
             ),
           ),
+
           trailing,
         ],
       ),

@@ -64,9 +64,6 @@ class NotificationServices {
 
     final notificationId = notificationIdForTask(task.id);
 
-    print('TASK ID: ${task.id}');
-    print('NOTIFICATION ID: $notificationId');
-
     await scheduleNotification(
       id: notificationId,
       title: task.title,
@@ -99,12 +96,8 @@ class NotificationServices {
       ),
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
     );
-    final pending = await notificationsPlugin.pendingNotificationRequests();
   }
 
-  Future<void> cancelAllNotifications() async {
-    await notificationsPlugin.cancelAll();
-  }
   Future<void> cancelTaskNotification(String taskId) async {
     final notificationId = notificationIdForTask(taskId);
 
