@@ -644,6 +644,54 @@ abstract class AppLocalizations {
   /// **'Upcoming Tasks'**
   String get upcomingTasks;
 
+  /// No description provided for @noTasksYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks yet'**
+  String get noTasksYet;
+
+  /// No description provided for @noTasksYetMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first task and start organizing your day.'**
+  String get noTasksYetMessage;
+
+  /// No description provided for @noTasksToday.
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks for today'**
+  String get noTasksToday;
+
+  /// No description provided for @noTasksTodayMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have any tasks scheduled for today.'**
+  String get noTasksTodayMessage;
+
+  /// No description provided for @allTasksCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'All caught up!'**
+  String get allTasksCompleted;
+
+  /// No description provided for @allTasksCompletedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve completed all your tasks.'**
+  String get allTasksCompletedMessage;
+
+  /// No description provided for @noCompletedTasksMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete a task and it will appear here.'**
+  String get noCompletedTasksMessage;
+
+  /// No description provided for @createTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Task'**
+  String get createTask;
+
   /// No description provided for @appSlogan.
   ///
   /// In en, this message translates to:

@@ -286,6 +286,30 @@ class AppLocalizationsAr extends AppLocalizations {
   String get upcomingTasks => 'مهام قادمة';
 
   @override
+  String get noTasksYet => 'لا توجد مهام بعد';
+
+  @override
+  String get noTasksYetMessage => 'أنشئ أول مهمة لك وابدأ في تنظيم يومك.';
+
+  @override
+  String get noTasksToday => 'لا توجد مهام اليوم';
+
+  @override
+  String get noTasksTodayMessage => 'ليس لديك أي مهام مجدولة لهذا اليوم.';
+
+  @override
+  String get allTasksCompleted => 'أحسنت! 🎉';
+
+  @override
+  String get allTasksCompletedMessage => 'لقد أكملت جميع مهامك.';
+
+  @override
+  String get noCompletedTasksMessage => 'أكمل إحدى مهامك وستظهر هنا.';
+
+  @override
+  String get createTask => 'إنشاء مهمة';
+
+  @override
   String get appSlogan => 'انسى... وإحنا نفكرك';
 
   @override

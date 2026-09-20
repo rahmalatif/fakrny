@@ -137,7 +137,7 @@ class _LoginViewState extends State<LoginView> {
         body: Stack(
           children: [
             Container(
-              height: MediaQuery.of(context).size.height * .2,
+              height: MediaQuery.of(context).size.height * .3,
               width: double.infinity,
               decoration: const BoxDecoration(gradient: AppGradient.primary),
               child: Stack(

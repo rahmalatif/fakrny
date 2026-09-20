@@ -92,6 +92,22 @@
     "errorUpdatingTask": "حدث خطأ أثناء تحديث المهمة",
     "tomorrow": "غداً",
     "upcomingTasks": "مهام قادمة",
+     "noTasksYet": "لا توجد مهام بعد",
+      "noTasksYetMessage": "أنشئ أول مهمة لك وابدأ في تنظيم يومك.",
+      "noTasksToday": "لا توجد مهام اليوم",
+      "noTasksTodayMessage": "ليس لديك أي مهام مجدولة لهذا اليوم.",
+      "allTasksCompleted": "أحسنت! 🎉",
+      "allTasksCompletedMessage": "لقد أكملت جميع مهامك اليوم.",
+      "noCompletedTasks": "لا توجد مهام مكتملة",
+      "noCompletedTasksMessage": "أكمل إحدى مهامك وستظهر هنا.",
+      "createTask": "إنشاء مهمة",
+        "noTasksYet": "لا توجد مهام بعد",
+        "noTasksYetMessage": "أنشئ أول مهمة لك وابدأ في تنظيم يومك.",
+        "noCompletedTasks": "لا توجد مهام مكتملة",
+        "noCompletedTasksMessage": "أكمل إحدى مهامك وستظهر هنا.",
+        "allTasksCompleted": "أحسنت! 🎉",
+        "allTasksCompletedMessage": "لقد أكملت جميع مهامك.",
+        "createTask": "إنشاء مهمة",
     "@todayTasksNum": {
       "placeholders": {
         "count": {}

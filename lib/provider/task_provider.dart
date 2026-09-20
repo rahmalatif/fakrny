@@ -4,10 +4,12 @@ import '../model/tasks.dart';
 import '../services/notification_services.dart';
 import '../services/task_firestore_service.dart';
 import '../services/auth_services.dart';
+import '../services/user_firestore_service.dart';
 
 class TaskProvider extends ChangeNotifier {
   final TaskFirestoreService taskFirestoreService;
   final AuthServices authServices;
+  final UserFirestoreService userFirestoreService = UserFirestoreService();
 
   TaskProvider({
     required this.taskFirestoreService,
@@ -133,6 +135,9 @@ class TaskProvider extends ChangeNotifier {
         taskId: task.id,
         data: {'isCompleted': newValue},
       );
+      if (newValue) {
+        await checkDailyStreak();
+      }
 
       final notificationServices = NotificationServices();
 
@@ -237,5 +242,77 @@ class TaskProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<void> checkDailyStreak() async {
+    final currentUser = authServices.currentUser;
+
+    if (currentUser == null) return;
+
+    final now = DateTime.now();
+
+    final today = DateTime(now.year, now.month, now.day);
+
+    final todayTasks = _tasks.where((task) {
+      final date = task.scheduledAt;
+
+      return date.year == today.year &&
+          date.month == today.month &&
+          date.day == today.day;
+    }).toList();
+
+    // مفيش Tasks النهارده
+    if (todayTasks.isEmpty) {
+      return;
+    }
+
+    // مش كل Tasks خلصت
+    final allCompleted = todayTasks.every((task) => task.isCompleted);
+
+    if (!allCompleted) {
+      return;
+    }
+
+    final user = await userFirestoreService.getUser(currentUser.uid);
+
+    if (user == null) return;
+
+    final lastDate = user.lastCompletedDate;
+
+    // لو اليوم ده اتحسب قبل كده
+    if (lastDate != null) {
+      final lastDay = DateTime(lastDate.year, lastDate.month, lastDate.day);
+
+      if (lastDay == today) {
+        return;
+      }
+    }
+
+    int newStreak;
+
+    if (lastDate == null) {
+      newStreak = 1;
+    } else {
+      final lastDay = DateTime(lastDate.year, lastDate.month, lastDate.day);
+
+      final difference = today.difference(lastDay).inDays;
+
+      if (difference == 1) {
+        newStreak = user.currentStreak + 1;
+      } else {
+        newStreak = 1;
+      }
+    }
+
+    final newLongest = newStreak > user.longestStreak
+        ? newStreak
+        : user.longestStreak;
+
+    await userFirestoreService.updateStreak(
+      uid: currentUser.uid,
+      currentStreak: newStreak,
+      longestStreak: newLongest,
+      lastCompletedDate: today,
+    );
   }
 }

@@ -55,6 +55,8 @@ class NotificationServices {
         >();
 
     await androidPlugin?.requestNotificationsPermission();
+
+    await androidPlugin?.requestExactAlarmsPermission();
   }
 
   Future<void> scheduleTaskNotification(TaskModel task) async {
@@ -92,9 +94,11 @@ class NotificationServices {
           channelDescription: 'Notifications for task reminders',
           importance: Importance.high,
           priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+          largeIcon: const DrawableResourceAndroidBitmap('logo'),
         ),
       ),
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
   }
 

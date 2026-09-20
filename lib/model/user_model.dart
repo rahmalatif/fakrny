@@ -6,6 +6,9 @@ class UserModel {
   final String language;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final int currentStreak;
+  final int longestStreak;
+  final DateTime? lastCompletedDate;
 
   UserModel({
     required this.uid,
@@ -15,7 +18,11 @@ class UserModel {
     required this.language,
     this.createdAt,
     this.updatedAt,
+    this.currentStreak = 0,
+    this.longestStreak = 0,
+    this.lastCompletedDate,
   });
+
   Map<String, dynamic> toMap() {
     return {
       'name': name,
@@ -24,12 +31,13 @@ class UserModel {
       'language': language,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
+      'currentStreak': currentStreak,
+      'longestStreak': longestStreak,
+      'lastCompletedDate': lastCompletedDate,
     };
   }
-  factory UserModel.fromMap(
-      String uid,
-      Map<String, dynamic> map,
-      ) {
+
+  factory UserModel.fromMap(String uid, Map<String, dynamic> map) {
     return UserModel(
       uid: uid,
       name: map['name'] ?? '',
@@ -38,6 +46,9 @@ class UserModel {
       language: map['language'] ?? 'en',
       createdAt: map['createdAt']?.toDate(),
       updatedAt: map['updatedAt']?.toDate(),
+      currentStreak: map['currentStreak'] ?? 0,
+      longestStreak: map['longestStreak'] ?? 0,
+      lastCompletedDate: map['lastCompletedDate']?.toDate(),
     );
   }
 }

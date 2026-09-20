@@ -151,7 +151,9 @@ class _ReminderViewState extends State<ReminderView> {
 
         await NotificationServices().scheduleTaskNotification(taskWithId);
       } else {
-        await NotificationServices().cancelTaskNotification(widget.task!.id);
+        final notificationService = NotificationServices();
+
+        await notificationService.cancelTaskNotification(widget.task!.id);
 
         final updatedTask = TaskModel(
           id: widget.task!.id,
@@ -175,7 +177,7 @@ class _ReminderViewState extends State<ReminderView> {
         }
 
         if (!updatedTask.isCompleted) {
-          await NotificationServices().scheduleTaskNotification(updatedTask);
+          await notificationService.scheduleTaskNotification(updatedTask);
         }
       }
 
@@ -189,13 +191,7 @@ class _ReminderViewState extends State<ReminderView> {
         type: SnackBarType.success,
       );
 
-      SnackBarHelper.show(
-        context,
-        message: widget.task == null
-            ? 'Task added successfully'
-            : 'Task updated successfully',
-        type: SnackBarType.success,
-      );
+
 
       _closeAfterSave();
     } catch (e) {

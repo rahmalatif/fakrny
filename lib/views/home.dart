@@ -5,6 +5,7 @@ import 'package:untitled/core/design/theme/app_color.dart';
 import 'package:untitled/core/design/widgets/tasks_contanier.dart';
 import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/provider/task_provider.dart';
+import '../core/design/widgets/empty_states.dart';
 import '../core/design/widgets/nav_bar.dart';
 import '../model/tasks.dart';
 import '../model/user_model.dart';
@@ -230,15 +231,26 @@ class _HomeViewState extends State<HomeView> {
                 child: taskProvider.isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : todayTasks.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No tasks for today',
-                          style: TextStyle(
-                            color: isDark
-                                ? AppColor.textHint
-                                : AppColor.textSecondary,
-                          ),
-                        ),
+                    ? EmptyState(
+                        icon: taskProvider.tasks.isEmpty
+                            ? Icons.task_alt
+                            : Icons.event_available,
+                        title: taskProvider.tasks.isEmpty
+                            ? AppLocalizations.of(context)!.noTasksYet
+                            : AppLocalizations.of(context)!.noTasksToday,
+                        message: taskProvider.tasks.isEmpty
+                            ? AppLocalizations.of(context)!.noTasksYetMessage
+                            : AppLocalizations.of(context)!.noTasksTodayMessage,
+                        buttonText: taskProvider.tasks.isEmpty
+                            ? AppLocalizations.of(context)!.createTask
+                            : AppLocalizations.of(context)!.createTask,
+                        onPressed: () async {
+                          final result = await context.push('/Reminder');
+
+                          if (result == true && mounted) {
+                            context.read<TaskProvider>().loadTasks();
+                          }
+                        },
                       )
                     : ListView.separated(
                         itemCount: todayTasks.length,
@@ -261,13 +273,17 @@ class _HomeViewState extends State<HomeView> {
                             },
 
                             onTap: () async {
+                              final taskProvider = context.read<TaskProvider>();
+
                               final result = await context.push(
                                 '/ReminderDetails',
                                 extra: task,
                               );
 
-                              if (result == true && mounted) {
-                                context.read<TaskProvider>().loadTasks();
+                              if (!mounted) return;
+
+                              if (result == true) {
+                                await taskProvider.loadTasks();
                               }
                             },
                           );

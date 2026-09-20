@@ -288,6 +288,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get upcomingTasks => 'Upcoming Tasks';
 
   @override
+  String get noTasksYet => 'No tasks yet';
+
+  @override
+  String get noTasksYetMessage =>
+      'Create your first task and start organizing your day.';
+
+  @override
+  String get noTasksToday => 'No tasks for today';
+
+  @override
+  String get noTasksTodayMessage =>
+      'You don\'t have any tasks scheduled for today.';
+
+  @override
+  String get allTasksCompleted => 'All caught up!';
+
+  @override
+  String get allTasksCompletedMessage => 'You\'ve completed all your tasks.';
+
+  @override
+  String get noCompletedTasksMessage =>
+      'Complete a task and it will appear here.';
+
+  @override
+  String get createTask => 'Create Task';
+
+  @override
   String get appSlogan => 'Forget it... We\'ll remember it for you.';
 
   @override

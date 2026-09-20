@@ -2,11 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-
 import 'package:untitled/core/design/theme/lang_controller.dart';
 import 'package:untitled/core/design/theme/theme_controller.dart';
 import 'package:untitled/l10n/app_localizations.dart';
-
 import '../core/design/theme/app_color.dart';
 import '../core/design/widgets/nav_bar.dart';
 import '../core/design/widgets/snack_bar.dart';
@@ -369,7 +367,7 @@ class _ProfileViewState extends State<ProfileView> {
                   Expanded(
                     child: profileContainer(
                       context: context,
-                      value: '$streak',
+                      value: '${user?.currentStreak ?? 0}',
                       title: localizations.streak,
                     ),
                   ),
@@ -416,16 +414,6 @@ class _ProfileViewState extends State<ProfileView> {
 
               const SizedBox(height: 12),
 
-              buildSettingTile(
-                context: context,
-                title: localizations.notification,
-                icon: Icons.notifications_none_rounded,
-                trailing: Switch(
-                  value: true,
-                  onChanged: null,
-                  activeColor: AppColor.Grad1,
-                ),
-              ),
 
               buildSettingTile(
                 context: context,

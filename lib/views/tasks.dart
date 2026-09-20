@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../core/design/theme/app_color.dart';
+import '../core/design/widgets/empty_states.dart';
 import '../core/design/widgets/nav_bar.dart';
 import '../l10n/app_localizations.dart';
 import '../model/tasks.dart';
@@ -232,12 +233,12 @@ class _TasksViewState extends State<TasksView> {
                 ],
 
                 if (completedTaskList.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.all(30),
-                    child: Text(
-                      'لا توجد مهام مكتملة',
-                      style: TextStyle(fontSize: 16),
-                    ),
+                  EmptyState(
+                    icon: Icons.check_circle_outline,
+                    title: AppLocalizations.of(context)!.noCompletedTasks,
+                    message: AppLocalizations.of(
+                      context,
+                    )!.noCompletedTasksMessage,
                   ),
               ] else ...[
                 if (todayTasks.isNotEmpty) ...[
@@ -262,7 +263,8 @@ class _TasksViewState extends State<TasksView> {
 
                   _sectionTitle(
                     context,
-                      '${AppLocalizations.of(context)!.tomorrow} - ${tomorrow.day}/${tomorrow.month}'                  ),
+                    '${AppLocalizations.of(context)!.tomorrow} - ${tomorrow.day}/${tomorrow.month}',
+                  ),
 
                   const SizedBox(height: 10),
 
@@ -281,7 +283,10 @@ class _TasksViewState extends State<TasksView> {
                 if (laterTasks.isNotEmpty) ...[
                   const SizedBox(height: 10),
 
-                  _sectionTitle(context, AppLocalizations.of(context)!.upcomingTasks),
+                  _sectionTitle(
+                    context,
+                    AppLocalizations.of(context)!.upcomingTasks,
+                  ),
 
                   const SizedBox(height: 10),
 
@@ -298,9 +303,18 @@ class _TasksViewState extends State<TasksView> {
                 ],
 
                 if (tasks.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.all(30),
-                    child: Text('لا توجد مهام', style: TextStyle(fontSize: 16)),
+                  EmptyState(
+                    icon: Icons.task_alt,
+                    title: AppLocalizations.of(context)!.noTasksYet,
+                    message: AppLocalizations.of(context)!.noTasksYetMessage,
+                    buttonText: AppLocalizations.of(context)!.createTask,
+                    onPressed: () async {
+                      final result = await context.push('/Reminder');
+
+                      if (result == true && mounted) {
+                        context.read<TaskProvider>().loadTasks();
+                      }
+                    },
                   ),
               ],
 
