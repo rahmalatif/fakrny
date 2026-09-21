@@ -10,6 +10,7 @@ class TaskModel {
   final String color;
   final bool isCompleted;
   final String repeat;
+  final List<int> repeatDays;
   final int remindBefore;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -24,6 +25,7 @@ class TaskModel {
     required this.color,
     required this.isCompleted,
     required this.repeat,
+    required this.repeatDays,
     required this.remindBefore,
     this.createdAt,
     this.updatedAt,
@@ -39,6 +41,7 @@ class TaskModel {
       'color': color,
       'isCompleted': isCompleted,
       'repeat': repeat,
+      'repeatDays': repeatDays,
       'remindBefore': remindBefore,
       'createdAt': createdAt != null
           ? Timestamp.fromDate(createdAt!)
@@ -57,20 +60,17 @@ class TaskModel {
       id: id,
       title: map['title'] ?? '',
       description: map['description'] ?? '',
-
       scheduledAt: (map['scheduledAt'] as Timestamp).toDate(),
-
       category: map['category'] ?? '',
       priority: map['priority'] ?? '',
       color: map['color'] ?? '',
       isCompleted: map['isCompleted'] ?? false,
       repeat: map['repeat'] ?? 'none',
+      repeatDays: List<int>.from(map['repeatDays'] ?? []),
       remindBefore: map['remindBefore'] ?? 0,
-
       createdAt: map['createdAt'] is Timestamp
           ? (map['createdAt'] as Timestamp).toDate()
           : null,
-
       updatedAt: map['updatedAt'] is Timestamp
           ? (map['updatedAt'] as Timestamp).toDate()
           : null,

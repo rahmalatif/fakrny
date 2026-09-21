@@ -76,10 +76,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your optimal focus time is between 9 AM and 12 PM, and you have a meeting at 2 PM. I recommend getting your tasks done now.';
 
   @override
-  String get showMore => 'Show more';
+  String get showMore => 'Show More';
 
   @override
-  String get calender => 'Calender';
+  String get showAll => 'Show All';
+
+  @override
+  String get calender => 'Calendar';
 
   @override
   String get calenderlang => 'en';
@@ -88,10 +91,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get today => 'Today';
 
   @override
-  String get showAll => 'Show All';
-
-  @override
-  String get todaysSchadule => 'Today\'s schedule';
+  String get todaysSchadule => 'Today\'s Schedule';
 
   @override
   String get profile => 'Profile';
@@ -118,22 +118,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lang => 'Language';
 
   @override
-  String get darkMode => 'Dark mode';
+  String get darkMode => 'Dark Mode';
 
   @override
   String get logout => 'Logout';
 
   @override
+  String get appSlogan => 'Forget it... We\'ll remember it for you.';
+
+  @override
   String get createReminder => 'Create Reminder';
+
+  @override
+  String get editReminder => 'Edit Reminder';
 
   @override
   String get createReminderSub => 'Add your reminder details';
 
   @override
+  String get addReminderDetails => 'Add your reminder details';
+
+  @override
   String get title => 'Title';
 
   @override
-  String get titleHint => 'example:study Biology';
+  String get titleHint => 'example: Study Biology';
+
+  @override
+  String get taskTitleHint => 'example: study Biology';
 
   @override
   String get date => 'Date';
@@ -146,6 +158,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chooseTime => 'Choose Time';
+
+  @override
+  String get chooseDateAndTime => 'Please choose date and time';
 
   @override
   String get category => 'Category';
@@ -181,22 +196,60 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reminderBefore => 'Reminder Before';
 
   @override
+  String get remindMe => 'Remind me';
+
+  @override
+  String get atTaskTime => 'At time of task';
+
+  @override
+  String minutesBefore(Object minutes) {
+    return '$minutes minutes before';
+  }
+
+  @override
+  String get oneHourBefore => '1 hour before';
+
+  @override
   String get minutes => 'min';
 
   @override
   String get saveReminder => 'Save Reminder';
 
   @override
-  String get next => 'Next';
-
-  @override
-  String get start => 'Start Now';
-
-  @override
-  String get reminderDetails => 'Reminder Details';
-
-  @override
   String get repeat => 'Repeat';
+
+  @override
+  String get doesNotRepeat => 'Does not repeat';
+
+  @override
+  String get everyDay => 'Every day';
+
+  @override
+  String get everyWeek => 'Every week';
+
+  @override
+  String get customDays => 'Custom days';
+
+  @override
+  String get mondayShort => 'M';
+
+  @override
+  String get tuesdayShort => 'T';
+
+  @override
+  String get wednesdayShort => 'W';
+
+  @override
+  String get thursdayShort => 'T';
+
+  @override
+  String get fridayShort => 'F';
+
+  @override
+  String get saturdayShort => 'S';
+
+  @override
+  String get sundayShort => 'S';
 
   @override
   String get markCompleted => 'Mark as Completed';
@@ -239,6 +292,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pendingTasks => 'Pending';
 
   @override
+  String get createTask => 'Create Task';
+
+  @override
+  String get dontHaveAccount => 'Don\'t have an account?';
+
+  @override
+  String get register => 'Register';
+
+  @override
   String get createAccount => 'Create Account';
 
   @override
@@ -254,12 +316,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alreadyHaveAccount => 'Already have an account?';
 
   @override
-  String get dontHaveAccount => 'Don\'t have an account?';
-
-  @override
-  String get register => 'Register';
-
-  @override
   String get forgetPassword => 'Forgot Password?';
 
   @override
@@ -273,19 +329,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backToLogin => 'Back to Login';
 
   @override
-  String get noCompletedTasks => 'No completed tasks';
+  String todayTasksNum(Object count) {
+    return 'You have $count tasks today';
+  }
 
   @override
   String get noTasks => 'No tasks';
 
   @override
-  String get errorUpdatingTask => 'An error occurred while updating the task';
-
-  @override
-  String get tomorrow => 'Tomorrow';
-
-  @override
-  String get upcomingTasks => 'Upcoming Tasks';
+  String get noCompletedTasks => 'No completed tasks';
 
   @override
   String get noTasksYet => 'No tasks yet';
@@ -312,13 +364,57 @@ class AppLocalizationsEn extends AppLocalizations {
       'Complete a task and it will appear here.';
 
   @override
-  String get createTask => 'Create Task';
+  String get upcomingTasks => 'Upcoming Tasks';
 
   @override
-  String get appSlogan => 'Forget it... We\'ll remember it for you.';
+  String get tomorrow => 'Tomorrow';
 
   @override
-  String todayTasksNum(Object count) {
-    return 'You have $count tasks today';
-  }
+  String get errorUpdatingTask => 'An error occurred while updating the task';
+
+  @override
+  String get failedToCreateTask => 'Failed to create task';
+
+  @override
+  String get failedToUpdateTask => 'Failed to update task';
+
+  @override
+  String get failedToDeleteReminder => 'Failed to delete reminder';
+
+  @override
+  String get taskAddedSuccessfully => 'Task added successfully';
+
+  @override
+  String get taskUpdatedSuccessfully => 'Task updated successfully';
+
+  @override
+  String get taskDeletedSuccessfully => 'Task deleted successfully';
+
+  @override
+  String get enterTaskTitle => 'Please enter a task title';
+
+  @override
+  String get chooseRepeatDays => 'Please choose repeat days';
+
+  @override
+  String get chooseFutureReminderTime =>
+      'Please choose a future time for the reminder';
+
+  @override
+  String get logoutConfirmation => 'Are you sure you want to logout?';
+
+  @override
+  String get pm => 'PM';
+
+  @override
+  String get am => 'AM';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get start => 'Start Now';
+
+  @override
+  String get reminderDetails => 'Reminder Details';
 }

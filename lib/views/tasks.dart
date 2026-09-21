@@ -389,7 +389,7 @@ class _TasksViewState extends State<TasksView> {
                     repeat: task.repeat,
                     remindBefore: task.remindBefore,
                     createdAt: task.createdAt,
-                    updatedAt: DateTime.now(),
+                    updatedAt: DateTime.now(), repeatDays: [],
                   ),
                 );
 

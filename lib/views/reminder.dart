@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:untitled/l10n/app_localizations.dart';
 
 import '../core/design/theme/app_color.dart';
 import '../core/design/widgets/snack_bar.dart';
@@ -20,7 +21,9 @@ class ReminderView extends StatefulWidget {
 class _ReminderViewState extends State<ReminderView> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
+  String selectedRepeat = 'none';
 
+  List<int> selectedRepeatDays = [];
   final TextEditingController _titleController = TextEditingController();
 
   String selectedCategory = 'study';
@@ -43,6 +46,8 @@ class _ReminderViewState extends State<ReminderView> {
       selectedCategory = task.category;
       selectedPriority = task.priority;
       reminderBefore = task.remindBefore;
+      selectedRepeat = task.repeat;
+      selectedRepeatDays = List<int>.from(task.repeatDays);
     }
   }
 
@@ -83,6 +88,8 @@ class _ReminderViewState extends State<ReminderView> {
   }
 
   Future<void> saveReminder() async {
+    final l10n = AppLocalizations.of(context)!;
+
     if (_titleController.text.trim().isEmpty) {
       SnackBarHelper.show(
         context,
@@ -96,6 +103,15 @@ class _ReminderViewState extends State<ReminderView> {
       SnackBarHelper.show(
         context,
         message: 'Please choose date and time',
+        type: SnackBarType.warning,
+      );
+      return;
+    }
+
+    if (selectedRepeat == 'custom' && selectedRepeatDays.isEmpty) {
+      SnackBarHelper.show(
+        context,
+        message: 'Please choose repeat days',
         type: SnackBarType.warning,
       );
       return;
@@ -139,21 +155,26 @@ class _ReminderViewState extends State<ReminderView> {
           priority: selectedPriority,
           color: 'primary',
           isCompleted: false,
-          repeat: 'none',
           remindBefore: reminderBefore,
+          repeat: selectedRepeat,
+          repeatDays: List<int>.from(selectedRepeatDays),
         );
 
         final taskWithId = await taskProvider.addTask(task);
 
         if (taskWithId == null) {
-          throw Exception(taskProvider.error ?? 'Failed to create task');
+          throw Exception(
+            taskProvider.error ?? 'Failed to create task',
+          );
         }
 
-        await NotificationServices().scheduleTaskNotification(taskWithId);
+        await NotificationServices()
+            .scheduleTaskNotification(taskWithId);
       } else {
         final notificationService = NotificationServices();
 
-        await notificationService.cancelTaskNotification(widget.task!.id);
+        await notificationService
+            .cancelTaskNotification(widget.task!.id);
 
         final updatedTask = TaskModel(
           id: widget.task!.id,
@@ -164,20 +185,25 @@ class _ReminderViewState extends State<ReminderView> {
           priority: selectedPriority,
           color: widget.task!.color,
           isCompleted: widget.task!.isCompleted,
-          repeat: widget.task!.repeat,
+          repeat: selectedRepeat,
+          repeatDays: List<int>.from(selectedRepeatDays),
           remindBefore: reminderBefore,
           createdAt: widget.task!.createdAt,
           updatedAt: DateTime.now(),
         );
 
-        final success = await taskProvider.updateTask(updatedTask);
+        final success =
+        await taskProvider.updateTask(updatedTask);
 
         if (!success) {
-          throw Exception(taskProvider.error ?? 'Failed to update task');
+          throw Exception(
+            taskProvider.error ?? 'Failed to update task',
+          );
         }
 
         if (!updatedTask.isCompleted) {
-          await notificationService.scheduleTaskNotification(updatedTask);
+          await notificationService
+              .scheduleTaskNotification(updatedTask);
         }
       }
 
@@ -190,8 +216,6 @@ class _ReminderViewState extends State<ReminderView> {
             : 'Task updated successfully',
         type: SnackBarType.success,
       );
-
-
 
       _closeAfterSave();
     } catch (e) {
@@ -220,7 +244,11 @@ class _ReminderViewState extends State<ReminderView> {
   }
 
   String get formattedDate {
-    if (selectedDate == null) return 'Choose Date';
+    final l10n = AppLocalizations.of(context)!;
+
+    if (selectedDate == null) {
+      return l10n.chooseDate;
+    }
 
     return '${selectedDate!.day}/'
         '${selectedDate!.month}/'
@@ -228,7 +256,11 @@ class _ReminderViewState extends State<ReminderView> {
   }
 
   String get formattedTime {
-    if (selectedTime == null) return 'Choose Time';
+    final l10n = AppLocalizations.of(context)!;
+
+    if (selectedTime == null) {
+      return l10n.chooseTime;
+    }
 
     return selectedTime!.format(context);
   }
@@ -247,15 +279,30 @@ class _ReminderViewState extends State<ReminderView> {
   }
 
   String categoryName(String category) {
+    final l10n = AppLocalizations.of(context)!;
+
     switch (category) {
       case 'study':
-        return 'Study';
+        return l10n.study;
       case 'work':
-        return 'Work';
+        return l10n.work;
       case 'health':
-        return 'Health';
+        return l10n.health;
       default:
-        return 'Other';
+        return l10n.other;
+    }
+  }
+
+  String priorityName(String priority) {
+    final l10n = AppLocalizations.of(context)!;
+
+    switch (priority) {
+      case 'high':
+        return l10n.high;
+      case 'medium':
+        return l10n.medium;
+      default:
+        return l10n.low;
     }
   }
 
@@ -272,35 +319,29 @@ class _ReminderViewState extends State<ReminderView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _header(),
-
                   const SizedBox(height: 26),
-
                   _titleSection(),
-
                   const SizedBox(height: 18),
-
                   _dateCard(),
-
                   const SizedBox(height: 10),
-
                   _timeCard(),
-
                   const SizedBox(height: 18),
-
+                  _repeatSection(),
+                  const SizedBox(height: 18),
                   _categorySection(),
-
                   const SizedBox(height: 20),
-
                   _reminderSection(),
-
                   const SizedBox(height: 20),
-
                   _prioritySection(),
                 ],
               ),
             ),
-
-            Positioned(left: 24, right: 24, bottom: 12, child: _saveButton()),
+            Positioned(
+              left: 24,
+              right: 24,
+              bottom: 12,
+              child: _saveButton(),
+            ),
           ],
         ),
       ),
@@ -308,6 +349,8 @@ class _ReminderViewState extends State<ReminderView> {
   }
 
   Widget _header() {
+    final l10n = AppLocalizations.of(context)!;
+
     return Row(
       children: [
         GestureDetector(
@@ -324,47 +367,49 @@ class _ReminderViewState extends State<ReminderView> {
             size: 28,
           ),
         ),
-
         const Spacer(),
-
         Column(
           children: [
             Text(
-              widget.task == null ? 'Create Reminder' : 'Edit Reminder',
+              widget.task == null
+                  ? l10n.createReminder
+                  : l10n.editReminder,
               style: const TextStyle(
                 color: AppColor.textWhite,
                 fontSize: 21,
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 4),
-
-            const Text(
-              'Add your reminder details',
-              style: TextStyle(color: AppColor.textHint, fontSize: 9),
+            Text(
+              l10n.addReminderDetails,
+              style: const TextStyle(
+                color: AppColor.textHint,
+                fontSize: 9,
+              ),
             ),
           ],
         ),
-
         const Spacer(),
-
         const SizedBox(width: 28),
       ],
     );
   }
 
   Widget _titleSection() {
+    final l10n = AppLocalizations.of(context)!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Title',
-          style: TextStyle(color: AppColor.textSecondary, fontSize: 10),
+        Text(
+          l10n.title,
+          style: const TextStyle(
+            color: AppColor.textSecondary,
+            fontSize: 10,
+          ),
         ),
-
         const SizedBox(height: 6),
-
         Container(
           height: 54,
           decoration: BoxDecoration(
@@ -374,15 +419,12 @@ class _ReminderViewState extends State<ReminderView> {
           child: Row(
             children: [
               const SizedBox(width: 13),
-
               const Icon(
                 Icons.content_copy_outlined,
                 color: AppColor.textSecondary,
                 size: 20,
               ),
-
               const SizedBox(width: 12),
-
               Expanded(
                 child: TextField(
                   controller: _titleController,
@@ -391,10 +433,10 @@ class _ReminderViewState extends State<ReminderView> {
                     fontSize: 13,
                   ),
                   cursorColor: AppColor.primary,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     border: InputBorder.none,
-                    hintText: 'example:study Biology',
-                    hintStyle: TextStyle(
+                    hintText: l10n.taskTitleHint,
+                    hintStyle: const TextStyle(
                       color: AppColor.textSecondary,
                       fontSize: 12,
                     ),
@@ -409,8 +451,10 @@ class _ReminderViewState extends State<ReminderView> {
   }
 
   Widget _dateCard() {
+    final l10n = AppLocalizations.of(context)!;
+
     return _dateTimeCard(
-      title: 'Date',
+      title: l10n.date,
       value: formattedDate,
       icon: Icons.calendar_month_outlined,
       onTap: selectDate,
@@ -418,8 +462,10 @@ class _ReminderViewState extends State<ReminderView> {
   }
 
   Widget _timeCard() {
+    final l10n = AppLocalizations.of(context)!;
+
     return _dateTimeCard(
-      title: 'Time',
+      title: l10n.time,
       value: formattedTime,
       icon: Icons.access_time_outlined,
       onTap: selectTime,
@@ -436,7 +482,10 @@ class _ReminderViewState extends State<ReminderView> {
       onTap: onTap,
       child: Container(
         height: 62,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 7,
+        ),
         decoration: BoxDecoration(
           color: AppColor.darkSurface,
           borderRadius: BorderRadius.circular(12),
@@ -455,9 +504,7 @@ class _ReminderViewState extends State<ReminderView> {
                       fontSize: 10,
                     ),
                   ),
-
                   const SizedBox(height: 2),
-
                   Text(
                     value,
                     style: const TextStyle(
@@ -469,8 +516,11 @@ class _ReminderViewState extends State<ReminderView> {
                 ],
               ),
             ),
-
-            Icon(icon, color: AppColor.textSecondary, size: 19),
+            Icon(
+              icon,
+              color: AppColor.textSecondary,
+              size: 19,
+            ),
           ],
         ),
       ),
@@ -478,31 +528,32 @@ class _ReminderViewState extends State<ReminderView> {
   }
 
   Widget _categorySection() {
+    final l10n = AppLocalizations.of(context)!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            const Text(
-              'Category',
-              style: TextStyle(
+            Text(
+              l10n.category,
+              style: const TextStyle(
                 color: AppColor.textWhite,
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const Spacer(),
-
-            const Text(
-              'Choose Category',
-              style: TextStyle(color: AppColor.textSecondary, fontSize: 10),
+            Text(
+              l10n.chooseCategory,
+              style: const TextStyle(
+                color: AppColor.textSecondary,
+                fontSize: 10,
+              ),
             ),
           ],
         ),
-
         const SizedBox(height: 10),
-
         Row(
           children: [
             _categoryButton('study'),
@@ -536,7 +587,9 @@ class _ReminderViewState extends State<ReminderView> {
                 : AppColor.darkSurface,
             borderRadius: BorderRadius.circular(11),
             border: Border.all(
-              color: isSelected ? AppColor.primary : AppColor.darkCard,
+              color: isSelected
+                  ? AppColor.primary
+                  : AppColor.darkCard,
             ),
           ),
           child: Column(
@@ -544,18 +597,22 @@ class _ReminderViewState extends State<ReminderView> {
             children: [
               Icon(
                 categoryIcon(category),
-                color: isSelected ? AppColor.primary : AppColor.textSecondary,
+                color: isSelected
+                    ? AppColor.primary
+                    : AppColor.textSecondary,
                 size: 20,
               ),
-
               const SizedBox(height: 4),
-
               Text(
                 categoryName(category),
                 style: TextStyle(
-                  color: isSelected ? AppColor.primary : AppColor.textSecondary,
+                  color: isSelected
+                      ? AppColor.primary
+                      : AppColor.textSecondary,
                   fontSize: 9,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: isSelected
+                      ? FontWeight.bold
+                      : FontWeight.normal,
                 ),
               ),
             ],
@@ -566,20 +623,20 @@ class _ReminderViewState extends State<ReminderView> {
   }
 
   Widget _reminderSection() {
+    final l10n = AppLocalizations.of(context)!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Remind me',
-          style: TextStyle(
+        Text(
+          l10n.remindMe,
+          style: const TextStyle(
             color: AppColor.textWhite,
             fontSize: 13,
             fontWeight: FontWeight.bold,
           ),
         ),
-
         const SizedBox(height: 9),
-
         Container(
           height: 46,
           padding: const EdgeInsets.symmetric(horizontal: 13),
@@ -597,14 +654,35 @@ class _ReminderViewState extends State<ReminderView> {
                 color: AppColor.textSecondary,
                 size: 21,
               ),
-              style: const TextStyle(color: AppColor.textWhite, fontSize: 11),
-              items: const [
-                DropdownMenuItem(value: 0, child: Text('At time of task')),
-                DropdownMenuItem(value: 5, child: Text('5 minutes before')),
-                DropdownMenuItem(value: 10, child: Text('10 minutes before')),
-                DropdownMenuItem(value: 15, child: Text('15 minutes before')),
-                DropdownMenuItem(value: 30, child: Text('30 minutes before')),
-                DropdownMenuItem(value: 60, child: Text('1 hour before')),
+              style: const TextStyle(
+                color: AppColor.textWhite,
+                fontSize: 11,
+              ),
+              items: [
+                DropdownMenuItem(
+                  value: 0,
+                  child: Text(l10n.atTaskTime),
+                ),
+                DropdownMenuItem(
+                  value: 5,
+                  child: Text(l10n.minutesBefore(5)),
+                ),
+                DropdownMenuItem(
+                  value: 10,
+                  child: Text(l10n.minutesBefore(10)),
+                ),
+                DropdownMenuItem(
+                  value: 15,
+                  child: Text(l10n.minutesBefore(15)),
+                ),
+                DropdownMenuItem(
+                  value: 30,
+                  child: Text(l10n.minutesBefore(30)),
+                ),
+                DropdownMenuItem(
+                  value: 60,
+                  child: Text(l10n.oneHourBefore),
+                ),
               ],
               onChanged: (value) {
                 if (value == null) return;
@@ -621,41 +699,34 @@ class _ReminderViewState extends State<ReminderView> {
   }
 
   Widget _prioritySection() {
+    final l10n = AppLocalizations.of(context)!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Priority',
-          style: TextStyle(
+        Text(
+          l10n.priority,
+          style: const TextStyle(
             color: AppColor.textWhite,
             fontSize: 13,
             fontWeight: FontWeight.bold,
           ),
         ),
-
         const SizedBox(height: 9),
-
         Row(
           children: [
             _priorityButton(
               value: 'high',
-              title: 'High',
               iconColor: AppColor.error,
             ),
-
             const SizedBox(width: 7),
-
             _priorityButton(
               value: 'medium',
-              title: 'Medium',
               iconColor: Colors.amber,
             ),
-
             const SizedBox(width: 7),
-
             _priorityButton(
               value: 'low',
-              title: 'Low',
               iconColor: Colors.green,
             ),
           ],
@@ -666,7 +737,6 @@ class _ReminderViewState extends State<ReminderView> {
 
   Widget _priorityButton({
     required String value,
-    required String title,
     required Color iconColor,
   }) {
     final isSelected = selectedPriority == value;
@@ -695,17 +765,23 @@ class _ReminderViewState extends State<ReminderView> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                title,
+                priorityName(value),
                 style: TextStyle(
-                  color: isSelected ? iconColor : AppColor.textSecondary,
+                  color: isSelected
+                      ? iconColor
+                      : AppColor.textSecondary,
                   fontSize: 10,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: isSelected
+                      ? FontWeight.bold
+                      : FontWeight.normal,
                 ),
               ),
-
               const SizedBox(width: 5),
-
-              Icon(Icons.flag_outlined, color: iconColor, size: 14),
+              Icon(
+                Icons.flag_outlined,
+                color: iconColor,
+                size: 14,
+              ),
             ],
           ),
         ),
@@ -713,47 +789,198 @@ class _ReminderViewState extends State<ReminderView> {
     );
   }
 
+  Widget _repeatSection() {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.repeat,
+          style: const TextStyle(
+            color: AppColor.textWhite,
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 9),
+        Container(
+          height: 46,
+          padding: const EdgeInsets.symmetric(horizontal: 13),
+          decoration: BoxDecoration(
+            color: AppColor.darkSurface,
+            borderRadius: BorderRadius.circular(11),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: selectedRepeat,
+              isExpanded: true,
+              dropdownColor: AppColor.darkSurface,
+              icon: const Icon(
+                Icons.keyboard_arrow_down,
+                color: AppColor.textSecondary,
+              ),
+              style: const TextStyle(
+                color: AppColor.textWhite,
+                fontSize: 11,
+              ),
+              items: [
+                DropdownMenuItem(
+                  value: 'none',
+                  child: Text(l10n.doesNotRepeat),
+                ),
+                DropdownMenuItem(
+                  value: 'daily',
+                  child: Text(l10n.everyDay),
+                ),
+                DropdownMenuItem(
+                  value: 'weekly',
+                  child: Text(l10n.everyWeek),
+                ),
+                DropdownMenuItem(
+                  value: 'custom',
+                  child: Text(l10n.customDays),
+                ),
+              ],
+              onChanged: (value) {
+                if (value == null) return;
+
+                setState(() {
+                  selectedRepeat = value;
+
+                  if (value != 'custom') {
+                    selectedRepeatDays = [];
+                  }
+                });
+              },
+            ),
+          ),
+        ),
+        if (selectedRepeat == 'custom') ...[
+          const SizedBox(height: 10),
+          _repeatDaysSelector(),
+        ],
+      ],
+    );
+  }
+
+  Widget _repeatDaysSelector() {
+    final l10n = AppLocalizations.of(context)!;
+
+    final days = [
+      {'value': 1, 'label': l10n.mondayShort},
+      {'value': 2, 'label': l10n.tuesdayShort},
+      {'value': 3, 'label': l10n.wednesdayShort},
+      {'value': 4, 'label': l10n.thursdayShort},
+      {'value': 5, 'label': l10n.fridayShort},
+      {'value': 6, 'label': l10n.saturdayShort},
+      {'value': 7, 'label': l10n.sundayShort},
+    ];
+
+    return Row(
+      children: days.asMap().entries.map((entry) {
+        final index = entry.key;
+        final day = entry.value;
+
+        final value = day['value'] as int;
+        final label = day['label'] as String;
+
+        final isSelected = selectedRepeatDays.contains(value);
+
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(
+              right: index == days.length - 1 ? 0 : 5,
+            ),
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  if (isSelected) {
+                    selectedRepeatDays.remove(value);
+                  } else {
+                    selectedRepeatDays.add(value);
+                  }
+
+                  selectedRepeatDays.sort();
+                });
+              },
+              child: Container(
+                height: 42,
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppColor.primary
+                      : AppColor.darkSurface,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: isSelected
+                        ? AppColor.primary
+                        : AppColor.darkCard,
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: isSelected
+                          ? AppColor.textWhite
+                          : AppColor.textSecondary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   Widget _saveButton() {
+    final l10n = AppLocalizations.of(context)!;
+
     return SizedBox(
       height: 44,
       child: ElevatedButton(
         onPressed: isLoading ? null : saveReminder,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColor.primary,
-          disabledBackgroundColor: AppColor.primary.withOpacity(.6),
+          disabledBackgroundColor:
+          AppColor.primary.withOpacity(.6),
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(9),
+          ),
         ),
         child: isLoading
             ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppColor.textWhite,
-                ),
-              )
-            : const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.notifications_none,
-                    color: AppColor.textWhite,
-                    size: 16,
-                  ),
-
-                  SizedBox(width: 7),
-
-                  Text(
-                    'Save Reminder',
-                    style: TextStyle(
-                      color: AppColor.textWhite,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+          width: 18,
+          height: 18,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: AppColor.textWhite,
+          ),
+        )
+            : Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.notifications_none,
+              color: AppColor.textWhite,
+              size: 16,
+            ),
+            const SizedBox(width: 7),
+            Text(
+              l10n.saveReminder,
+              style: const TextStyle(
+                color: AppColor.textWhite,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
               ),
+            ),
+          ],
+        ),
       ),
     );
   }

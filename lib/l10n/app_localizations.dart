@@ -227,13 +227,19 @@ abstract class AppLocalizations {
   /// No description provided for @showMore.
   ///
   /// In en, this message translates to:
-  /// **'Show more'**
+  /// **'Show More'**
   String get showMore;
+
+  /// No description provided for @showAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show All'**
+  String get showAll;
 
   /// No description provided for @calender.
   ///
   /// In en, this message translates to:
-  /// **'Calender'**
+  /// **'Calendar'**
   String get calender;
 
   /// No description provided for @calenderlang.
@@ -248,16 +254,10 @@ abstract class AppLocalizations {
   /// **'Today'**
   String get today;
 
-  /// No description provided for @showAll.
-  ///
-  /// In en, this message translates to:
-  /// **'Show All'**
-  String get showAll;
-
   /// No description provided for @todaysSchadule.
   ///
   /// In en, this message translates to:
-  /// **'Today\'s schedule'**
+  /// **'Today\'s Schedule'**
   String get todaysSchadule;
 
   /// No description provided for @profile.
@@ -311,7 +311,7 @@ abstract class AppLocalizations {
   /// No description provided for @darkMode.
   ///
   /// In en, this message translates to:
-  /// **'Dark mode'**
+  /// **'Dark Mode'**
   String get darkMode;
 
   /// No description provided for @logout.
@@ -320,17 +320,35 @@ abstract class AppLocalizations {
   /// **'Logout'**
   String get logout;
 
+  /// No description provided for @appSlogan.
+  ///
+  /// In en, this message translates to:
+  /// **'Forget it... We\'ll remember it for you.'**
+  String get appSlogan;
+
   /// No description provided for @createReminder.
   ///
   /// In en, this message translates to:
   /// **'Create Reminder'**
   String get createReminder;
 
+  /// No description provided for @editReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Reminder'**
+  String get editReminder;
+
   /// No description provided for @createReminderSub.
   ///
   /// In en, this message translates to:
   /// **'Add your reminder details'**
   String get createReminderSub;
+
+  /// No description provided for @addReminderDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your reminder details'**
+  String get addReminderDetails;
 
   /// No description provided for @title.
   ///
@@ -341,8 +359,14 @@ abstract class AppLocalizations {
   /// No description provided for @titleHint.
   ///
   /// In en, this message translates to:
-  /// **'example:study Biology'**
+  /// **'example: Study Biology'**
   String get titleHint;
+
+  /// No description provided for @taskTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'example: study Biology'**
+  String get taskTitleHint;
 
   /// No description provided for @date.
   ///
@@ -367,6 +391,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose Time'**
   String get chooseTime;
+
+  /// No description provided for @chooseDateAndTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Please choose date and time'**
+  String get chooseDateAndTime;
 
   /// No description provided for @category.
   ///
@@ -434,6 +464,30 @@ abstract class AppLocalizations {
   /// **'Reminder Before'**
   String get reminderBefore;
 
+  /// No description provided for @remindMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me'**
+  String get remindMe;
+
+  /// No description provided for @atTaskTime.
+  ///
+  /// In en, this message translates to:
+  /// **'At time of task'**
+  String get atTaskTime;
+
+  /// No description provided for @minutesBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} minutes before'**
+  String minutesBefore(Object minutes);
+
+  /// No description provided for @oneHourBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'1 hour before'**
+  String get oneHourBefore;
+
   /// No description provided for @minutes.
   ///
   /// In en, this message translates to:
@@ -446,29 +500,77 @@ abstract class AppLocalizations {
   /// **'Save Reminder'**
   String get saveReminder;
 
-  /// No description provided for @next.
-  ///
-  /// In en, this message translates to:
-  /// **'Next'**
-  String get next;
-
-  /// No description provided for @start.
-  ///
-  /// In en, this message translates to:
-  /// **'Start Now'**
-  String get start;
-
-  /// No description provided for @reminderDetails.
-  ///
-  /// In en, this message translates to:
-  /// **'Reminder Details'**
-  String get reminderDetails;
-
   /// No description provided for @repeat.
   ///
   /// In en, this message translates to:
   /// **'Repeat'**
   String get repeat;
+
+  /// No description provided for @doesNotRepeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Does not repeat'**
+  String get doesNotRepeat;
+
+  /// No description provided for @everyDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day'**
+  String get everyDay;
+
+  /// No description provided for @everyWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Every week'**
+  String get everyWeek;
+
+  /// No description provided for @customDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom days'**
+  String get customDays;
+
+  /// No description provided for @mondayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'M'**
+  String get mondayShort;
+
+  /// No description provided for @tuesdayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'T'**
+  String get tuesdayShort;
+
+  /// No description provided for @wednesdayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'W'**
+  String get wednesdayShort;
+
+  /// No description provided for @thursdayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'T'**
+  String get thursdayShort;
+
+  /// No description provided for @fridayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'F'**
+  String get fridayShort;
+
+  /// No description provided for @saturdayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'S'**
+  String get saturdayShort;
+
+  /// No description provided for @sundayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'S'**
+  String get sundayShort;
 
   /// No description provided for @markCompleted.
   ///
@@ -548,6 +650,24 @@ abstract class AppLocalizations {
   /// **'Pending'**
   String get pendingTasks;
 
+  /// No description provided for @createTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Task'**
+  String get createTask;
+
+  /// No description provided for @dontHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account?'**
+  String get dontHaveAccount;
+
+  /// No description provided for @register.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get register;
+
   /// No description provided for @createAccount.
   ///
   /// In en, this message translates to:
@@ -578,18 +698,6 @@ abstract class AppLocalizations {
   /// **'Already have an account?'**
   String get alreadyHaveAccount;
 
-  /// No description provided for @dontHaveAccount.
-  ///
-  /// In en, this message translates to:
-  /// **'Don\'t have an account?'**
-  String get dontHaveAccount;
-
-  /// No description provided for @register.
-  ///
-  /// In en, this message translates to:
-  /// **'Register'**
-  String get register;
-
   /// No description provided for @forgetPassword.
   ///
   /// In en, this message translates to:
@@ -614,11 +722,11 @@ abstract class AppLocalizations {
   /// **'Back to Login'**
   String get backToLogin;
 
-  /// No description provided for @noCompletedTasks.
+  /// No description provided for @todayTasksNum.
   ///
   /// In en, this message translates to:
-  /// **'No completed tasks'**
-  String get noCompletedTasks;
+  /// **'You have {count} tasks today'**
+  String todayTasksNum(Object count);
 
   /// No description provided for @noTasks.
   ///
@@ -626,23 +734,11 @@ abstract class AppLocalizations {
   /// **'No tasks'**
   String get noTasks;
 
-  /// No description provided for @errorUpdatingTask.
+  /// No description provided for @noCompletedTasks.
   ///
   /// In en, this message translates to:
-  /// **'An error occurred while updating the task'**
-  String get errorUpdatingTask;
-
-  /// No description provided for @tomorrow.
-  ///
-  /// In en, this message translates to:
-  /// **'Tomorrow'**
-  String get tomorrow;
-
-  /// No description provided for @upcomingTasks.
-  ///
-  /// In en, this message translates to:
-  /// **'Upcoming Tasks'**
-  String get upcomingTasks;
+  /// **'No completed tasks'**
+  String get noCompletedTasks;
 
   /// No description provided for @noTasksYet.
   ///
@@ -686,23 +782,113 @@ abstract class AppLocalizations {
   /// **'Complete a task and it will appear here.'**
   String get noCompletedTasksMessage;
 
-  /// No description provided for @createTask.
+  /// No description provided for @upcomingTasks.
   ///
   /// In en, this message translates to:
-  /// **'Create Task'**
-  String get createTask;
+  /// **'Upcoming Tasks'**
+  String get upcomingTasks;
 
-  /// No description provided for @appSlogan.
+  /// No description provided for @tomorrow.
   ///
   /// In en, this message translates to:
-  /// **'Forget it... We\'ll remember it for you.'**
-  String get appSlogan;
+  /// **'Tomorrow'**
+  String get tomorrow;
 
-  /// No description provided for @todayTasksNum.
+  /// No description provided for @errorUpdatingTask.
   ///
   /// In en, this message translates to:
-  /// **'You have {count} tasks today'**
-  String todayTasksNum(Object count);
+  /// **'An error occurred while updating the task'**
+  String get errorUpdatingTask;
+
+  /// No description provided for @failedToCreateTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create task'**
+  String get failedToCreateTask;
+
+  /// No description provided for @failedToUpdateTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update task'**
+  String get failedToUpdateTask;
+
+  /// No description provided for @failedToDeleteReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete reminder'**
+  String get failedToDeleteReminder;
+
+  /// No description provided for @taskAddedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Task added successfully'**
+  String get taskAddedSuccessfully;
+
+  /// No description provided for @taskUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Task updated successfully'**
+  String get taskUpdatedSuccessfully;
+
+  /// No description provided for @taskDeletedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Task deleted successfully'**
+  String get taskDeletedSuccessfully;
+
+  /// No description provided for @enterTaskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a task title'**
+  String get enterTaskTitle;
+
+  /// No description provided for @chooseRepeatDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Please choose repeat days'**
+  String get chooseRepeatDays;
+
+  /// No description provided for @chooseFutureReminderTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Please choose a future time for the reminder'**
+  String get chooseFutureReminderTime;
+
+  /// No description provided for @logoutConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to logout?'**
+  String get logoutConfirmation;
+
+  /// No description provided for @pm.
+  ///
+  /// In en, this message translates to:
+  /// **'PM'**
+  String get pm;
+
+  /// No description provided for @am.
+  ///
+  /// In en, this message translates to:
+  /// **'AM'**
+  String get am;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @start.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Now'**
+  String get start;
+
+  /// No description provided for @reminderDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder Details'**
+  String get reminderDetails;
 }
 
 class _AppLocalizationsDelegate

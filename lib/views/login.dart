@@ -174,9 +174,10 @@ class _LoginViewState extends State<LoginView> {
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
+                height: MediaQuery.of(context).size.height * .75,
                 width: double.infinity,
                 constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height * .68,
+                //  minHeight: MediaQuery.of(context).size.height * .68,
                 ),
                 decoration: BoxDecoration(
                   color: AppColor.surface,

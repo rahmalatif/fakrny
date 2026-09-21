@@ -1,9 +1,12 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled/core/design/widgets/star_background.dart';
 import '../core/design/theme/gradiant_colored_container.dart';
 import '../core/design/widgets/animated_logo.dart';
+import '../core/logic/app_routes.dart';
 import '../l10n/app_localizations.dart';
 
 class SplashView extends StatefulWidget {
@@ -14,17 +17,38 @@ class SplashView extends StatefulWidget {
 }
 
 class _SplashViewState extends State<SplashView> {
-  void _navigateTo() {
-    context.go('/onBoarding');
+  bool _isNavigating = false;
+
+  Future<void> _navigateTo() async {
+    if (_isNavigating) return;
+
+    _isNavigating = true;
+
+    final prefs = await SharedPreferences.getInstance();
+
+    final bool onboardingCompleted =
+        prefs.getBool('onboarding_completed') ?? false;
+
+    final User? user = FirebaseAuth.instance.currentUser;
+
+    if (!mounted) return;
+
+    if (!onboardingCompleted) {
+      context.go(AppRoutes.onboarding);
+    } else if (user != null) {
+      context.go(AppRoutes.home);
+    } else {
+      context.go(AppRoutes.login);
+    }
   }
 
   @override
   void initState() {
     super.initState();
 
-    Future.delayed(const Duration(seconds: 10), () {
+    Future.delayed(const Duration(seconds: 3), () {
       if (!mounted) return;
-      context.go('/onBoarding');
+      _navigateTo();
     });
   }
 
@@ -37,6 +61,7 @@ class _SplashViewState extends State<SplashView> {
           child: Stack(
             children: [
               const StarBackground(),
+
               Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -49,7 +74,7 @@ class _SplashViewState extends State<SplashView> {
                       delay: const Duration(milliseconds: 700),
                       child: Text(
                         AppLocalizations.of(context)!.appName,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 42,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -72,9 +97,12 @@ class _SplashViewState extends State<SplashView> {
 
                     FadeInUp(
                       delay: const Duration(milliseconds: 1300),
-                      child:  Text(
+                      child: Text(
                         AppLocalizations.of(context)!.appSlogan,
-                        style: TextStyle(color: Colors.white, fontSize: 20),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                        ),
                       ),
                     ),
                   ],

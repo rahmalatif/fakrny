@@ -269,16 +269,13 @@ class _RegisterViewState extends State<RegisterView> {
                       Padding(
                         padding: const EdgeInsets.all(18.0),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             _socialButton(
                               icon: 'assets/SVG/google_icon.svg',
                               text: 'Google',
                             ),
-                            _socialButton(
-                              icon: 'assets/SVG/apple_icon.svg',
-                              text: 'Apple',
-                            ),
+
                           ],
                         ),
                       ),

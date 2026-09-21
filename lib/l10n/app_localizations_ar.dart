@@ -40,7 +40,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get welcome => 'مرحبًا بعودتك';
 
   @override
-  String get welcomeSub => 'سجل دخولك للوصول الى تذكيراتك';
+  String get welcomeSub => 'سجل دخولك للوصول إلى تذكيراتك';
 
   @override
   String get email => 'البريد الإلكتروني';
@@ -49,7 +49,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get continueWith => 'أو أكمل باستخدام';
 
   @override
-  String get forget => 'نسيت كلمه المرور؟';
+  String get forget => 'نسيت كلمة المرور؟';
 
   @override
   String get password => 'كلمة المرور';
@@ -71,10 +71,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get smartSuggestionText =>
-      'قت تركيزك الامثل بين 9 و 12 و لديك اجتماع الساعه 2 انصح انجاز مهامك الان';
+      'وقت تركيزك الأمثل بين 9 و12، ولديك اجتماع الساعة 2. أنصحك بإنجاز مهامك الآن.';
 
   @override
   String get showMore => 'عرض المزيد';
+
+  @override
+  String get showAll => 'عرض الكل';
 
   @override
   String get calender => 'التقويم';
@@ -86,31 +89,28 @@ class AppLocalizationsAr extends AppLocalizations {
   String get today => 'اليوم';
 
   @override
-  String get showAll => 'عرض الكل';
-
-  @override
   String get todaysSchadule => 'جدول اليوم';
 
   @override
   String get profile => 'الملف الشخصي';
 
   @override
-  String get userName => 'رحمه احمد';
+  String get userName => 'رحمه أحمد';
 
   @override
   String get streak => 'يوم متتالي';
 
   @override
-  String get task => 'مهمه';
+  String get task => 'مهمة';
 
   @override
-  String get progress => 'الانجاز';
+  String get progress => 'الإنجاز';
 
   @override
-  String get settings => 'الاعدادات';
+  String get settings => 'الإعدادات';
 
   @override
-  String get notification => 'الاشعارات';
+  String get notification => 'الإشعارات';
 
   @override
   String get lang => 'اللغة';
@@ -119,19 +119,31 @@ class AppLocalizationsAr extends AppLocalizations {
   String get darkMode => 'الوضع الداكن';
 
   @override
-  String get logout => 'تسجيل خروج';
+  String get logout => 'تسجيل الخروج';
 
   @override
-  String get createReminder => 'انشاء تذكير';
+  String get appSlogan => 'انسى... وإحنا نفكرك';
+
+  @override
+  String get createReminder => 'إنشاء تذكير';
+
+  @override
+  String get editReminder => 'تعديل التذكير';
 
   @override
   String get createReminderSub => 'أضف تفاصيل التذكير الخاص بك';
 
   @override
+  String get addReminderDetails => 'أضف تفاصيل التذكير الخاص بك';
+
+  @override
   String get title => 'العنوان';
 
   @override
-  String get titleHint => 'مثال: مذاكره احياء';
+  String get titleHint => 'مثال: مذاكرة أحياء';
+
+  @override
+  String get taskTitleHint => 'مثال: مذاكرة أحياء';
 
   @override
   String get date => 'التاريخ';
@@ -144,6 +156,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get chooseTime => 'اختر الوقت';
+
+  @override
+  String get chooseDateAndTime => 'يرجى اختيار التاريخ والوقت';
 
   @override
   String get category => 'التصنيف';
@@ -179,22 +194,60 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reminderBefore => 'تذكير قبل';
 
   @override
+  String get remindMe => 'ذكرني';
+
+  @override
+  String get atTaskTime => 'في وقت المهمة';
+
+  @override
+  String minutesBefore(Object minutes) {
+    return 'قبل $minutes دقيقة';
+  }
+
+  @override
+  String get oneHourBefore => 'قبل ساعة واحدة';
+
+  @override
   String get minutes => 'دقيقة';
 
   @override
   String get saveReminder => 'حفظ التذكير';
 
   @override
-  String get next => 'التالي';
-
-  @override
-  String get start => 'ابدأ الآن';
-
-  @override
-  String get reminderDetails => 'تفاصيل التذكير';
-
-  @override
   String get repeat => 'التكرار';
+
+  @override
+  String get doesNotRepeat => 'لا يتكرر';
+
+  @override
+  String get everyDay => 'كل يوم';
+
+  @override
+  String get everyWeek => 'كل أسبوع';
+
+  @override
+  String get customDays => 'أيام مخصصة';
+
+  @override
+  String get mondayShort => 'ن';
+
+  @override
+  String get tuesdayShort => 'ث';
+
+  @override
+  String get wednesdayShort => 'ر';
+
+  @override
+  String get thursdayShort => 'خ';
+
+  @override
+  String get fridayShort => 'ج';
+
+  @override
+  String get saturdayShort => 'س';
+
+  @override
+  String get sundayShort => 'ح';
 
   @override
   String get markCompleted => 'تمت المهمة';
@@ -237,6 +290,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pendingTasks => 'معلقة';
 
   @override
+  String get createTask => 'إنشاء مهمة';
+
+  @override
+  String get dontHaveAccount => 'ليس لديك حساب؟';
+
+  @override
+  String get register => 'إنشاء حساب';
+
+  @override
   String get createAccount => 'إنشاء حساب';
 
   @override
@@ -252,12 +314,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get alreadyHaveAccount => 'لديك حساب بالفعل؟';
 
   @override
-  String get dontHaveAccount => 'ليس لديك حساب؟';
-
-  @override
-  String get register => 'إنشاء حساب';
-
-  @override
   String get forgetPassword => 'نسيت كلمة المرور؟';
 
   @override
@@ -271,19 +327,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get backToLogin => 'العودة لتسجيل الدخول';
 
   @override
-  String get noCompletedTasks => 'لا توجد مهام مكتملة';
+  String todayTasksNum(Object count) {
+    return 'لديك $count مهام اليوم';
+  }
 
   @override
   String get noTasks => 'لا توجد مهام';
 
   @override
-  String get errorUpdatingTask => 'حدث خطأ أثناء تحديث المهمة';
-
-  @override
-  String get tomorrow => 'غداً';
-
-  @override
-  String get upcomingTasks => 'مهام قادمة';
+  String get noCompletedTasks => 'لا توجد مهام مكتملة';
 
   @override
   String get noTasksYet => 'لا توجد مهام بعد';
@@ -307,13 +359,56 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noCompletedTasksMessage => 'أكمل إحدى مهامك وستظهر هنا.';
 
   @override
-  String get createTask => 'إنشاء مهمة';
+  String get upcomingTasks => 'مهام قادمة';
 
   @override
-  String get appSlogan => 'انسى... وإحنا نفكرك';
+  String get tomorrow => 'غدًا';
 
   @override
-  String todayTasksNum(Object count) {
-    return 'لديك $count مهام اليوم';
-  }
+  String get errorUpdatingTask => 'حدث خطأ أثناء تحديث المهمة';
+
+  @override
+  String get failedToCreateTask => 'فشل في إنشاء المهمة';
+
+  @override
+  String get failedToUpdateTask => 'فشل في تحديث المهمة';
+
+  @override
+  String get failedToDeleteReminder => 'فشل في حذف التذكير';
+
+  @override
+  String get taskAddedSuccessfully => 'تمت إضافة المهمة بنجاح';
+
+  @override
+  String get taskUpdatedSuccessfully => 'تم تحديث المهمة بنجاح';
+
+  @override
+  String get taskDeletedSuccessfully => 'تم حذف المهمة بنجاح';
+
+  @override
+  String get enterTaskTitle => 'يرجى إدخال عنوان المهمة';
+
+  @override
+  String get chooseRepeatDays => 'يرجى اختيار أيام التكرار';
+
+  @override
+  String get chooseFutureReminderTime => 'يرجى اختيار وقت مستقبلي للتذكير';
+
+  @override
+  String get logoutConfirmation => 'هل أنت متأكد أنك تريد تسجيل الخروج؟';
+
+  @override
+  String get pm => 'م';
+
+  @override
+  String get am => 'ص';
+
+  @override
+  String get next => 'التالي';
+
+  @override
+  String get start => 'ابدأ الآن';
+
+  @override
+  String get reminderDetails => 'تفاصيل التذكير';
 }
