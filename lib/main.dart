@@ -10,6 +10,7 @@ import 'package:untitled/provider/task_provider.dart';
 import 'package:untitled/services/auth_services.dart';
 import 'package:untitled/services/notification_services.dart';
 import 'package:untitled/services/task_firestore_service.dart';
+import 'package:untitled/services/user_firestore_service.dart';
 import 'core/design/theme/app_theme.dart';
 import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
@@ -34,7 +35,7 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => TaskProvider(
             taskFirestoreService: TaskFirestoreService(),
-            authServices: AuthServices(),
+            authServices: AuthServices(), userFirestoreService: UserFirestoreService(),
           ),
         ),
       ],

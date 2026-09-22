@@ -34,7 +34,7 @@ class EmptyState extends StatelessWidget {
               width: 90,
               height: 90,
               decoration: BoxDecoration(
-                color: AppColor.primary.withOpacity(0.1),
+                color: AppColor.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -43,9 +43,7 @@ class EmptyState extends StatelessWidget {
                 color: AppColor.primary,
               ),
             ),
-
             const SizedBox(height: 20),
-
             Text(
               title,
               textAlign: TextAlign.center,
@@ -57,9 +55,7 @@ class EmptyState extends StatelessWidget {
                     : AppColor.textPrimary,
               ),
             ),
-
             const SizedBox(height: 8),
-
             Text(
               message,
               textAlign: TextAlign.center,
@@ -71,10 +67,8 @@ class EmptyState extends StatelessWidget {
                     : AppColor.textSecondary,
               ),
             ),
-
             if (buttonText != null && onPressed != null) ...[
               const SizedBox(height: 20),
-
               ElevatedButton.icon(
                 onPressed: onPressed,
                 icon: const Icon(Icons.add),

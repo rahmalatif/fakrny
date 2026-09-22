@@ -6,9 +6,9 @@ class AppGradient {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [
-      AppColor.Grad1,
-      AppColor.Grad2,
-      AppColor.Grad3,
+      AppColor.grad1,
+      AppColor.grad2,
+      AppColor.grad3,
     ],
   );
 }

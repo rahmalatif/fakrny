@@ -31,7 +31,9 @@ class _TasksViewState extends State<TasksView> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final taskProvider = context.watch<TaskProvider>();
+    final l10n = AppLocalizations.of(context)!;
 
     if (taskProvider.isLoading && taskProvider.tasks.isEmpty) {
       return Scaffold(
@@ -44,44 +46,37 @@ class _TasksViewState extends State<TasksView> {
     if (taskProvider.error != null && taskProvider.tasks.isEmpty) {
       return Scaffold(
         backgroundColor: isDark ? AppColor.darkBackground : AppColor.background,
-        body: Center(child: Text('Error: ${taskProvider.error}')),
+        body: Center(
+          child: Text(
+            taskProvider.error!,
+            style: TextStyle(
+              color: isDark ? AppColor.textWhite : AppColor.textPrimary,
+            ),
+          ),
+        ),
         bottomNavigationBar: const CustomNavBar(currentIndex: 1),
       );
     }
 
-    final allTasks = taskProvider.tasks;
+    final allTasks = List<TaskModel>.from(taskProvider.tasks);
 
-    final completedTaskList = allTasks
-        .where((task) => task.isCompleted == true)
+    final completedTasksList = allTasks
+        .where((task) => task.isCompleted)
         .toList();
 
-    final tasks = selectedTab == 0 ? allTasks : completedTaskList;
+    final pendingTasksList = allTasks
+        .where((task) => !task.isCompleted)
+        .toList();
 
-    final now = DateTime.now();
+    final completedTasks = completedTasksList.length;
 
-    final todayTasks = tasks.where((task) {
-      return task.scheduledAt.year == now.year &&
-          task.scheduledAt.month == now.month &&
-          task.scheduledAt.day == now.day;
-    }).toList();
+    final pendingTasks = pendingTasksList.length;
 
-    final tomorrow = now.add(const Duration(days: 1));
+    final displayedTasks = selectedTab == 0
+        ? List<TaskModel>.from(allTasks)
+        : List<TaskModel>.from(completedTasksList);
 
-    final tomorrowTasks = tasks.where((task) {
-      return task.scheduledAt.year == tomorrow.year &&
-          task.scheduledAt.month == tomorrow.month &&
-          task.scheduledAt.day == tomorrow.day;
-    }).toList();
-
-    final laterTasks = tasks.where((task) {
-      return task.scheduledAt.isAfter(
-        DateTime(tomorrow.year, tomorrow.month, tomorrow.day, 23, 59, 59),
-      );
-    }).toList();
-
-    final completedTasks = completedTaskList.length;
-
-    final pendingTasks = allTasks.length - completedTasks;
+    displayedTasks.sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
 
     return Scaffold(
       backgroundColor: isDark ? AppColor.darkBackground : AppColor.background,
@@ -90,31 +85,20 @@ class _TasksViewState extends State<TasksView> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(18.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Column(
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.tasks,
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: isDark
-                                ? AppColor.textWhite
-                                : AppColor.textPrimary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                padding: const EdgeInsets.all(18),
+                child: Text(
+                  l10n.tasks,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? AppColor.textWhite : AppColor.textPrimary,
+                  ),
                 ),
               ),
 
               Container(
                 width: MediaQuery.of(context).size.width * 0.9,
-                height: MediaQuery.of(context).size.width * 0.1,
+                height: 45,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(18),
                   color: isDark ? AppColor.darkSurface : AppColor.secondary,
@@ -131,13 +115,13 @@ class _TasksViewState extends State<TasksView> {
                         child: Container(
                           decoration: BoxDecoration(
                             color: selectedTab == 0
-                                ? AppColor.Grad1
+                                ? AppColor.grad1
                                 : AppColor.transparent,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           alignment: Alignment.center,
                           child: Text(
-                            AppLocalizations.of(context)!.all,
+                            l10n.all,
                             style: TextStyle(
                               color: selectedTab == 0
                                   ? AppColor.textWhite
@@ -151,7 +135,6 @@ class _TasksViewState extends State<TasksView> {
                         ),
                       ),
                     ),
-
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
@@ -162,13 +145,13 @@ class _TasksViewState extends State<TasksView> {
                         child: Container(
                           decoration: BoxDecoration(
                             color: selectedTab == 1
-                                ? AppColor.Grad1
+                                ? AppColor.grad1
                                 : AppColor.transparent,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           alignment: Alignment.center,
                           child: Text(
-                            AppLocalizations.of(context)!.done,
+                            l10n.done,
                             style: TextStyle(
                               color: selectedTab == 1
                                   ? AppColor.textWhite
@@ -189,23 +172,23 @@ class _TasksViewState extends State<TasksView> {
               const SizedBox(height: 30),
 
               Padding(
-                padding: const EdgeInsets.only(left: 30.0, right: 30.0),
+                padding: const EdgeInsets.symmetric(horizontal: 30),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _container(
                       context: context,
-                      value: AppLocalizations.of(context)!.totalTasks,
+                      value: l10n.totalTasks,
                       title: allTasks.length.toString(),
                     ),
                     _container(
                       context: context,
-                      value: AppLocalizations.of(context)!.completedTasks,
+                      value: l10n.completedTasks,
                       title: completedTasks.toString(),
                     ),
                     _container(
                       context: context,
-                      value: AppLocalizations.of(context)!.pendingTasks,
+                      value: l10n.pendingTasks,
                       title: pendingTasks.toString(),
                     ),
                   ],
@@ -214,109 +197,42 @@ class _TasksViewState extends State<TasksView> {
 
               const SizedBox(height: 25),
 
-              if (selectedTab == 1) ...[
-                if (completedTaskList.isNotEmpty) ...[
-                  _sectionTitle(context, AppLocalizations.of(context)!.done),
-
-                  const SizedBox(height: 10),
-
-                  ...completedTaskList.map(
-                    (task) => Padding(
-                      padding: const EdgeInsets.only(
-                        left: 15,
-                        right: 15,
-                        bottom: 10,
-                      ),
-                      child: _taskCard(task),
+              if (displayedTasks.isNotEmpty)
+                ...displayedTasks.map(
+                  (task) => Padding(
+                    padding: const EdgeInsets.only(
+                      left: 15,
+                      right: 15,
+                      bottom: 10,
                     ),
+                    child: _taskCard(task),
                   ),
-                ],
+                ),
 
-                if (completedTaskList.isEmpty)
-                  EmptyState(
-                    icon: Icons.check_circle_outline,
-                    title: AppLocalizations.of(context)!.noCompletedTasks,
-                    message: AppLocalizations.of(
-                      context,
-                    )!.noCompletedTasksMessage,
-                  ),
-              ] else ...[
-                if (todayTasks.isNotEmpty) ...[
-                  _sectionTitle(context, AppLocalizations.of(context)!.today),
+              if (displayedTasks.isEmpty)
+                EmptyState(
+                  icon: selectedTab == 1
+                      ? Icons.check_circle_outline
+                      : Icons.task_alt,
+                  title: selectedTab == 1
+                      ? l10n.noCompletedTasks
+                      : l10n.noTasksYet,
+                  message: selectedTab == 1
+                      ? l10n.noCompletedTasksMessage
+                      : l10n.noTasksYetMessage,
+                  buttonText: selectedTab == 0 ? l10n.createTask : null,
+                  onPressed: selectedTab == 0
+                      ? () async {
+                          final result = await context.push('/Reminder');
 
-                  const SizedBox(height: 10),
+                          if (!mounted) return;
 
-                  ...todayTasks.map(
-                    (task) => Padding(
-                      padding: const EdgeInsets.only(
-                        left: 15,
-                        right: 15,
-                        bottom: 10,
-                      ),
-                      child: _taskCard(task),
-                    ),
-                  ),
-                ],
-
-                if (tomorrowTasks.isNotEmpty) ...[
-                  const SizedBox(height: 10),
-
-                  _sectionTitle(
-                    context,
-                    '${AppLocalizations.of(context)!.tomorrow} - ${tomorrow.day}/${tomorrow.month}',
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  ...tomorrowTasks.map(
-                    (task) => Padding(
-                      padding: const EdgeInsets.only(
-                        left: 15,
-                        right: 15,
-                        bottom: 10,
-                      ),
-                      child: _taskCard(task),
-                    ),
-                  ),
-                ],
-
-                if (laterTasks.isNotEmpty) ...[
-                  const SizedBox(height: 10),
-
-                  _sectionTitle(
-                    context,
-                    AppLocalizations.of(context)!.upcomingTasks,
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  ...laterTasks.map(
-                    (task) => Padding(
-                      padding: const EdgeInsets.only(
-                        left: 15,
-                        right: 15,
-                        bottom: 10,
-                      ),
-                      child: _taskCard(task),
-                    ),
-                  ),
-                ],
-
-                if (tasks.isEmpty)
-                  EmptyState(
-                    icon: Icons.task_alt,
-                    title: AppLocalizations.of(context)!.noTasksYet,
-                    message: AppLocalizations.of(context)!.noTasksYetMessage,
-                    buttonText: AppLocalizations.of(context)!.createTask,
-                    onPressed: () async {
-                      final result = await context.push('/Reminder');
-
-                      if (result == true && mounted) {
-                        context.read<TaskProvider>().loadTasks();
-                      }
-                    },
-                  ),
-              ],
+                          if (result == true) {
+                            await context.read<TaskProvider>().loadTasks();
+                          }
+                        }
+                      : null,
+                ),
 
               const SizedBox(height: 25),
             ],
@@ -327,23 +243,36 @@ class _TasksViewState extends State<TasksView> {
     );
   }
 
-  Widget _sectionTitle(BuildContext context, String title) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  Future<void> _toggleTask(TaskModel task) async {
+    final taskProvider = context.read<TaskProvider>();
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: Text(
-          title,
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-            color: isDark ? AppColor.textWhite : AppColor.textPrimary,
-          ),
-        ),
-      ),
+    final l10n = AppLocalizations.of(context)!;
+
+    final updatedTask = TaskModel(
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      scheduledAt: task.scheduledAt,
+      category: task.category,
+      priority: task.priority,
+      color: task.color,
+      isCompleted: !task.isCompleted,
+      repeat: task.repeat,
+      repeatDays: task.repeatDays,
+      remindBefore: task.remindBefore,
+      createdAt: task.createdAt,
+      updatedAt: DateTime.now(),
     );
+
+    final success = await taskProvider.updateTask(updatedTask);
+
+    if (!mounted) return;
+
+    if (!success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(taskProvider.error ?? l10n.errorUpdatingTask)),
+      );
+    }
   }
 
   Widget _taskCard(TaskModel task) {
@@ -354,9 +283,7 @@ class _TasksViewState extends State<TasksView> {
         '${task.scheduledAt.minute.toString().padLeft(2, '0')}';
 
     return GestureDetector(
-      onTap: () {
-        context.push('/ReminderDetails', extra: task);
-      },
+      onTap: () => _toggleTask(task),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -365,7 +292,7 @@ class _TasksViewState extends State<TasksView> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isDark ? .20 : .04),
+              color: Colors.black.withValues(alpha: isDark ? .20 : .04),
               blurRadius: 8,
               spreadRadius: 1,
               offset: const Offset(0, 2),
@@ -375,35 +302,7 @@ class _TasksViewState extends State<TasksView> {
         child: Row(
           children: [
             GestureDetector(
-              onTap: () async {
-                final success = await context.read<TaskProvider>().updateTask(
-                  TaskModel(
-                    id: task.id,
-                    title: task.title,
-                    description: task.description,
-                    scheduledAt: task.scheduledAt,
-                    category: task.category,
-                    priority: task.priority,
-                    color: task.color,
-                    isCompleted: !task.isCompleted,
-                    repeat: task.repeat,
-                    remindBefore: task.remindBefore,
-                    createdAt: task.createdAt,
-                    updatedAt: DateTime.now(), repeatDays: [],
-                  ),
-                );
-
-                if (!success && context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        context.read<TaskProvider>().error ??
-                            'حدث خطأ أثناء تحديث المهمة',
-                      ),
-                    ),
-                  );
-                }
-              },
+              onTap: () => _toggleTask(task),
               child: Container(
                 width: 22,
                 height: 22,
@@ -480,7 +379,9 @@ class _TasksViewState extends State<TasksView> {
                       vertical: 3,
                     ),
                     decoration: BoxDecoration(
-                      color: _getCategoryColor(task.category).withOpacity(.08),
+                      color: _getCategoryColor(
+                        task.category,
+                      ).withValues(alpha: .08),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
@@ -535,7 +436,7 @@ class _TasksViewState extends State<TasksView> {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.20 : 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.05),
             blurRadius: 8,
             spreadRadius: 1,
             offset: const Offset(0, 2),

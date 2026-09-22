@@ -2,12 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:untitled/core/design/theme/app_color.dart';
-import 'package:untitled/core/design/theme/app_gradiant.dart';
 import 'package:untitled/core/design/widgets/app_image.dart';
 import 'package:untitled/core/design/widgets/gradiant_button.dart';
-
 import '../core/design/widgets/form.dart';
-import '../core/design/widgets/star.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_services.dart';
 
@@ -330,7 +327,7 @@ Widget _socialButton({required String icon, required String text}) {
       borderRadius: BorderRadius.circular(16),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.08),
+          color: Colors.black.withValues(alpha: 0.08),
           blurRadius: 12,
           offset: const Offset(0, 4),
         ),

@@ -7,7 +7,6 @@ import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/provider/task_provider.dart';
 import '../core/design/widgets/empty_states.dart';
 import '../core/design/widgets/nav_bar.dart';
-import '../model/tasks.dart';
 import '../model/user_model.dart';
 import '../services/auth_services.dart';
 import '../services/user_firestore_service.dart';
@@ -169,7 +168,7 @@ class _HomeViewState extends State<HomeView> {
                     },
 
                     child: CircleAvatar(
-                      backgroundColor: AppColor.Grad3,
+                      backgroundColor: AppColor.grad3,
 
                       child: Text(
                         getInitials(user?.name ?? 'User'),
@@ -245,10 +244,14 @@ class _HomeViewState extends State<HomeView> {
                             ? AppLocalizations.of(context)!.createTask
                             : AppLocalizations.of(context)!.createTask,
                         onPressed: () async {
+                          final taskProvider = context.read<TaskProvider>();
+
                           final result = await context.push('/Reminder');
 
-                          if (result == true && mounted) {
-                            context.read<TaskProvider>().loadTasks();
+                          if (!mounted) return;
+
+                          if (result == true) {
+                            await taskProvider.loadTasks();
                           }
                         },
                       )
@@ -280,8 +283,7 @@ class _HomeViewState extends State<HomeView> {
                                 extra: task,
                               );
 
-                              if (!mounted) return;
-
+                              if (!context.mounted) return;
                               if (result == true) {
                                 await taskProvider.loadTasks();
                               }
@@ -298,12 +300,12 @@ class _HomeViewState extends State<HomeView> {
         onPressed: () async {
           final result = await context.push('/Reminder');
 
-          if (result == true && mounted) {
+          if (result == true && context.mounted) {
             context.read<TaskProvider>().loadTasks();
           }
         },
 
-        backgroundColor: AppColor.Grad3,
+        backgroundColor: AppColor.grad3,
 
         child: const Icon(Icons.add, color: AppColor.textWhite),
       ),

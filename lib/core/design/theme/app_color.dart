@@ -11,10 +11,11 @@ class AppColor {
   static const Color textSecondary = Color(0xFF7A7A7A);
   static const Color primaryLight = Color(0xFF7C63FF);
   static const Color primaryDark = Color(0xFF4328D8);
-  static const Color Grad1 = Color(0xff4728FF);
-  static const Color Grad2 = Color(0xff6E5DFF);
-  static const Color Grad3 = Color(0xff7CAEFF);
-  static const Color boarding_card = Colors.white38;
+
+  static const Color grad1 = Color(0xff4728FF);
+  static const Color grad2 = Color(0xff6E5DFF);
+  static const Color grad3 = Color(0xff7CAEFF);
+  static const Color boardingCard = Colors.white38;
 
   static const Color secondaryLight = Color(0xFFDCEBFF);
 
@@ -38,7 +39,6 @@ class AppColor {
 
   static const Color transparent = Colors.transparent;
 
-  //Dark mode
   static const Color darkBackground = Color(0xFF0F172A);
   static const Color darkSurface = Color(0xFF1E293B);
   static const Color darkCard = Color(0xFF334155);

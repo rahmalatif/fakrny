@@ -212,22 +212,15 @@ class _ProfileViewState extends State<ProfileView> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-
     final themeController = context.watch<ThemeController>();
-
     final localeController = context.watch<LangController>();
-
-    final taskProvider = context.watch<TaskProvider>();
-
     final isDark = themeController.isDark;
-
     final isArabic = localeController.locale.languageCode == 'ar';
-
     final displayName = user?.name.trim().isNotEmpty == true
         ? user!.name
         : 'User';
-
     final displayEmail = user?.email ?? '';
+
 
     return Scaffold(
       backgroundColor: isDark ? AppColor.darkBackground : AppColor.background,
@@ -256,10 +249,10 @@ class _ProfileViewState extends State<ProfileView> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isDark ? AppColor.darkSurface : AppColor.surface,
-                    border: Border.all(color: AppColor.Grad1, width: 2),
+                    border: Border.all(color: AppColor.grad1, width: 2),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColor.Grad1.withOpacity(0.18),
+                        color: AppColor.grad1.withValues(alpha: 0.18),
                         blurRadius: 10,
                         spreadRadius: 2,
                         offset: const Offset(0, 3),
@@ -273,13 +266,13 @@ class _ProfileViewState extends State<ProfileView> {
                             height: 22,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: AppColor.Grad1,
+                              color: AppColor.grad1,
                             ),
                           )
                         : Text(
                             getInitials(displayName),
                             style: const TextStyle(
-                              color: AppColor.Grad1,
+                              color: AppColor.grad1,
                               fontSize: 21,
                               fontWeight: FontWeight.bold,
                             ),
@@ -376,7 +369,7 @@ class _ProfileViewState extends State<ProfileView> {
                   onChanged: (_) {
                     themeController.toggleTheme();
                   },
-                  activeColor: AppColor.Grad1,
+                  activeThumbColor: AppColor.grad1,
                 ),
               ),
 
@@ -433,8 +426,8 @@ Widget profileContainer({
       boxShadow: [
         BoxShadow(
           color: isDark
-              ? Colors.black.withOpacity(0.20)
-              : Colors.black.withOpacity(0.05),
+              ? Colors.black.withValues(alpha: 0.20)
+              : Colors.black.withValues(alpha: 0.05),
           blurRadius: 8,
           spreadRadius: 1,
           offset: const Offset(0, 2),
@@ -488,15 +481,15 @@ Widget buildSettingTile({
         border: Border(
           bottom: BorderSide(
             color: isDark
-                ? AppColor.darkCard.withOpacity(0.4)
-                : Colors.grey.withOpacity(0.08),
+                ? AppColor.darkCard.withValues(alpha: 0.4)
+                : Colors.grey.withValues(alpha: 0.08),
           ),
         ),
       ),
       child: Row(
         textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
         children: [
-          Icon(icon, size: 20, color: AppColor.Grad1),
+          Icon(icon, size: 20, color: AppColor.grad1),
 
           const SizedBox(width: 10),
 

@@ -1,7 +1,5 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
-
-import '../../../l10n/app_localizations.dart';
 import '../../../model/on_boarding_model.dart';
 import '../../logic/context_extension.dart';
 import '../theme/app_color.dart';

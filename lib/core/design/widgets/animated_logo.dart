@@ -51,10 +51,10 @@ class _AnimatedLogoState extends State<AnimatedLogo>
             height: 200 + (_scaleAnimation.value * 10),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white.withOpacity(.08),
+              color: Colors.white.withValues(alpha: .08),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.white.withOpacity(.10),
+                  color: Colors.white.withValues(alpha: .10),
                   blurRadius: 35,
                   spreadRadius: 10,
                 ),
@@ -69,14 +69,14 @@ class _AnimatedLogoState extends State<AnimatedLogo>
             height: 140,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white.withOpacity(.18),
+              color: Colors.white.withValues(alpha: .18),
               border: Border.all(
                 color: Colors.white24,
                 width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.white.withOpacity(.25),
+                  color: Colors.white.withValues(alpha: .25),
                   blurRadius: 30,
                   spreadRadius: 8,
                 ),

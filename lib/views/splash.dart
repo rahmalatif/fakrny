@@ -2,12 +2,14 @@ import 'package:animate_do/animate_do.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled/core/design/widgets/star_background.dart';
 import '../core/design/theme/gradiant_colored_container.dart';
 import '../core/design/widgets/animated_logo.dart';
 import '../core/logic/app_routes.dart';
 import '../l10n/app_localizations.dart';
+import '../provider/task_provider.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
@@ -36,8 +38,12 @@ class _SplashViewState extends State<SplashView> {
     if (!onboardingCompleted) {
       context.go(AppRoutes.onboarding);
     } else if (user != null) {
+      await context.read<TaskProvider>().loadTasks();
+
+      if (!mounted) return;
+
       context.go(AppRoutes.home);
-    } else {
+    }else {
       context.go(AppRoutes.login);
     }
   }

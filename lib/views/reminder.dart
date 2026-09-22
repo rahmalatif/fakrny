@@ -22,16 +22,28 @@ class _ReminderViewState extends State<ReminderView> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
   String selectedRepeat = 'none';
-
   List<int> selectedRepeatDays = [];
   final TextEditingController _titleController = TextEditingController();
-
   String selectedCategory = 'study';
   String selectedPriority = 'high';
-
   int reminderBefore = 30;
-
   bool isLoading = false;
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get backgroundColor =>
+      isDark ? AppColor.darkBackground : AppColor.background;
+
+  Color get surfaceColor =>
+      isDark ? AppColor.darkSurface : AppColor.surface;
+
+  Color get cardColor =>
+      isDark ? AppColor.darkCard : AppColor.border;
+
+  Color get primaryTextColor =>
+      isDark ? AppColor.textWhite : AppColor.textPrimary;
+
+  Color get secondaryTextColor =>
+      isDark ? AppColor.textHint : AppColor.textSecondary;
 
   @override
   void initState() {
@@ -88,8 +100,6 @@ class _ReminderViewState extends State<ReminderView> {
   }
 
   Future<void> saveReminder() async {
-    final l10n = AppLocalizations.of(context)!;
-
     if (_titleController.text.trim().isEmpty) {
       SnackBarHelper.show(
         context,
@@ -309,7 +319,7 @@ class _ReminderViewState extends State<ReminderView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.darkBackground,
+      backgroundColor: backgroundColor,
       body: SafeArea(
         child: Stack(
           children: [
@@ -361,9 +371,9 @@ class _ReminderViewState extends State<ReminderView> {
               context.go('/Home');
             }
           },
-          child: const Icon(
+          child: Icon(
             Icons.arrow_back,
-            color: AppColor.textWhite,
+            color: primaryTextColor,
             size: 28,
           ),
         ),
@@ -374,8 +384,8 @@ class _ReminderViewState extends State<ReminderView> {
               widget.task == null
                   ? l10n.createReminder
                   : l10n.editReminder,
-              style: const TextStyle(
-                color: AppColor.textWhite,
+              style: TextStyle(
+                color: primaryTextColor,
                 fontSize: 21,
                 fontWeight: FontWeight.bold,
               ),
@@ -383,8 +393,8 @@ class _ReminderViewState extends State<ReminderView> {
             const SizedBox(height: 4),
             Text(
               l10n.addReminderDetails,
-              style: const TextStyle(
-                color: AppColor.textHint,
+              style: TextStyle(
+                color: secondaryTextColor,
                 fontSize: 9,
               ),
             ),
@@ -404,8 +414,8 @@ class _ReminderViewState extends State<ReminderView> {
       children: [
         Text(
           l10n.title,
-          style: const TextStyle(
-            color: AppColor.textSecondary,
+          style: TextStyle(
+            color: secondaryTextColor,
             fontSize: 10,
           ),
         ),
@@ -413,31 +423,36 @@ class _ReminderViewState extends State<ReminderView> {
         Container(
           height: 54,
           decoration: BoxDecoration(
-            color: AppColor.surface,
+            color: surfaceColor,
             borderRadius: BorderRadius.circular(13),
+            border: Border.all(
+              color: isDark
+                  ? Colors.transparent
+                  : AppColor.border,
+            ),
           ),
           child: Row(
             children: [
               const SizedBox(width: 13),
-              const Icon(
+              Icon(
                 Icons.content_copy_outlined,
-                color: AppColor.textSecondary,
+                color: secondaryTextColor,
                 size: 20,
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: TextField(
                   controller: _titleController,
-                  style: const TextStyle(
-                    color: AppColor.textPrimary,
+                  style: TextStyle(
+                    color: primaryTextColor,
                     fontSize: 13,
                   ),
                   cursorColor: AppColor.primary,
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     hintText: l10n.taskTitleHint,
-                    hintStyle: const TextStyle(
-                      color: AppColor.textSecondary,
+                    hintStyle: TextStyle(
+                      color: secondaryTextColor,
                       fontSize: 12,
                     ),
                   ),
@@ -487,8 +502,13 @@ class _ReminderViewState extends State<ReminderView> {
           vertical: 7,
         ),
         decoration: BoxDecoration(
-          color: AppColor.darkSurface,
+          color: surfaceColor,
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isDark
+                ? Colors.transparent
+                : AppColor.border,
+          ),
         ),
         child: Row(
           children: [
@@ -499,16 +519,16 @@ class _ReminderViewState extends State<ReminderView> {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      color: AppColor.textSecondary,
+                    style: TextStyle(
+                      color: secondaryTextColor,
                       fontSize: 10,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     value,
-                    style: const TextStyle(
-                      color: AppColor.textWhite,
+                    style: TextStyle(
+                      color: primaryTextColor,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
@@ -518,7 +538,7 @@ class _ReminderViewState extends State<ReminderView> {
             ),
             Icon(
               icon,
-              color: AppColor.textSecondary,
+              color: secondaryTextColor,
               size: 19,
             ),
           ],
@@ -537,8 +557,8 @@ class _ReminderViewState extends State<ReminderView> {
           children: [
             Text(
               l10n.category,
-              style: const TextStyle(
-                color: AppColor.textWhite,
+              style: TextStyle(
+                color: primaryTextColor,
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
               ),
@@ -546,8 +566,8 @@ class _ReminderViewState extends State<ReminderView> {
             const Spacer(),
             Text(
               l10n.chooseCategory,
-              style: const TextStyle(
-                color: AppColor.textSecondary,
+              style: TextStyle(
+                color: secondaryTextColor,
                 fontSize: 10,
               ),
             ),
@@ -583,13 +603,13 @@ class _ReminderViewState extends State<ReminderView> {
           height: 62,
           decoration: BoxDecoration(
             color: isSelected
-                ? AppColor.primary.withOpacity(.08)
-                : AppColor.darkSurface,
+                ? AppColor.primary.withValues(alpha: .08)
+                : surfaceColor,
             borderRadius: BorderRadius.circular(11),
             border: Border.all(
               color: isSelected
                   ? AppColor.primary
-                  : AppColor.darkCard,
+                  : cardColor,
             ),
           ),
           child: Column(
@@ -599,7 +619,7 @@ class _ReminderViewState extends State<ReminderView> {
                 categoryIcon(category),
                 color: isSelected
                     ? AppColor.primary
-                    : AppColor.textSecondary,
+                    : secondaryTextColor,
                 size: 20,
               ),
               const SizedBox(height: 4),
@@ -608,7 +628,7 @@ class _ReminderViewState extends State<ReminderView> {
                 style: TextStyle(
                   color: isSelected
                       ? AppColor.primary
-                      : AppColor.textSecondary,
+                      : secondaryTextColor,
                   fontSize: 9,
                   fontWeight: isSelected
                       ? FontWeight.bold
@@ -630,8 +650,8 @@ class _ReminderViewState extends State<ReminderView> {
       children: [
         Text(
           l10n.remindMe,
-          style: const TextStyle(
-            color: AppColor.textWhite,
+          style: TextStyle(
+            color: primaryTextColor,
             fontSize: 13,
             fontWeight: FontWeight.bold,
           ),
@@ -641,21 +661,26 @@ class _ReminderViewState extends State<ReminderView> {
           height: 46,
           padding: const EdgeInsets.symmetric(horizontal: 13),
           decoration: BoxDecoration(
-            color: AppColor.darkSurface,
+            color: surfaceColor,
             borderRadius: BorderRadius.circular(11),
+            border: Border.all(
+              color: isDark
+                  ? Colors.transparent
+                  : AppColor.border,
+            ),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<int>(
               value: reminderBefore,
               isExpanded: true,
-              dropdownColor: AppColor.darkSurface,
-              icon: const Icon(
+              dropdownColor: surfaceColor,
+              icon: Icon(
                 Icons.keyboard_arrow_down,
-                color: AppColor.textSecondary,
+                color: secondaryTextColor,
                 size: 21,
               ),
-              style: const TextStyle(
-                color: AppColor.textWhite,
+              style: TextStyle(
+                color: primaryTextColor,
                 fontSize: 11,
               ),
               items: [
@@ -706,8 +731,8 @@ class _ReminderViewState extends State<ReminderView> {
       children: [
         Text(
           l10n.priority,
-          style: const TextStyle(
-            color: AppColor.textWhite,
+          style: TextStyle(
+            color: primaryTextColor,
             fontSize: 13,
             fontWeight: FontWeight.bold,
           ),
@@ -752,13 +777,13 @@ class _ReminderViewState extends State<ReminderView> {
           height: 47,
           decoration: BoxDecoration(
             color: isSelected
-                ? AppColor.error.withOpacity(.06)
-                : AppColor.darkSurface,
+                ? AppColor.error.withValues(alpha: .06)
+                : surfaceColor,
             borderRadius: BorderRadius.circular(11),
             border: Border.all(
               color: isSelected
-                  ? AppColor.error.withOpacity(.45)
-                  : AppColor.darkCard,
+                  ? AppColor.error.withValues(alpha: .45)
+                  : cardColor,
             ),
           ),
           child: Row(
@@ -769,7 +794,7 @@ class _ReminderViewState extends State<ReminderView> {
                 style: TextStyle(
                   color: isSelected
                       ? iconColor
-                      : AppColor.textSecondary,
+                      : secondaryTextColor,
                   fontSize: 10,
                   fontWeight: isSelected
                       ? FontWeight.bold
@@ -797,8 +822,8 @@ class _ReminderViewState extends State<ReminderView> {
       children: [
         Text(
           l10n.repeat,
-          style: const TextStyle(
-            color: AppColor.textWhite,
+          style: TextStyle(
+            color: primaryTextColor,
             fontSize: 13,
             fontWeight: FontWeight.bold,
           ),
@@ -808,20 +833,25 @@ class _ReminderViewState extends State<ReminderView> {
           height: 46,
           padding: const EdgeInsets.symmetric(horizontal: 13),
           decoration: BoxDecoration(
-            color: AppColor.darkSurface,
+            color: surfaceColor,
             borderRadius: BorderRadius.circular(11),
+            border: Border.all(
+              color: isDark
+                  ? Colors.transparent
+                  : AppColor.border,
+            ),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: selectedRepeat,
               isExpanded: true,
-              dropdownColor: AppColor.darkSurface,
-              icon: const Icon(
+              dropdownColor: surfaceColor,
+              icon: Icon(
                 Icons.keyboard_arrow_down,
-                color: AppColor.textSecondary,
+                color: secondaryTextColor,
               ),
-              style: const TextStyle(
-                color: AppColor.textWhite,
+              style: TextStyle(
+                color: primaryTextColor,
                 fontSize: 11,
               ),
               items: [
@@ -909,12 +939,12 @@ class _ReminderViewState extends State<ReminderView> {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? AppColor.primary
-                      : AppColor.darkSurface,
+                      : surfaceColor,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: isSelected
                         ? AppColor.primary
-                        : AppColor.darkCard,
+                        : cardColor,
                   ),
                 ),
                 child: Center(
@@ -923,7 +953,7 @@ class _ReminderViewState extends State<ReminderView> {
                     style: TextStyle(
                       color: isSelected
                           ? AppColor.textWhite
-                          : AppColor.textSecondary,
+                          : secondaryTextColor,
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
                     ),
@@ -947,7 +977,7 @@ class _ReminderViewState extends State<ReminderView> {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColor.primary,
           disabledBackgroundColor:
-          AppColor.primary.withOpacity(.6),
+          AppColor.primary.withValues(alpha: .6),
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(9),

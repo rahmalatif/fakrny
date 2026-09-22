@@ -50,11 +50,8 @@ class _CalenderViewState extends State<CalenderView> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
-        backgroundColor: AppColor.Grad3,
-        child: const Icon(
-          Icons.add,
-          color: AppColor.textWhite,
-        ),
+        backgroundColor: AppColor.grad3,
+        child: const Icon(Icons.add, color: AppColor.textWhite),
       ),
       bottomNavigationBar: const CustomNavBar(currentIndex: 2),
     );
@@ -86,7 +83,7 @@ class _CalenderViewState extends State<CalenderView> {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.20 : 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.04),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -124,9 +121,7 @@ class _CalenderViewState extends State<CalenderView> {
 
         calendarBuilders: CalendarBuilders<TaskModel>(
           markerBuilder: (context, day, events) {
-            final hasTask = taskProvider.tasksForDate(day).isNotEmpty;
-
-            if (!hasTask) {
+            if (events.isEmpty) {
               return null;
             }
 
@@ -144,15 +139,12 @@ class _CalenderViewState extends State<CalenderView> {
             );
           },
         ),
-
         headerStyle: HeaderStyle(
           formatButtonVisible: false,
           titleCentered: true,
 
           titleTextStyle: TextStyle(
-            color: isDark
-                ? AppColor.textWhite
-                : AppColor.textPrimary,
+            color: isDark ? AppColor.textWhite : AppColor.textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -160,32 +152,24 @@ class _CalenderViewState extends State<CalenderView> {
           leftChevronIcon: Icon(
             Icons.chevron_left,
             size: 20,
-            color: isDark
-                ? AppColor.textWhite
-                : AppColor.textPrimary,
+            color: isDark ? AppColor.textWhite : AppColor.textPrimary,
           ),
 
           rightChevronIcon: Icon(
             Icons.chevron_right,
             size: 20,
-            color: isDark
-                ? AppColor.textWhite
-                : AppColor.textPrimary,
+            color: isDark ? AppColor.textWhite : AppColor.textPrimary,
           ),
         ),
 
         daysOfWeekStyle: DaysOfWeekStyle(
           weekdayStyle: TextStyle(
             fontSize: 11,
-            color: isDark
-                ? AppColor.textHint
-                : AppColor.textSecondary,
+            color: isDark ? AppColor.textHint : AppColor.textSecondary,
           ),
           weekendStyle: TextStyle(
             fontSize: 11,
-            color: isDark
-                ? AppColor.textHint
-                : AppColor.textSecondary,
+            color: isDark ? AppColor.textHint : AppColor.textSecondary,
           ),
         ),
 
@@ -194,16 +178,12 @@ class _CalenderViewState extends State<CalenderView> {
 
           defaultTextStyle: TextStyle(
             fontSize: 11,
-            color: isDark
-                ? AppColor.textWhite
-                : AppColor.textPrimary,
+            color: isDark ? AppColor.textWhite : AppColor.textPrimary,
           ),
 
           weekendTextStyle: TextStyle(
             fontSize: 11,
-            color: isDark
-                ? AppColor.textWhite
-                : AppColor.textPrimary,
+            color: isDark ? AppColor.textWhite : AppColor.textPrimary,
           ),
 
           todayDecoration: const BoxDecoration(
@@ -212,9 +192,7 @@ class _CalenderViewState extends State<CalenderView> {
           ),
 
           todayTextStyle: TextStyle(
-            color: isDark
-                ? AppColor.textWhite
-                : AppColor.textPrimary,
+            color: isDark ? AppColor.textWhite : AppColor.textPrimary,
             fontSize: 11,
           ),
 
@@ -243,9 +221,7 @@ class _CalenderViewState extends State<CalenderView> {
 
     final selectedDay = _selectedDay ?? DateTime.now();
 
-    final selectedTasks = taskProvider.tasksForDate(
-      selectedDay,
-    );
+    final selectedTasks = taskProvider.tasksForDate(selectedDay);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -255,9 +231,7 @@ class _CalenderViewState extends State<CalenderView> {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: isDark
-                ? AppColor.textWhite
-                : AppColor.textPrimary,
+            color: isDark ? AppColor.textWhite : AppColor.textPrimary,
           ),
         ),
 
@@ -267,7 +241,7 @@ class _CalenderViewState extends State<CalenderView> {
           _buildEmptyTasksState()
         else
           ...selectedTasks.map(
-                (task) => Padding(
+            (task) => Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: _taskCard(task),
             ),
@@ -282,14 +256,9 @@ class _CalenderViewState extends State<CalenderView> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        vertical: 30,
-        horizontal: 20,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
       decoration: BoxDecoration(
-        color: isDark
-            ? AppColor.darkCard
-            : AppColor.secondary,
+        color: isDark ? AppColor.darkCard : AppColor.secondary,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -297,9 +266,7 @@ class _CalenderViewState extends State<CalenderView> {
           Icon(
             Icons.event_available_outlined,
             size: 40,
-            color: isDark
-                ? AppColor.textHint
-                : AppColor.textSecondary,
+            color: isDark ? AppColor.textHint : AppColor.textSecondary,
           ),
           const SizedBox(height: 10),
           Text(
@@ -307,9 +274,7 @@ class _CalenderViewState extends State<CalenderView> {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
-              color: isDark
-                  ? AppColor.textHint
-                  : AppColor.textSecondary,
+              color: isDark ? AppColor.textHint : AppColor.textSecondary,
             ),
           ),
         ],
@@ -324,9 +289,7 @@ class _CalenderViewState extends State<CalenderView> {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isDark
-            ? AppColor.darkCard
-            : AppColor.secondary,
+        color: isDark ? AppColor.darkCard : AppColor.secondary,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -357,9 +320,7 @@ class _CalenderViewState extends State<CalenderView> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: isDark
-                        ? AppColor.textWhite
-                        : AppColor.textPrimary,
+                    color: isDark ? AppColor.textWhite : AppColor.textPrimary,
                   ),
                 ),
 
@@ -369,9 +330,7 @@ class _CalenderViewState extends State<CalenderView> {
                   _formatTime(task.scheduledAt),
                   style: TextStyle(
                     fontSize: 11,
-                    color: isDark
-                        ? AppColor.textHint
-                        : AppColor.textSecondary,
+                    color: isDark ? AppColor.textHint : AppColor.textSecondary,
                   ),
                 ),
               ],
@@ -389,13 +348,9 @@ class _CalenderViewState extends State<CalenderView> {
         ? 12
         : dateTime.hour;
 
-    final minute = dateTime.minute
-        .toString()
-        .padLeft(2, '0');
+    final minute = dateTime.minute.toString().padLeft(2, '0');
 
-    final period = dateTime.hour >= 12
-        ? 'PM'
-        : 'AM';
+    final period = dateTime.hour >= 12 ? 'PM' : 'AM';
 
     return '$hour:$minute $period';
   }

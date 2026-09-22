@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -17,15 +16,12 @@ class CustomNavBar extends StatelessWidget {
       case 0:
         context.go('/Home');
         break;
-
       case 1:
         context.go('/Tasks');
         break;
-
       case 2:
         context.go('/Calender');
         break;
-
       case 3:
         context.go('/Profile');
         break;
@@ -53,23 +49,19 @@ class CustomNavBar extends StatelessWidget {
         child: Container(
           height: 74,
           decoration: BoxDecoration(
-            // نفس المكان ونفس الشكل، اللون فقط بيتغير
             color: isDark
                 ? AppColor.darkSurface
                 : AppColor.surface,
-
             borderRadius: BorderRadius.circular(28),
-
             boxShadow: [
               BoxShadow(
-                color: AppColor.primary.withOpacity(0.12),
+                color: AppColor.primary.withValues(alpha: 0.12),
                 blurRadius: 25,
                 spreadRadius: 2,
                 offset: const Offset(0, 8),
               ),
             ],
           ),
-
           child: Row(
             children: [
               Expanded(
@@ -81,7 +73,6 @@ class CustomNavBar extends StatelessWidget {
                   onTap: () => _navigate(context, 0),
                 ),
               ),
-
               Expanded(
                 child: _NavItem(
                   icon: Icons.task_alt_outlined,
@@ -91,11 +82,9 @@ class CustomNavBar extends StatelessWidget {
                   onTap: () => _navigate(context, 1),
                 ),
               ),
-
               _AddButton(
                 onTap: () => _showAddMenu(context),
               ),
-
               Expanded(
                 child: _NavItem(
                   icon: Icons.calendar_today_outlined,
@@ -105,7 +94,6 @@ class CustomNavBar extends StatelessWidget {
                   onTap: () => _navigate(context, 2),
                 ),
               ),
-
               Expanded(
                 child: _NavItem(
                   icon: Icons.person_outline_rounded,
@@ -153,16 +141,13 @@ class _NavItem extends StatelessWidget {
           vertical: 10,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 7),
-
         decoration: BoxDecoration(
           gradient: isSelected ? AppGradient.primary : null,
           color: isSelected ? null : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
-
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 250),
-
           transitionBuilder: (child, animation) {
             return FadeTransition(
               opacity: animation,
@@ -172,7 +157,6 @@ class _NavItem extends StatelessWidget {
               ),
             );
           },
-
           child: isSelected
               ? Column(
             key: const ValueKey('selected'),
@@ -183,7 +167,7 @@ class _NavItem extends StatelessWidget {
                 size: 21,
                 color: AppColor.textWhite,
               ),
-              const SizedBox(width: 4),
+              const SizedBox(height: 4),
               Flexible(
                 child: Text(
                   label,
@@ -221,28 +205,23 @@ class _AddButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-
       child: Transform.translate(
         offset: const Offset(0, -12),
-
         child: Container(
           width: 58,
           height: 58,
-
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: AppGradient.primary,
-
             boxShadow: [
               BoxShadow(
-                color: AppColor.primary.withOpacity(0.35),
+                color: AppColor.primary.withValues(alpha: 0.35),
                 blurRadius: 18,
                 spreadRadius: 2,
                 offset: const Offset(0, 8),
               ),
             ],
           ),
-
           child: const Icon(
             Icons.add_rounded,
             color: AppColor.textWhite,
@@ -263,67 +242,49 @@ class _AddTaskBottomSheet extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.fromLTRB(22, 12, 22, 30),
-
       decoration: BoxDecoration(
-        // نفس الشكل، اللون فقط بيتغير
         color: isDark
             ? AppColor.darkSurface
             : AppColor.surface,
-
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(32),
         ),
       ),
-
       child: Column(
         mainAxisSize: MainAxisSize.min,
-
         children: [
-          // Drag Handle
           Container(
             width: 42,
             height: 5,
-
             decoration: BoxDecoration(
               color: isDark
                   ? AppColor.darkCard
                   : AppColor.border,
-
               borderRadius: BorderRadius.circular(10),
             ),
           ),
-
           const SizedBox(height: 22),
-
           Text(
             'Create New',
-
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w800,
-
               color: isDark
                   ? AppColor.textWhite
                   : AppColor.textPrimary,
             ),
           ),
-
           const SizedBox(height: 6),
-
           Text(
             'What would you like to create?',
-
             style: TextStyle(
               fontSize: 13,
-
               color: isDark
                   ? AppColor.textHint
                   : AppColor.textSecondary,
             ),
           ),
-
           const SizedBox(height: 12),
-
           _AddOption(
             icon: Icons.notifications,
             title: 'Reminder',
@@ -334,9 +295,6 @@ class _AddTaskBottomSheet extends StatelessWidget {
               context.go('/Reminder');
             },
           ),
-
-          const SizedBox(height: 12),
-
           const SizedBox(height: 12),
         ],
       ),
@@ -348,7 +306,6 @@ class _AddOption extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
-  final LinearGradient? gradient;
   final Color? color;
   final Color? iconColor;
   final VoidCallback onTap;
@@ -357,7 +314,6 @@ class _AddOption extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
-    this.gradient,
     this.color,
     this.iconColor,
     required this.onTap,
@@ -369,89 +325,58 @@ class _AddOption extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-
       child: Container(
         padding: const EdgeInsets.all(14),
-
         decoration: BoxDecoration(
-          gradient: gradient,
-
-          color: gradient == null
-              ? (isDark
+          color: isDark
               ? AppColor.darkCard
-              : color)
-              : null,
-
+              : color,
           borderRadius: BorderRadius.circular(20),
-
-          border: gradient == null
-              ? Border.all(
+          border: Border.all(
             color: isDark
                 ? AppColor.darkCard
                 : AppColor.border,
-          )
-              : null,
+          ),
         ),
-
         child: Row(
           children: [
             Container(
               width: 48,
               height: 48,
-
               decoration: BoxDecoration(
-                color: gradient != null
-                    ? Colors.white.withOpacity(0.18)
-                    : isDark
+                color: isDark
                     ? AppColor.darkSurface
                     : AppColor.surface,
-
                 borderRadius: BorderRadius.circular(15),
               ),
-
               child: Icon(
                 icon,
-                color: gradient != null
-                    ? AppColor.textWhite
-                    : iconColor,
+                color: iconColor,
                 size: 25,
               ),
             ),
-
             const SizedBox(width: 14),
-
             Expanded(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-
                 children: [
                   Text(
                     title,
-
                     style: TextStyle(
-                      color: gradient != null
-                          ? AppColor.textWhite
-                          : isDark
+                      color: isDark
                           ? AppColor.textWhite
                           : AppColor.textPrimary,
-
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-
                   const SizedBox(width: 3),
-
                   Text(
                     subtitle,
-
                     style: TextStyle(
-                      color: gradient != null
-                          ? AppColor.textWhite.withOpacity(0.8)
-                          : isDark
+                      color: isDark
                           ? AppColor.textHint
                           : AppColor.textSecondary,
-
                       fontSize: 11,
                       fontWeight: FontWeight.w200,
                     ),
@@ -459,14 +384,10 @@ class _AddOption extends StatelessWidget {
                 ],
               ),
             ),
-
             Icon(
               Icons.arrow_forward_ios_rounded,
               size: 15,
-
-              color: gradient != null
-                  ? AppColor.textWhite
-                  : isDark
+              color: isDark
                   ? AppColor.textHint
                   : AppColor.textSecondary,
             ),

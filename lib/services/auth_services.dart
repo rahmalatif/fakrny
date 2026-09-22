@@ -1,10 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:untitled/services/user_firestore_service.dart';
-
 import '../model/user_model.dart';
 
 class AuthServices {
@@ -90,7 +87,6 @@ class AuthServices {
 
       return userCredential;
     } catch (e) {
-      print('Google Sign In Error: $e');
       return null;
     }
   }

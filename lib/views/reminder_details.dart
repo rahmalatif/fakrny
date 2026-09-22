@@ -32,6 +32,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
 
   Future<void> toggleCompleted() async {
     final newValue = !isCompleted;
+    final taskProvider = context.read<TaskProvider>();
 
     setState(() {
       isUpdating = true;
@@ -56,16 +57,15 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
         repeat: task.repeat,
         remindBefore: task.remindBefore,
         createdAt: task.createdAt,
-        updatedAt: DateTime.now(), repeatDays: [],
+        updatedAt: DateTime.now(),
+        repeatDays: [],
       );
 
-      final success = await context.read<TaskProvider>().updateTask(
-        updatedTask,
-      );
+      final success = await taskProvider.updateTask(updatedTask);
 
       if (!success) {
         throw Exception(
-          context.read<TaskProvider>().error ?? 'Failed to update task',
+          taskProvider.error ?? 'Failed to update task',
         );
       }
 
@@ -81,21 +81,19 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
       });
     } catch (e) {
       if (!mounted) return;
-
       SnackBarHelper.show(
         context,
         message: e.toString().replaceFirst('Exception: ', ''),
         type: SnackBarType.error,
       );
     } finally {
-      if (mounted) {
+      if (!mounted){
         setState(() {
           isUpdating = false;
         });
       }
     }
   }
-
   void _closeAfterSave() {
     if (context.canPop()) {
       context.pop(true);
@@ -117,6 +115,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
 
   Future<void> _deleteReminder() async {
     final l10n = AppLocalizations.of(context)!;
+    final provider = context.read<TaskProvider>();
 
     final shouldDelete = await showDialog<bool>(
       context: context,
@@ -149,23 +148,18 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
 
       await notificationServices.cancelTaskNotification(task.id);
 
-      final provider = context.read<TaskProvider>();
-
       final success = await provider.deleteTask(task.id);
 
-      if (!success) {
-        if (!mounted) return;
+      if (!mounted) return;
 
+      if (!success) {
         SnackBarHelper.show(
           context,
           message: provider.error ?? l10n.failedToDeleteReminder,
           type: SnackBarType.error,
         );
-
         return;
       }
-
-      if (!mounted) return;
 
       SnackBarHelper.show(
         context,
@@ -184,7 +178,6 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
       );
     }
   }
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -228,7 +221,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
             border: Border.all(
               color: isDark
                   ? AppColor.darkCard
-                  : AppColor.border.withOpacity(.1),
+                  : AppColor.border.withValues(alpha: .1),
             ),
           ),
           child: IconButton(
@@ -272,7 +265,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
             border: Border.all(
               color: isDark
                   ? AppColor.darkCard
-                  : AppColor.border.withOpacity(.1),
+                  : AppColor.border.withValues(alpha: .1),
             ),
           ),
           child: IconButton(
@@ -299,7 +292,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? .15 : .04),
+            color: Colors.black.withValues(alpha: isDark ? .15 : .04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -311,7 +304,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppColor.primary.withOpacity(.08),
+              color: AppColor.primary.withValues(alpha: .08),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.school_outlined, color: AppColor.primary),
@@ -354,7 +347,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
                     Text(
                       task.priority,
                       style: TextStyle(
-                        color: AppColor.error.withOpacity(.8),
+                        color: AppColor.error.withValues(alpha: .8),
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
                       ),
@@ -521,7 +514,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColor.primary,
               backgroundColor: isDark ? AppColor.darkSurface : AppColor.surface,
-              side: BorderSide(color: AppColor.primary.withOpacity(.15)),
+              side: BorderSide(color: AppColor.primary.withValues(alpha: .15)),
               minimumSize: const Size(double.infinity, 50),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(13),
@@ -542,7 +535,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColor.error,
               backgroundColor: isDark ? AppColor.darkSurface : AppColor.surface,
-              side: BorderSide(color: AppColor.error.withOpacity(.15)),
+              side: BorderSide(color: AppColor.error.withValues(alpha: .15)),
               minimumSize: const Size(double.infinity, 50),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(13),
@@ -557,9 +550,11 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
   Future<void> _editReminder() async {
     final result = await context.push('/Reminder', extra: task);
 
-    if (result == true && mounted) {
+    if (!mounted) return;
+
+    if (result == true) {
       final updatedTask = context.read<TaskProvider>().tasks.firstWhere(
-        (item) => item.id == task.id,
+            (item) => item.id == task.id,
         orElse: () => task,
       );
 

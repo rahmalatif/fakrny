@@ -9,12 +9,13 @@ import '../services/user_firestore_service.dart';
 class TaskProvider extends ChangeNotifier {
   final TaskFirestoreService taskFirestoreService;
   final AuthServices authServices;
-  final UserFirestoreService userFirestoreService =
-  UserFirestoreService();
+
+  final UserFirestoreService userFirestoreService;
 
   TaskProvider({
     required this.taskFirestoreService,
     required this.authServices,
+    required this.userFirestoreService,
   });
 
   List<TaskModel> _tasks = [];
@@ -40,10 +41,7 @@ class TaskProvider extends ChangeNotifier {
 
       notifyListeners();
 
-      final userTasks =
-      await taskFirestoreService.getTasks(
-        currentUser.uid,
-      );
+      final userTasks = await taskFirestoreService.getTasks(currentUser.uid);
 
       _tasks = userTasks;
     } catch (e) {
@@ -54,9 +52,7 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
-  Future<TaskModel?> addTask(
-      TaskModel task,
-      ) async {
+  Future<TaskModel?> addTask(TaskModel task) async {
     final currentUser = authServices.currentUser;
 
     if (currentUser == null) {
@@ -71,8 +67,7 @@ class TaskProvider extends ChangeNotifier {
 
       notifyListeners();
 
-      final taskId =
-      await taskFirestoreService.addTask(
+      final taskId = await taskFirestoreService.addTask(
         uid: currentUser.uid,
         task: task,
       );
@@ -95,10 +90,7 @@ class TaskProvider extends ChangeNotifier {
 
       _tasks.add(newTask);
 
-      _tasks.sort(
-            (a, b) =>
-            a.scheduledAt.compareTo(b.scheduledAt),
-      );
+      _tasks.sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
 
       return newTask;
     } catch (e) {
@@ -110,18 +102,14 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> toggleTask(
-      TaskModel task,
-      ) async {
+  Future<void> toggleTask(TaskModel task) async {
     final currentUser = authServices.currentUser;
 
     if (currentUser == null) return;
 
     final newValue = !task.isCompleted;
 
-    final index = _tasks.indexWhere(
-          (element) => element.id == task.id,
-    );
+    final index = _tasks.indexWhere((element) => element.id == task.id);
 
     if (index == -1) return;
 
@@ -149,25 +137,19 @@ class TaskProvider extends ChangeNotifier {
       await taskFirestoreService.updateTask(
         uid: currentUser.uid,
         taskId: task.id,
-        data: {
-          'isCompleted': newValue,
-          'updatedAt': DateTime.now(),
-        },
+        data: {'isCompleted': newValue, 'updatedAt': DateTime.now()},
       );
 
       if (newValue) {
         await checkDailyStreak();
       }
 
-      final notificationServices =
-      NotificationServices();
+      final notificationServices = NotificationServices();
 
       if (newValue) {
-        await notificationServices
-            .cancelTaskNotification(task.id);
+        await notificationServices.cancelTaskNotification(task.id);
       } else {
-        await notificationServices
-            .scheduleTaskNotification(updatedTask);
+        await notificationServices.scheduleTaskNotification(updatedTask);
       }
     } catch (e) {
       _tasks[index] = task;
@@ -188,9 +170,7 @@ class TaskProvider extends ChangeNotifier {
     }).toList();
   }
 
-  Future<bool> updateTask(
-      TaskModel task,
-      ) async {
+  Future<bool> updateTask(TaskModel task) async {
     final currentUser = authServices.currentUser;
 
     if (currentUser == null) {
@@ -223,17 +203,12 @@ class TaskProvider extends ChangeNotifier {
         },
       );
 
-      final index = _tasks.indexWhere(
-            (element) => element.id == task.id,
-      );
+      final index = _tasks.indexWhere((element) => element.id == task.id);
 
       if (index != -1) {
         _tasks[index] = task;
 
-        _tasks.sort(
-              (a, b) =>
-              a.scheduledAt.compareTo(b.scheduledAt),
-        );
+        _tasks.sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
       }
 
       return true;
@@ -246,9 +221,7 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> deleteTask(
-      String taskId,
-      ) async {
+  Future<bool> deleteTask(String taskId) async {
     final currentUser = authServices.currentUser;
 
     if (currentUser == null) {
@@ -268,12 +241,9 @@ class TaskProvider extends ChangeNotifier {
         taskId: taskId,
       );
 
-      _tasks.removeWhere(
-            (task) => task.id == taskId,
-      );
+      _tasks.removeWhere((task) => task.id == taskId);
 
-      await NotificationServices()
-          .cancelTaskNotification(taskId);
+      await NotificationServices().cancelTaskNotification(taskId);
 
       return true;
     } catch (e) {
@@ -292,11 +262,7 @@ class TaskProvider extends ChangeNotifier {
 
     final now = DateTime.now();
 
-    final today = DateTime(
-      now.year,
-      now.month,
-      now.day,
-    );
+    final today = DateTime(now.year, now.month, now.day);
 
     final todayTasks = _tasks.where((task) {
       final date = task.scheduledAt;
@@ -308,27 +274,18 @@ class TaskProvider extends ChangeNotifier {
 
     if (todayTasks.isEmpty) return;
 
-    final allCompleted = todayTasks.every(
-          (task) => task.isCompleted,
-    );
+    final allCompleted = todayTasks.every((task) => task.isCompleted);
 
     if (!allCompleted) return;
 
-    final user =
-    await userFirestoreService.getUser(
-      currentUser.uid,
-    );
+    final user = await userFirestoreService.getUser(currentUser.uid);
 
     if (user == null) return;
 
     final lastDate = user.lastCompletedDate;
 
     if (lastDate != null) {
-      final lastDay = DateTime(
-        lastDate.year,
-        lastDate.month,
-        lastDate.day,
-      );
+      final lastDay = DateTime(lastDate.year, lastDate.month, lastDate.day);
 
       if (lastDay == today) {
         return;
@@ -340,25 +297,18 @@ class TaskProvider extends ChangeNotifier {
     if (lastDate == null) {
       newStreak = 1;
     } else {
-      final lastDay = DateTime(
-        lastDate.year,
-        lastDate.month,
-        lastDate.day,
-      );
+      final lastDay = DateTime(lastDate.year, lastDate.month, lastDate.day);
 
-      final difference =
-          today.difference(lastDay).inDays;
+      final difference = today.difference(lastDay).inDays;
 
       if (difference == 1) {
-        newStreak =
-            user.currentStreak + 1;
+        newStreak = user.currentStreak + 1;
       } else {
         newStreak = 1;
       }
     }
 
-    final newLongest =
-    newStreak > user.longestStreak
+    final newLongest = newStreak > user.longestStreak
         ? newStreak
         : user.longestStreak;
 
@@ -371,11 +321,7 @@ class TaskProvider extends ChangeNotifier {
   }
 
   List<TaskModel> tasksForDate(DateTime date) {
-    final targetDate = DateTime(
-      date.year,
-      date.month,
-      date.day,
-    );
+    final targetDate = DateTime(date.year, date.month, date.day);
 
     return _tasks.where((task) {
       final taskDate = DateTime(
@@ -409,14 +355,48 @@ class TaskProvider extends ChangeNotifier {
   }
 
   Set<DateTime> get taskDates {
-    return _tasks.map((task) {
-      final date = task.scheduledAt;
+    final dates = <DateTime>{};
 
-      return DateTime(
-        date.year,
-        date.month,
-        date.day,
+    for (final task in _tasks) {
+      final startDate = DateTime(
+        task.scheduledAt.year,
+        task.scheduledAt.month,
+        task.scheduledAt.day,
       );
-    }).toSet();
+
+      switch (task.repeat) {
+        case 'none':
+          dates.add(startDate);
+          break;
+
+        case 'daily':
+          for (int i = 0; i < 365; i++) {
+            dates.add(startDate.add(Duration(days: i)));
+          }
+          break;
+
+        case 'weekly':
+          for (int i = 0; i < 365; i++) {
+            final date = startDate.add(Duration(days: i));
+
+            if (date.weekday == startDate.weekday) {
+              dates.add(date);
+            }
+          }
+          break;
+
+        case 'custom':
+          for (int i = 0; i < 365; i++) {
+            final date = startDate.add(Duration(days: i));
+
+            if (task.repeatDays.contains(date.weekday)) {
+              dates.add(date);
+            }
+          }
+          break;
+      }
+    }
+
+    return dates;
   }
 }
