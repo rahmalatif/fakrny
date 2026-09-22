@@ -223,14 +223,16 @@ class _TasksViewState extends State<TasksView> {
                   buttonText: selectedTab == 0 ? l10n.createTask : null,
                   onPressed: selectedTab == 0
                       ? () async {
-                          final result = await context.push('/Reminder');
+                    final taskProvider = context.read<TaskProvider>();
 
-                          if (!mounted) return;
+                    final result = await context.push('/Reminder');
 
-                          if (result == true) {
-                            await context.read<TaskProvider>().loadTasks();
-                          }
-                        }
+                    if (!mounted) return;
+
+                    if (result == true) {
+                      await taskProvider.loadTasks();
+                    }
+                  }
                       : null,
                 ),
 
