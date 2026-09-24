@@ -42,7 +42,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
       final notificationService = NotificationServices();
 
       if (newValue) {
-        await notificationService.cancelTaskNotification(task.id);
+        await NotificationServices.cancelTaskNotification(task.id);
       }
 
       final updatedTask = TaskModel(
@@ -58,7 +58,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
         remindBefore: task.remindBefore,
         createdAt: task.createdAt,
         updatedAt: DateTime.now(),
-        repeatDays: [],
+        repeatDays: task.repeatDays,
       );
 
       final success = await taskProvider.updateTask(updatedTask);
@@ -144,10 +144,6 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
     if (shouldDelete != true) return;
 
     try {
-      final notificationServices = NotificationServices();
-
-      await notificationServices.cancelTaskNotification(task.id);
-
       final success = await provider.deleteTask(task.id);
 
       if (!mounted) return;

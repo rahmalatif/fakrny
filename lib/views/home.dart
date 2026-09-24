@@ -18,7 +18,7 @@ class HomeView extends StatefulWidget {
   State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeViewState extends State<HomeView> {
+class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   final AuthServices authServices = AuthServices();
   final UserFirestoreService userFirestoreService = UserFirestoreService();
 
@@ -50,11 +50,25 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     loadUser();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<TaskProvider>().loadTasks();
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      context.read<TaskProvider>().loadTasks();
+    }
   }
 
   String get firstName {
@@ -231,66 +245,66 @@ class _HomeViewState extends State<HomeView> {
                     ? const Center(child: CircularProgressIndicator())
                     : todayTasks.isEmpty
                     ? EmptyState(
-                        icon: taskProvider.tasks.isEmpty
-                            ? Icons.task_alt
-                            : Icons.event_available,
-                        title: taskProvider.tasks.isEmpty
-                            ? AppLocalizations.of(context)!.noTasksYet
-                            : AppLocalizations.of(context)!.noTasksToday,
-                        message: taskProvider.tasks.isEmpty
-                            ? AppLocalizations.of(context)!.noTasksYetMessage
-                            : AppLocalizations.of(context)!.noTasksTodayMessage,
-                        buttonText: taskProvider.tasks.isEmpty
-                            ? AppLocalizations.of(context)!.createTask
-                            : AppLocalizations.of(context)!.createTask,
-                        onPressed: () async {
-                          final taskProvider = context.read<TaskProvider>();
+                  icon: taskProvider.tasks.isEmpty
+                      ? Icons.task_alt
+                      : Icons.event_available,
+                  title: taskProvider.tasks.isEmpty
+                      ? AppLocalizations.of(context)!.noTasksYet
+                      : AppLocalizations.of(context)!.noTasksToday,
+                  message: taskProvider.tasks.isEmpty
+                      ? AppLocalizations.of(context)!.noTasksYetMessage
+                      : AppLocalizations.of(context)!.noTasksTodayMessage,
+                  buttonText: taskProvider.tasks.isEmpty
+                      ? AppLocalizations.of(context)!.createTask
+                      : AppLocalizations.of(context)!.createTask,
+                  onPressed: () async {
+                    final taskProvider = context.read<TaskProvider>();
 
-                          final result = await context.push('/Reminder');
+                    final result = await context.push('/Reminder');
 
-                          if (!mounted) return;
+                    if (!mounted) return;
 
-                          if (result == true) {
-                            await taskProvider.loadTasks();
-                          }
-                        },
-                      )
+                    if (result == true) {
+                      await taskProvider.loadTasks();
+                    }
+                  },
+                )
                     : ListView.separated(
-                        itemCount: todayTasks.length,
+                  itemCount: todayTasks.length,
 
-                        separatorBuilder: (context, index) {
-                          return const SizedBox(height: 10);
-                        },
+                  separatorBuilder: (context, index) {
+                    return const SizedBox(height: 10);
+                  },
 
-                        itemBuilder: (context, index) {
-                          final task = todayTasks[index];
+                  itemBuilder: (context, index) {
+                    final task = todayTasks[index];
 
-                          return TasksContanier(
-                            title: task.title,
-                            category: task.category,
-                            priority: task.priority,
-                            color: getTaskColor(task.color),
-                            isCompleted: task.isCompleted,
-                            onCheck: () {
-                              context.read<TaskProvider>().toggleTask(task);
-                            },
+                    return TasksContanier(
+                      title: task.title,
+                      category: task.category,
+                      priority: task.priority,
+                      color: getTaskColor(task.color),
+                      isCompleted: task.isCompleted,
+                      onCheck: () {
+                        context.read<TaskProvider>().toggleTask(task);
+                      },
 
-                            onTap: () async {
-                              final taskProvider = context.read<TaskProvider>();
+                      onTap: () async {
+                        final taskProvider = context.read<TaskProvider>();
 
-                              final result = await context.push(
-                                '/ReminderDetails',
-                                extra: task,
-                              );
+                        final result = await context.push(
+                          '/ReminderDetails',
+                          extra: task,
+                        );
 
-                              if (!context.mounted) return;
-                              if (result == true) {
-                                await taskProvider.loadTasks();
-                              }
-                            },
-                          );
-                        },
-                      ),
+                        if (!context.mounted) return;
+                        if (result == true) {
+                          await taskProvider.loadTasks();
+                        }
+                      },
+                    );
+                  },
+                ),
               ),
             ],
           ),

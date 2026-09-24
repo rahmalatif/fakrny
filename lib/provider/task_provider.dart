@@ -147,7 +147,7 @@ class TaskProvider extends ChangeNotifier {
       final notificationServices = NotificationServices();
 
       if (newValue) {
-        await notificationServices.cancelTaskNotification(task.id);
+        await NotificationServices.cancelTaskNotification(task.id);
       } else {
         await notificationServices.scheduleTaskNotification(updatedTask);
       }
@@ -243,7 +243,7 @@ class TaskProvider extends ChangeNotifier {
 
       _tasks.removeWhere((task) => task.id == taskId);
 
-      await NotificationServices().cancelTaskNotification(taskId);
+      await NotificationServices.cancelTaskNotification(taskId);
 
       return true;
     } catch (e) {

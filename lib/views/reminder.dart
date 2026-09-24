@@ -183,8 +183,7 @@ class _ReminderViewState extends State<ReminderView> {
       } else {
         final notificationService = NotificationServices();
 
-        await notificationService
-            .cancelTaskNotification(widget.task!.id);
+        await NotificationServices.cancelTaskNotification(widget.task!.id);
 
         final updatedTask = TaskModel(
           id: widget.task!.id,
