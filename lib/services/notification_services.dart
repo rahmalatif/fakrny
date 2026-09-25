@@ -44,7 +44,6 @@ class NotificationServices {
 
   static const String _channelId = 'task_reminders';
   static const String _channelName = 'Task Reminders';
-
   static const String _completedAction = 'completed';
   static const String _snoozeAction = 'snooze';
   static const String _dismissAction = 'dismiss';
