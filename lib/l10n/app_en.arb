@@ -86,7 +86,7 @@
   "saveReminder": "Save Reminder",
 
   "repeat": "Repeat",
-  "doesNotRepeat": "Does not repeat",
+  "doesNotRepeat": "Do not repeat",
   "everyDay": "Every day",
   "everyWeek": "Every week",
   "customDays": "Custom days",

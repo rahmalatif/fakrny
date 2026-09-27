@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,13 +7,12 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-
 import '../model/tasks.dart';
 
 @pragma('vm:entry-point')
 Future<void> notificationTapBackground(
-    NotificationResponse notificationResponse,
-    ) async {
+  NotificationResponse notificationResponse,
+) async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   tz.initializeTimeZones();
@@ -31,10 +29,10 @@ Future<void> notificationTapBackground(
 
 class NotificationServices {
   static final FlutterLocalNotificationsPlugin notificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
 
   static final NotificationServices _instance =
-  NotificationServices._internal();
+      NotificationServices._internal();
 
   factory NotificationServices() {
     return _instance;
@@ -65,6 +63,23 @@ class NotificationServices {
     return baseId ^ 0x40000000;
   }
 
+  static int escalationNotificationId(String taskId, int level) {
+    final baseId = notificationIdForTask(taskId);
+
+    return baseId + 1000 + level;
+  }
+
+  static String _getNotificationSound() {
+    final languageCode =
+        WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+
+    if (languageCode == 'ar') {
+      return 'notif_arabic';
+    }
+
+    return 'notif_english';
+  }
+
   static Future<void> init() async {
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
@@ -92,16 +107,16 @@ class NotificationServices {
   static Future<void> _requestPermission() async {
     final androidPlugin = notificationsPlugin
         .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin
-    >();
+          AndroidFlutterLocalNotificationsPlugin
+        >();
 
     await androidPlugin?.requestNotificationsPermission();
     await androidPlugin?.requestExactAlarmsPermission();
   }
 
   static Future<void> _onNotificationResponse(
-      NotificationResponse response,
-      ) async {
+    NotificationResponse response,
+  ) async {
     final payload = response.payload;
 
     if (payload == null || payload.isEmpty) {
@@ -110,7 +125,7 @@ class NotificationServices {
 
     switch (response.actionId) {
       case _dismissAction:
-        await _handleDismiss(response.id);
+        await _handleDismiss(payload, response.id);
         break;
 
       case _snoozeAction:
@@ -123,18 +138,18 @@ class NotificationServices {
     }
   }
 
-  static Future<void> _handleDismiss(int? notificationId) async {
-    if (notificationId == null) {
-      return;
+  static Future<void> _handleDismiss(String taskId, int? notificationId) async {
+    if (notificationId != null) {
+      await notificationsPlugin.cancel(notificationId);
     }
 
-    await notificationsPlugin.cancel(notificationId);
+    await cancelTaskNotification(taskId);
   }
 
   static Future<void> _handleSnooze(
-      String taskId,
-      int? currentNotificationId,
-      ) async {
+    String taskId,
+    int? currentNotificationId,
+  ) async {
     if (currentNotificationId != null) {
       await notificationsPlugin.cancel(currentNotificationId);
     }
@@ -174,9 +189,9 @@ class NotificationServices {
             .collection('tasks')
             .doc(taskId)
             .update({
-          'isCompleted': true,
-          'updatedAt': DateTime.now().toIso8601String(),
-        });
+              'isCompleted': true,
+              'updatedAt': DateTime.now().toIso8601String(),
+            });
       }
     } catch (_) {}
   }
@@ -222,6 +237,11 @@ class NotificationServices {
       body: 'Your task is coming up',
       dateTime: reminderTime,
       payload: task.id,
+    );
+
+    await scheduleEscalationNotifications(
+      task: task,
+      reminderTime: reminderTime,
     );
   }
 
@@ -332,7 +352,7 @@ class NotificationServices {
     return scheduledDate;
   }
 
-  Future<void> scheduleNotification({
+  static Future<void> scheduleNotification({
     required int id,
     required String title,
     required String body,
@@ -360,9 +380,7 @@ class NotificationServices {
         channelDescription: 'Notifications for task reminders',
         importance: Importance.high,
         priority: Priority.high,
-        sound: RawResourceAndroidNotificationSound(
-          'notif_english.wav'.split('.').first,
-        ),
+        sound: RawResourceAndroidNotificationSound(_getNotificationSound()),
         icon: '@mipmap/ic_launcher',
         actions: <AndroidNotificationAction>[
           AndroidNotificationAction(
@@ -386,7 +404,7 @@ class NotificationServices {
   }
 
   static Future<void> cancelTaskNotification(String taskId) async {
-    final notificationId =     notificationIdForTask(taskId);
+    final notificationId = notificationIdForTask(taskId);
 
     await notificationsPlugin.cancel(notificationId);
 
@@ -394,8 +412,53 @@ class NotificationServices {
 
     await notificationsPlugin.cancel(snoozeId);
 
+    // escalation noti
+    for (int level = 1; level <= 2; level++) {
+      final escalationId = escalationNotificationId(taskId, level);
+
+      await notificationsPlugin.cancel(escalationId);
+    }
+
+    // repeat noti
     for (int i = 1; i <= 20; i++) {
       await notificationsPlugin.cancel(notificationId + i);
+    }
+  }
+
+  static Future<void> scheduleEscalationNotifications({
+    required TaskModel task,
+    required DateTime reminderTime,
+  }) async {
+    final firstEscalationTime = reminderTime.add(const Duration(minutes: 5));
+
+    final secondEscalationTime = reminderTime.add(const Duration(minutes: 15));
+
+    final firstId = escalationNotificationId(task.id, 1);
+    final secondId = escalationNotificationId(task.id, 2);
+
+    await notificationsPlugin.cancel(firstId);
+    await notificationsPlugin.cancel(secondId);
+
+    final now = DateTime.now();
+
+    if (firstEscalationTime.isAfter(now)) {
+      await scheduleNotification(
+        id: firstId,
+        title: task.title,
+        body: 'Don’t forget your task',
+        dateTime: firstEscalationTime,
+        payload: task.id,
+      );
+    }
+
+    if (secondEscalationTime.isAfter(now)) {
+      await scheduleNotification(
+        id: secondId,
+        title: task.title,
+        body: 'Your task is still waiting for you',
+        dateTime: secondEscalationTime,
+        payload: task.id,
+      );
     }
   }
 }
