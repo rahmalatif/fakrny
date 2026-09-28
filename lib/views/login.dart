@@ -371,7 +371,7 @@ class _LoginViewState extends State<LoginView> {
                           children: [
                             _socialButton(
                               icon: 'assets/SVG/google_icon.svg',
-                              text: 'Google',
+                              text: AppLocalizations.of(context)!.google,
                               onTap: isGoogleLoading ? null : signInWithGoogle,
                             ),
                           ],

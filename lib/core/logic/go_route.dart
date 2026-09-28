@@ -9,6 +9,7 @@ import 'package:untitled/views/reminder.dart';
 import 'package:untitled/views/splash.dart';
 import 'package:untitled/views/tasks.dart';
 import '../../model/tasks.dart';
+import '../../views/language.dart';
 import '../../views/on_boarding.dart';
 import '../../views/reminder_details.dart';
 import 'app_routes.dart';
@@ -19,6 +20,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.splash,
       builder: (context, state) => const SplashView(),
+    ),
+    GoRoute(
+      path: AppRoutes.language,
+      builder: (context, state) => const LanguageView(),
     ),
 
     GoRoute(

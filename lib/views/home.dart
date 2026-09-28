@@ -123,6 +123,45 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     }
   }
 
+  String getLocalizedCategory(BuildContext context, String category) {
+    final localizations = AppLocalizations.of(context)!;
+
+    switch (category.toLowerCase()) {
+      case 'work':
+        return localizations.categoryWork;
+
+      case 'other':
+        return localizations.categoryOther;
+
+      case 'study':
+        return localizations.categoryStudy;
+
+      case 'health':
+        return localizations.categoryHealth;
+
+      default:
+        return category;
+    }
+  }
+
+  String getLocalizedPriority(BuildContext context, String priority) {
+    final localizations = AppLocalizations.of(context)!;
+
+    switch (priority.toLowerCase()) {
+      case 'low':
+        return localizations.priorityLow;
+
+      case 'medium':
+        return localizations.priorityMedium;
+
+      case 'high':
+        return localizations.priorityHigh;
+
+      default:
+        return priority;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final taskProvider = context.watch<TaskProvider>();
@@ -245,66 +284,72 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                     ? const Center(child: CircularProgressIndicator())
                     : todayTasks.isEmpty
                     ? EmptyState(
-                  icon: taskProvider.tasks.isEmpty
-                      ? Icons.task_alt
-                      : Icons.event_available,
-                  title: taskProvider.tasks.isEmpty
-                      ? AppLocalizations.of(context)!.noTasksYet
-                      : AppLocalizations.of(context)!.noTasksToday,
-                  message: taskProvider.tasks.isEmpty
-                      ? AppLocalizations.of(context)!.noTasksYetMessage
-                      : AppLocalizations.of(context)!.noTasksTodayMessage,
-                  buttonText: taskProvider.tasks.isEmpty
-                      ? AppLocalizations.of(context)!.createTask
-                      : AppLocalizations.of(context)!.createTask,
-                  onPressed: () async {
-                    final taskProvider = context.read<TaskProvider>();
+                        icon: taskProvider.tasks.isEmpty
+                            ? Icons.task_alt
+                            : Icons.event_available,
+                        title: taskProvider.tasks.isEmpty
+                            ? AppLocalizations.of(context)!.noTasksYet
+                            : AppLocalizations.of(context)!.noTasksToday,
+                        message: taskProvider.tasks.isEmpty
+                            ? AppLocalizations.of(context)!.noTasksYetMessage
+                            : AppLocalizations.of(context)!.noTasksTodayMessage,
+                        buttonText: taskProvider.tasks.isEmpty
+                            ? AppLocalizations.of(context)!.createTask
+                            : AppLocalizations.of(context)!.createTask,
+                        onPressed: () async {
+                          final taskProvider = context.read<TaskProvider>();
 
-                    final result = await context.push('/Reminder');
+                          final result = await context.push('/Reminder');
 
-                    if (!mounted) return;
+                          if (!mounted) return;
 
-                    if (result == true) {
-                      await taskProvider.loadTasks();
-                    }
-                  },
-                )
+                          if (result == true) {
+                            await taskProvider.loadTasks();
+                          }
+                        },
+                      )
                     : ListView.separated(
-                  itemCount: todayTasks.length,
+                        itemCount: todayTasks.length,
 
-                  separatorBuilder: (context, index) {
-                    return const SizedBox(height: 10);
-                  },
+                        separatorBuilder: (context, index) {
+                          return const SizedBox(height: 10);
+                        },
 
-                  itemBuilder: (context, index) {
-                    final task = todayTasks[index];
+                        itemBuilder: (context, index) {
+                          final task = todayTasks[index];
 
-                    return TasksContanier(
-                      title: task.title,
-                      category: task.category,
-                      priority: task.priority,
-                      color: getTaskColor(task.color),
-                      isCompleted: task.isCompleted,
-                      onCheck: () {
-                        context.read<TaskProvider>().toggleTask(task);
-                      },
+                          return TasksContanier(
+                            title: task.title,
+                            category: getLocalizedCategory(
+                              context,
+                              task.category,
+                            ),
+                            priority: getLocalizedPriority(
+                              context,
+                              task.priority,
+                            ),
+                            color: getTaskColor(task.color),
+                            isCompleted: task.isCompleted,
+                            onCheck: () {
+                              context.read<TaskProvider>().toggleTask(task);
+                            },
 
-                      onTap: () async {
-                        final taskProvider = context.read<TaskProvider>();
+                            onTap: () async {
+                              final taskProvider = context.read<TaskProvider>();
 
-                        final result = await context.push(
-                          '/ReminderDetails',
-                          extra: task,
-                        );
+                              final result = await context.push(
+                                '/ReminderDetails',
+                                extra: task,
+                              );
 
-                        if (!context.mounted) return;
-                        if (result == true) {
-                          await taskProvider.loadTasks();
-                        }
-                      },
-                    );
-                  },
-                ),
+                              if (!context.mounted) return;
+                              if (result == true) {
+                                await taskProvider.loadTasks();
+                              }
+                            },
+                          );
+                        },
+                      ),
               ),
             ],
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:untitled/l10n/app_localizations.dart';
 
 import '../theme/app_color.dart';
 import '../theme/app_gradiant.dart';
@@ -49,9 +50,7 @@ class CustomNavBar extends StatelessWidget {
         child: Container(
           height: 74,
           decoration: BoxDecoration(
-            color: isDark
-                ? AppColor.darkSurface
-                : AppColor.surface,
+            color: isDark ? AppColor.darkSurface : AppColor.surface,
             borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(
@@ -68,7 +67,7 @@ class CustomNavBar extends StatelessWidget {
                 child: _NavItem(
                   icon: Icons.home_outlined,
                   selectedIcon: Icons.home_rounded,
-                  label: 'Home',
+                  label: AppLocalizations.of(context)!.home,
                   isSelected: currentIndex == 0,
                   onTap: () => _navigate(context, 0),
                 ),
@@ -77,19 +76,17 @@ class CustomNavBar extends StatelessWidget {
                 child: _NavItem(
                   icon: Icons.task_alt_outlined,
                   selectedIcon: Icons.task_alt_rounded,
-                  label: 'Tasks',
+                  label: AppLocalizations.of(context)!.tasks,
                   isSelected: currentIndex == 1,
                   onTap: () => _navigate(context, 1),
                 ),
               ),
-              _AddButton(
-                onTap: () => _showAddMenu(context),
-              ),
+              _AddButton(onTap: () => _showAddMenu(context)),
               Expanded(
                 child: _NavItem(
                   icon: Icons.calendar_today_outlined,
                   selectedIcon: Icons.calendar_month_rounded,
-                  label: 'Calendar',
+                  label: AppLocalizations.of(context)!.calendar,
                   isSelected: currentIndex == 2,
                   onTap: () => _navigate(context, 2),
                 ),
@@ -98,7 +95,7 @@ class CustomNavBar extends StatelessWidget {
                 child: _NavItem(
                   icon: Icons.person_outline_rounded,
                   selectedIcon: Icons.person_rounded,
-                  label: 'Profile',
+                  label: AppLocalizations.of(context)!.profile,
                   isSelected: currentIndex == 3,
                   onTap: () => _navigate(context, 3),
                 ),
@@ -136,10 +133,7 @@ class _NavItem extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOutCubic,
-        margin: const EdgeInsets.symmetric(
-          horizontal: 4,
-          vertical: 10,
-        ),
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
         padding: const EdgeInsets.symmetric(horizontal: 7),
         decoration: BoxDecoration(
           gradient: isSelected ? AppGradient.primary : null,
@@ -151,45 +145,36 @@ class _NavItem extends StatelessWidget {
           transitionBuilder: (child, animation) {
             return FadeTransition(
               opacity: animation,
-              child: ScaleTransition(
-                scale: animation,
-                child: child,
-              ),
+              child: ScaleTransition(scale: animation, child: child),
             );
           },
           child: isSelected
               ? Column(
-            key: const ValueKey('selected'),
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                selectedIcon,
-                size: 21,
-                color: AppColor.textWhite,
-              ),
-              const SizedBox(height: 4),
-              Flexible(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColor.textWhite,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
-          )
+                  key: const ValueKey('selected'),
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(selectedIcon, size: 21, color: AppColor.textWhite),
+                    const SizedBox(height: 4),
+                    Flexible(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColor.textWhite,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                )
               : Icon(
-            icon,
-            key: const ValueKey('unselected'),
-            size: 24,
-            color: isDark
-                ? AppColor.textHint
-                : AppColor.textSecondary,
-          ),
+                  icon,
+                  key: const ValueKey('unselected'),
+                  size: 24,
+                  color: isDark ? AppColor.textHint : AppColor.textSecondary,
+                ),
         ),
       ),
     );
@@ -243,12 +228,8 @@ class _AddTaskBottomSheet extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(22, 12, 22, 30),
       decoration: BoxDecoration(
-        color: isDark
-            ? AppColor.darkSurface
-            : AppColor.surface,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(32),
-        ),
+        color: isDark ? AppColor.darkSurface : AppColor.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -257,38 +238,32 @@ class _AddTaskBottomSheet extends StatelessWidget {
             width: 42,
             height: 5,
             decoration: BoxDecoration(
-              color: isDark
-                  ? AppColor.darkCard
-                  : AppColor.border,
+              color: isDark ? AppColor.darkCard : AppColor.border,
               borderRadius: BorderRadius.circular(10),
             ),
           ),
           const SizedBox(height: 22),
           Text(
-            'Create New',
+            AppLocalizations.of(context)!.createNew,
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w800,
-              color: isDark
-                  ? AppColor.textWhite
-                  : AppColor.textPrimary,
+              color: isDark ? AppColor.textWhite : AppColor.textPrimary,
             ),
           ),
           const SizedBox(height: 6),
           Text(
-            'What would you like to create?',
+            AppLocalizations.of(context)!.whatWouldYouLikeToCreate,
             style: TextStyle(
               fontSize: 13,
-              color: isDark
-                  ? AppColor.textHint
-                  : AppColor.textSecondary,
+              color: isDark ? AppColor.textHint : AppColor.textSecondary,
             ),
           ),
           const SizedBox(height: 12),
           _AddOption(
             icon: Icons.notifications,
-            title: 'Reminder',
-            subtitle: 'What would you like to create?',
+            title: AppLocalizations.of(context)!.reminder,
+            subtitle: AppLocalizations.of(context)!.createReminder,
             color: AppColor.secondary,
             iconColor: AppColor.primary,
             onTap: () {
@@ -328,14 +303,10 @@ class _AddOption extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: isDark
-              ? AppColor.darkCard
-              : color,
+          color: isDark ? AppColor.darkCard : color,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isDark
-                ? AppColor.darkCard
-                : AppColor.border,
+            color: isDark ? AppColor.darkCard : AppColor.border,
           ),
         ),
         child: Row(
@@ -344,16 +315,10 @@ class _AddOption extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: isDark
-                    ? AppColor.darkSurface
-                    : AppColor.surface,
+                color: isDark ? AppColor.darkSurface : AppColor.surface,
                 borderRadius: BorderRadius.circular(15),
               ),
-              child: Icon(
-                icon,
-                color: iconColor,
-                size: 25,
-              ),
+              child: Icon(icon, color: iconColor, size: 25),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -363,9 +328,7 @@ class _AddOption extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      color: isDark
-                          ? AppColor.textWhite
-                          : AppColor.textPrimary,
+                      color: isDark ? AppColor.textWhite : AppColor.textPrimary,
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                     ),
@@ -387,9 +350,7 @@ class _AddOption extends StatelessWidget {
             Icon(
               Icons.arrow_forward_ios_rounded,
               size: 15,
-              color: isDark
-                  ? AppColor.textHint
-                  : AppColor.textSecondary,
+              color: isDark ? AppColor.textHint : AppColor.textSecondary,
             ),
           ],
         ),

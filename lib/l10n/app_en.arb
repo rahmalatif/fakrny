@@ -202,5 +202,29 @@
     "chooseFutureReminderTime": "Please choose a future time for the reminder",
     "failedToCreateTask": "Failed to create task",
     "taskAddedSuccessfully": "Task added successfully",
-    "taskUpdatedSuccessfully": "Task updated successfully"
+    "taskUpdatedSuccessfully": "Task updated successfully",
+      "chooseLanguage": "Choose your language",
+      "chooseLanguageDescription": "Select your preferred language to continue.",
+      "english": "English",
+      "arabic": "Arabic",
+      "continueButton": "Continue",
+       "google":"Google",
+         "home": "Home",
+         "tasks": "Tasks",
+         "calendar": "Calendar",
+         "profile": "Profile",
+         "createNew": "Create New",
+         "whatWouldYouLikeToCreate": "What would you like to create?",
+         "reminder": "Reminder",
+         "createReminder": "Create Reminder",
+           "categoryWork": "Work",
+           "categoryOther": "Other",
+           "categoryStudy": "Study",
+           "categoryHealth": "Health",
+
+
+           "priorityLow": "Low",
+           "priorityMedium": "Medium",
+           "priorityHigh": "High"
+
 }

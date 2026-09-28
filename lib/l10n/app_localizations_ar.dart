@@ -411,4 +411,58 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reminderDetails => 'تفاصيل التذكير';
+
+  @override
+  String get chooseLanguage => 'اختر لغتك';
+
+  @override
+  String get chooseLanguageDescription => 'اختر اللغة المفضلة لديك للمتابعة.';
+
+  @override
+  String get english => 'English';
+
+  @override
+  String get arabic => 'العربية';
+
+  @override
+  String get continueButton => 'متابعة';
+
+  @override
+  String get google => 'جوجل';
+
+  @override
+  String get home => 'الرئيسية';
+
+  @override
+  String get calendar => 'التقويم';
+
+  @override
+  String get createNew => 'إنشاء جديد';
+
+  @override
+  String get whatWouldYouLikeToCreate => 'ماذا تريد أن تنشئ؟';
+
+  @override
+  String get reminder => 'تذكير';
+
+  @override
+  String get categoryWork => 'عمل';
+
+  @override
+  String get categoryOther => 'اخرى';
+
+  @override
+  String get categoryStudy => 'دراسة';
+
+  @override
+  String get categoryHealth => 'صحة';
+
+  @override
+  String get priorityLow => 'منخفض';
+
+  @override
+  String get priorityMedium => 'متوسط';
+
+  @override
+  String get priorityHigh => 'عالي';
 }

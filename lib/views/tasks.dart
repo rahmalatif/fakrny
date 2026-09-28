@@ -31,7 +31,6 @@ class _TasksViewState extends State<TasksView> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
     final taskProvider = context.watch<TaskProvider>();
     final l10n = AppLocalizations.of(context)!;
 
@@ -47,10 +46,15 @@ class _TasksViewState extends State<TasksView> {
       return Scaffold(
         backgroundColor: isDark ? AppColor.darkBackground : AppColor.background,
         body: Center(
-          child: Text(
-            taskProvider.error!,
-            style: TextStyle(
-              color: isDark ? AppColor.textWhite : AppColor.textPrimary,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              taskProvider.error!,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? AppColor.textWhite : AppColor.textPrimary,
+              ),
             ),
           ),
         ),
@@ -69,7 +73,6 @@ class _TasksViewState extends State<TasksView> {
         .toList();
 
     final completedTasks = completedTasksList.length;
-
     final pendingTasks = pendingTasksList.length;
 
     final displayedTasks = selectedTab == 0
@@ -85,96 +88,101 @@ class _TasksViewState extends State<TasksView> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(18),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 16,
+                ),
                 child: Text(
                   l10n.tasks,
+                  textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 22,
+                    fontSize: 23,
                     fontWeight: FontWeight.bold,
                     color: isDark ? AppColor.textWhite : AppColor.textPrimary,
                   ),
                 ),
               ),
-
-              Container(
-                width: MediaQuery.of(context).size.width * 0.9,
-                height: 45,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
-                  color: isDark ? AppColor.darkSurface : AppColor.secondary,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selectedTab = 0;
-                          });
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: selectedTab == 0
-                                ? AppColor.grad1
-                                : AppColor.transparent,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            l10n.all,
-                            style: TextStyle(
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  width: double.infinity,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(18),
+                    color: isDark ? AppColor.darkSurface : AppColor.secondary,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            setState(() {
+                              selectedTab = 0;
+                            });
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
                               color: selectedTab == 0
-                                  ? AppColor.textWhite
-                                  : isDark
-                                  ? AppColor.textHint
-                                  : AppColor.textSecondary,
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
+                                  ? AppColor.grad1
+                                  : AppColor.transparent,
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              l10n.all,
+                              style: TextStyle(
+                                color: selectedTab == 0
+                                    ? AppColor.textWhite
+                                    : isDark
+                                    ? AppColor.textHint
+                                    : AppColor.textSecondary,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selectedTab = 1;
-                          });
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: selectedTab == 1
-                                ? AppColor.grad1
-                                : AppColor.transparent,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            l10n.done,
-                            style: TextStyle(
+                      Expanded(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            setState(() {
+                              selectedTab = 1;
+                            });
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
                               color: selectedTab == 1
-                                  ? AppColor.textWhite
-                                  : isDark
-                                  ? AppColor.textHint
-                                  : AppColor.textSecondary,
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
+                                  ? AppColor.grad1
+                                  : AppColor.transparent,
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              l10n.done,
+                              style: TextStyle(
+                                color: selectedTab == 1
+                                    ? AppColor.textWhite
+                                    : isDark
+                                    ? AppColor.textHint
+                                    : AppColor.textSecondary,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-
-              const SizedBox(height: 30),
-
+              const SizedBox(height: 26),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
+                padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _container(
                       context: context,
@@ -194,9 +202,7 @@ class _TasksViewState extends State<TasksView> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 25),
-
               if (displayedTasks.isNotEmpty)
                 ...displayedTasks.map(
                   (task) => Padding(
@@ -208,7 +214,6 @@ class _TasksViewState extends State<TasksView> {
                     child: _taskCard(task),
                   ),
                 ),
-
               if (displayedTasks.isEmpty)
                 EmptyState(
                   icon: selectedTab == 1
@@ -223,19 +228,18 @@ class _TasksViewState extends State<TasksView> {
                   buttonText: selectedTab == 0 ? l10n.createTask : null,
                   onPressed: selectedTab == 0
                       ? () async {
-                    final taskProvider = context.read<TaskProvider>();
+                          final taskProvider = context.read<TaskProvider>();
 
-                    final result = await context.push('/Reminder');
+                          final result = await context.push('/Reminder');
 
-                    if (!mounted) return;
+                          if (!mounted) return;
 
-                    if (result == true) {
-                      await taskProvider.loadTasks();
-                    }
-                  }
+                          if (result == true) {
+                            await taskProvider.loadTasks();
+                          }
+                        }
                       : null,
                 ),
-
               const SizedBox(height: 25),
             ],
           ),
@@ -247,7 +251,6 @@ class _TasksViewState extends State<TasksView> {
 
   Future<void> _toggleTask(TaskModel task) async {
     final taskProvider = context.read<TaskProvider>();
-
     final l10n = AppLocalizations.of(context)!;
 
     final updatedTask = TaskModel(
@@ -288,10 +291,11 @@ class _TasksViewState extends State<TasksView> {
       onTap: () => _toggleTask(task),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: isDark ? AppColor.darkSurface : AppColor.surface,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: isDark ? .20 : .04),
@@ -302,12 +306,13 @@ class _TasksViewState extends State<TasksView> {
           ],
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             GestureDetector(
               onTap: () => _toggleTask(task),
               child: Container(
-                width: 22,
-                height: 22,
+                width: 24,
+                height: 24,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: task.isCompleted
@@ -327,25 +332,27 @@ class _TasksViewState extends State<TasksView> {
                     ? const Icon(
                         Icons.check,
                         color: AppColor.textWhite,
-                        size: 14,
+                        size: 15,
                       )
                     : null,
               ),
             ),
-
-            const SizedBox(width: 10),
-
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         child: Text(
                           task.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 15,
+                            fontSize: 15.5,
+                            height: 1.25,
                             fontWeight: FontWeight.bold,
                             color: task.isCompleted
                                 ? isDark
@@ -360,40 +367,67 @@ class _TasksViewState extends State<TasksView> {
                           ),
                         ),
                       ),
-                      Text(
-                        time,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: isDark
-                              ? AppColor.textHint
-                              : AppColor.textSecondary,
-                        ),
-                      ),
                       const SizedBox(width: 8),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            time,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: isDark
+                                  ? AppColor.textHint
+                                  : AppColor.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+
+                        ],
+                      ),
                     ],
                   ),
-
-                  const SizedBox(height: 6),
-
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _getCategoryColor(
-                        task.category,
-                      ).withValues(alpha: .08),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      task.category,
-                      style: TextStyle(
-                        color: _getCategoryColor(task.category),
-                        fontSize: 8,
-                        fontWeight: FontWeight.bold,
+                  const SizedBox(height: 7),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 9,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _getCategoryColor(
+                            task.category,
+                          ).withValues(alpha: .08),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          task.category,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: _getCategoryColor(task.category),
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
+                      Spacer(),
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 28,
+                          minHeight: 28,
+                        ),
+                        onPressed: () {
+                          context.go('/ReminderDetails', extra: task);
+                        },
+                        icon: const Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          size: 14,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -430,41 +464,49 @@ class _TasksViewState extends State<TasksView> {
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Container(
-      height: 80,
-      width: 100,
-      decoration: BoxDecoration(
-        color: isDark ? AppColor.darkCard : AppColor.surface,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.05),
-            blurRadius: 8,
-            spreadRadius: 1,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 10,
-              color: isDark ? AppColor.textHint : AppColor.textSecondary,
+    return Expanded(
+      child: Container(
+        height: 70,
+        margin: const EdgeInsets.symmetric(horizontal: 3),
+        decoration: BoxDecoration(
+          color: isDark ? AppColor.darkCard : AppColor.surface,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.05),
+              blurRadius: 6,
+              spreadRadius: 1,
+              offset: const Offset(0, 2),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 17,
-              color: isDark ? AppColor.textWhite : AppColor.textPrimary,
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              value,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 10,
+                color: isDark ? AppColor.textHint : AppColor.textSecondary,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 3),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 17,
+                color: isDark ? AppColor.textWhite : AppColor.textPrimary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

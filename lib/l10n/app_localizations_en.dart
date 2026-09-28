@@ -417,4 +417,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reminderDetails => 'Reminder Details';
+
+  @override
+  String get chooseLanguage => 'Choose your language';
+
+  @override
+  String get chooseLanguageDescription =>
+      'Select your preferred language to continue.';
+
+  @override
+  String get english => 'English';
+
+  @override
+  String get arabic => 'Arabic';
+
+  @override
+  String get continueButton => 'Continue';
+
+  @override
+  String get google => 'Google';
+
+  @override
+  String get home => 'Home';
+
+  @override
+  String get calendar => 'Calendar';
+
+  @override
+  String get createNew => 'Create New';
+
+  @override
+  String get whatWouldYouLikeToCreate => 'What would you like to create?';
+
+  @override
+  String get reminder => 'Reminder';
+
+  @override
+  String get categoryWork => 'Work';
+
+  @override
+  String get categoryOther => 'Other';
+
+  @override
+  String get categoryStudy => 'Study';
+
+  @override
+  String get categoryHealth => 'Health';
+
+  @override
+  String get priorityLow => 'Low';
+
+  @override
+  String get priorityMedium => 'Medium';
+
+  @override
+  String get priorityHigh => 'High';
 }

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled/core/design/widgets/star_background.dart';
 import '../core/design/theme/gradiant_colored_container.dart';
+import '../core/design/theme/lang_controller.dart';
 import '../core/design/widgets/animated_logo.dart';
 import '../core/logic/app_routes.dart';
 import '../l10n/app_localizations.dart';
@@ -31,21 +32,38 @@ class _SplashViewState extends State<SplashView> {
     final bool onboardingCompleted =
         prefs.getBool('onboarding_completed') ?? false;
 
+    final String? selectedLanguage =
+    prefs.getString(LangController.languageKey);
+
     final User? user = FirebaseAuth.instance.currentUser;
 
     if (!mounted) return;
 
+    // First launch:
+    // No language has been selected yet.
+    if (selectedLanguage == null) {
+      context.go(AppRoutes.language);
+      return;
+    }
+
+    // Language exists but onboarding hasn't finished.
     if (!onboardingCompleted) {
       context.go(AppRoutes.onboarding);
-    } else if (user != null) {
+      return;
+    }
+
+    // Onboarding finished and user is logged in.
+    if (user != null) {
       await context.read<TaskProvider>().loadTasks();
 
       if (!mounted) return;
 
       context.go(AppRoutes.home);
-    }else {
-      context.go(AppRoutes.login);
+      return;
     }
+
+    // Onboarding finished but user isn't logged in.
+    context.go(AppRoutes.login);
   }
 
   @override
