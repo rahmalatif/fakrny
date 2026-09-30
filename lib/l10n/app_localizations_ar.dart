@@ -489,4 +489,53 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get notificationDismiss => 'إغلاق';
+
+  @override
+  String get enterEmailAndPassword =>
+      'يرجى إدخال البريد الإلكتروني وكلمة المرور';
+
+  @override
+  String get somethingWentWrong => 'حدث خطأ ما';
+
+  @override
+  String get invalidEmailOrPassword =>
+      'البريد الإلكتروني أو كلمة المرور غير صحيحة';
+
+  @override
+  String get invalidEmail => 'يرجى إدخال بريد إلكتروني صحيح';
+
+  @override
+  String get accountDisabled => 'تم تعطيل هذا الحساب';
+
+  @override
+  String get googleSignInError => 'حدث خطأ أثناء تسجيل الدخول باستخدام جوجل';
+
+  @override
+  String get pleaseEnterYourEmail => 'يرجى إدخال بريدك الإلكتروني';
+
+  @override
+  String get passwordResetLinkSent =>
+      'تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني';
+
+  @override
+  String get noAccountFoundWithEmail =>
+      'لا يوجد حساب مرتبط بهذا البريد الإلكتروني';
+
+  @override
+  String get user => 'المستخدم';
+
+  @override
+  String get pleaseFillAllFields => 'يرجى ملء جميع الحقول';
+
+  @override
+  String get passwordsDoNotMatch => 'كلمتا المرور غير متطابقتين';
+
+  @override
+  String get accountCreatedSuccessfully => 'تم إنشاء الحساب بنجاح';
+
+  @override
+  String get emailAlreadyRegistered => 'هذا البريد الإلكتروني مسجل بالفعل';
+
+  @override
+  String get weakPassword => 'كلمة المرور ضعيفة جدًا';
 }

@@ -10,7 +10,11 @@ import '../services/notification_services.dart';
 
 class ReminderDetailsView extends StatefulWidget {
   final TaskModel task;
-  const ReminderDetailsView({super.key, required this.task});
+
+  const ReminderDetailsView({
+    super.key,
+    required this.task,
+  });
 
   @override
   State<ReminderDetailsView> createState() => _ReminderDetailsViewState();
@@ -70,8 +74,10 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
       if (!mounted) return;
 
       if (!success) {
+        final l10n = AppLocalizations.of(context)!;
+
         throw Exception(
-          taskProvider.error ?? 'Failed to update task',
+          taskProvider.error ?? l10n.failedToUpdateTask,
         );
       }
 
@@ -97,11 +103,11 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
         type: SnackBarType.error,
       );
     } finally {
-      if (!mounted) return;
-
-      setState(() {
-        isUpdating = false;
-      });
+      if (mounted) {
+        setState(() {
+          isUpdating = false;
+        });
+      }
     }
   }
 

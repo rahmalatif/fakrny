@@ -232,5 +232,20 @@
             "notificationTaskStillWaiting": "مهمتك ما زالت في انتظارك",
             "notificationCompleted": "تم الإنجاز",
             "notificationSnooze5Min": "تأجيل 5 دقائق",
-            "notificationDismiss": "إغلاق"
+            "notificationDismiss": "إغلاق",
+            "enterEmailAndPassword": "يرجى إدخال البريد الإلكتروني وكلمة المرور",
+            "somethingWentWrong": "حدث خطأ ما",
+            "invalidEmailOrPassword": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+            "invalidEmail": "يرجى إدخال بريد إلكتروني صحيح",
+            "accountDisabled": "تم تعطيل هذا الحساب",
+            "googleSignInError": "حدث خطأ أثناء تسجيل الدخول باستخدام جوجل",
+            "pleaseEnterYourEmail": "يرجى إدخال بريدك الإلكتروني",
+            "passwordResetLinkSent": "تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني",
+            "noAccountFoundWithEmail": "لا يوجد حساب مرتبط بهذا البريد الإلكتروني",
+            "user": "المستخدم",
+            "pleaseFillAllFields": "يرجى ملء جميع الحقول",
+            "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين",
+            "accountCreatedSuccessfully": "تم إنشاء الحساب بنجاح",
+            "emailAlreadyRegistered": "هذا البريد الإلكتروني مسجل بالفعل",
+            "weakPassword": "كلمة المرور ضعيفة جدًا"
 }

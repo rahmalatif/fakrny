@@ -34,9 +34,11 @@ class _ReminderViewState extends State<ReminderView> {
   Color get backgroundColor =>
       isDark ? AppColor.darkBackground : AppColor.background;
 
-  Color get surfaceColor => isDark ? AppColor.darkSurface : AppColor.surface;
+  Color get surfaceColor =>
+      isDark ? AppColor.darkSurface : AppColor.surface;
 
-  Color get cardColor => isDark ? AppColor.darkCard : AppColor.border;
+  Color get cardColor =>
+      isDark ? AppColor.darkCard : AppColor.border;
 
   Color get primaryTextColor =>
       isDark ? AppColor.textWhite : AppColor.textPrimary;
@@ -104,12 +106,12 @@ class _ReminderViewState extends State<ReminderView> {
 
   Future<void> saveReminder() async {
     final l10n = AppLocalizations.of(context)!;
-    final languageCode = Localizations.localeOf(context).languageCode;
 
+    final languageCode = Localizations.localeOf(context).languageCode;
     if (_titleController.text.trim().isEmpty) {
       SnackBarHelper.show(
         context,
-        message: 'Please enter a task title',
+        message: l10n.enterTaskTitle,
         type: SnackBarType.warning,
       );
       return;
@@ -118,7 +120,7 @@ class _ReminderViewState extends State<ReminderView> {
     if (selectedDate == null || selectedTime == null) {
       SnackBarHelper.show(
         context,
-        message: 'Please choose date and time',
+        message: l10n.chooseDateAndTime,
         type: SnackBarType.warning,
       );
       return;
@@ -127,7 +129,7 @@ class _ReminderViewState extends State<ReminderView> {
     if (selectedRepeat == 'custom' && selectedRepeatDays.isEmpty) {
       SnackBarHelper.show(
         context,
-        message: 'Please choose repeat days',
+        message: l10n.chooseRepeatDays,
         type: SnackBarType.warning,
       );
       return;
@@ -148,7 +150,7 @@ class _ReminderViewState extends State<ReminderView> {
     if (reminderTime.isBefore(DateTime.now())) {
       SnackBarHelper.show(
         context,
-        message: 'Please choose a future time for the reminder',
+        message: l10n.chooseFutureReminderTime,
         type: SnackBarType.warning,
       );
       return;
@@ -185,7 +187,7 @@ class _ReminderViewState extends State<ReminderView> {
 
         if (taskWithId == null) {
           throw Exception(
-            taskProvider.error ?? 'Failed to create task',
+            taskProvider.error ?? l10n.failedToCreateTask,
           );
         }
 
@@ -227,7 +229,7 @@ class _ReminderViewState extends State<ReminderView> {
 
         if (!success) {
           throw Exception(
-            taskProvider.error ?? 'Failed to update task',
+            taskProvider.error ?? l10n.failedToUpdateTask,
           );
         }
 
@@ -244,8 +246,8 @@ class _ReminderViewState extends State<ReminderView> {
       SnackBarHelper.show(
         context,
         message: widget.task == null
-            ? 'Task added successfully'
-            : 'Task updated successfully',
+            ? l10n.taskAddedSuccessfully
+            : l10n.taskUpdatedSuccessfully,
         type: SnackBarType.success,
       );
 
@@ -259,11 +261,11 @@ class _ReminderViewState extends State<ReminderView> {
         type: SnackBarType.error,
       );
     } finally {
-      if (!mounted) return;
-
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 

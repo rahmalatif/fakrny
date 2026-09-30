@@ -4,10 +4,10 @@ enum SnackBarType { success, error, warning, info }
 
 class SnackBarHelper {
   static void show(
-    BuildContext context, {
-    required String message,
-    required SnackBarType type,
-  }) {
+      BuildContext context, {
+        required String message,
+        required SnackBarType type,
+      }) {
     final config = _getConfig(type);
 
     ScaffoldMessenger.of(context)
@@ -16,7 +16,10 @@ class SnackBarHelper {
         SnackBar(
           content: Row(
             children: [
-              Icon(config.icon, color: Colors.white),
+              Icon(
+                config.icon,
+                color: Colors.white,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -33,7 +36,10 @@ class SnackBarHelper {
           backgroundColor: config.color,
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -45,16 +51,28 @@ class SnackBarHelper {
   static _SnackBarConfig _getConfig(SnackBarType type) {
     switch (type) {
       case SnackBarType.success:
-        return _SnackBarConfig(color: Colors.green, icon: Icons.check_circle);
+        return _SnackBarConfig(
+          color: Colors.green,
+          icon: Icons.check_circle,
+        );
 
       case SnackBarType.error:
-        return _SnackBarConfig(color: Colors.red, icon: Icons.error);
+        return _SnackBarConfig(
+          color: Colors.red,
+          icon: Icons.error,
+        );
 
       case SnackBarType.warning:
-        return _SnackBarConfig(color: Colors.orange, icon: Icons.warning);
+        return _SnackBarConfig(
+          color: Colors.orange,
+          icon: Icons.warning,
+        );
 
       case SnackBarType.info:
-        return _SnackBarConfig(color: Colors.blue, icon: Icons.info);
+        return _SnackBarConfig(
+          color: Colors.blue,
+          icon: Icons.info,
+        );
     }
   }
 }
@@ -63,5 +81,8 @@ class _SnackBarConfig {
   final Color color;
   final IconData icon;
 
-  _SnackBarConfig({required this.color, required this.icon});
+  const _SnackBarConfig({
+    required this.color,
+    required this.icon,
+  });
 }

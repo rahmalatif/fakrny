@@ -36,15 +36,21 @@ class _TasksViewState extends State<TasksView> {
 
     if (taskProvider.isLoading && taskProvider.tasks.isEmpty) {
       return Scaffold(
-        backgroundColor: isDark ? AppColor.darkBackground : AppColor.background,
-        body: const Center(child: CircularProgressIndicator()),
-        bottomNavigationBar: const CustomNavBar(currentIndex: 1),
+        backgroundColor:
+        isDark ? AppColor.darkBackground : AppColor.background,
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+        bottomNavigationBar: const CustomNavBar(
+          currentIndex: 1,
+        ),
       );
     }
 
     if (taskProvider.error != null && taskProvider.tasks.isEmpty) {
       return Scaffold(
-        backgroundColor: isDark ? AppColor.darkBackground : AppColor.background,
+        backgroundColor:
+        isDark ? AppColor.darkBackground : AppColor.background,
         body: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -53,12 +59,16 @@ class _TasksViewState extends State<TasksView> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: isDark ? AppColor.textWhite : AppColor.textPrimary,
+                color: isDark
+                    ? AppColor.textWhite
+                    : AppColor.textPrimary,
               ),
             ),
           ),
         ),
-        bottomNavigationBar: const CustomNavBar(currentIndex: 1),
+        bottomNavigationBar: const CustomNavBar(
+          currentIndex: 1,
+        ),
       );
     }
 
@@ -79,10 +89,13 @@ class _TasksViewState extends State<TasksView> {
         ? List<TaskModel>.from(allTasks)
         : List<TaskModel>.from(completedTasksList);
 
-    displayedTasks.sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
+    displayedTasks.sort(
+          (a, b) => a.scheduledAt.compareTo(b.scheduledAt),
+    );
 
     return Scaffold(
-      backgroundColor: isDark ? AppColor.darkBackground : AppColor.background,
+      backgroundColor:
+      isDark ? AppColor.darkBackground : AppColor.background,
       body: SingleChildScrollView(
         child: SafeArea(
           child: Column(
@@ -98,7 +111,9 @@ class _TasksViewState extends State<TasksView> {
                   style: TextStyle(
                     fontSize: 23,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? AppColor.textWhite : AppColor.textPrimary,
+                    color: isDark
+                        ? AppColor.textWhite
+                        : AppColor.textPrimary,
                   ),
                 ),
               ),
@@ -109,7 +124,9 @@ class _TasksViewState extends State<TasksView> {
                   height: 48,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(18),
-                    color: isDark ? AppColor.darkSurface : AppColor.secondary,
+                    color: isDark
+                        ? AppColor.darkSurface
+                        : AppColor.secondary,
                   ),
                   child: Row(
                     children: [
@@ -205,7 +222,7 @@ class _TasksViewState extends State<TasksView> {
               const SizedBox(height: 25),
               if (displayedTasks.isNotEmpty)
                 ...displayedTasks.map(
-                  (task) => Padding(
+                      (task) => Padding(
                     padding: const EdgeInsets.only(
                       left: 15,
                       right: 15,
@@ -225,19 +242,22 @@ class _TasksViewState extends State<TasksView> {
                   message: selectedTab == 1
                       ? l10n.noCompletedTasksMessage
                       : l10n.noTasksYetMessage,
-                  buttonText: selectedTab == 0 ? l10n.createTask : null,
+                  buttonText:
+                  selectedTab == 0 ? l10n.createTask : null,
                   onPressed: selectedTab == 0
                       ? () async {
-                          final taskProvider = context.read<TaskProvider>();
+                    final taskProvider =
+                    context.read<TaskProvider>();
 
-                          final result = await context.push('/Reminder');
+                    final result =
+                    await context.push('/Reminder');
 
-                          if (!mounted) return;
+                    if (!mounted) return;
 
-                          if (result == true) {
-                            await taskProvider.loadTasks();
-                          }
-                        }
+                    if (result == true) {
+                      await taskProvider.loadTasks();
+                    }
+                  }
                       : null,
                 ),
               const SizedBox(height: 25),
@@ -245,7 +265,9 @@ class _TasksViewState extends State<TasksView> {
           ),
         ),
       ),
-      bottomNavigationBar: const CustomNavBar(currentIndex: 1),
+      bottomNavigationBar: const CustomNavBar(
+        currentIndex: 1,
+      ),
     );
   }
 
@@ -273,11 +295,16 @@ class _TasksViewState extends State<TasksView> {
       updatedTask,
       languageCode: Localizations.localeOf(context).languageCode,
     );
+
     if (!mounted) return;
 
     if (!success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(taskProvider.error ?? l10n.errorUpdatingTask)),
+        SnackBar(
+          content: Text(
+            taskProvider.error ?? l10n.errorUpdatingTask,
+          ),
+        ),
       );
     }
   }
@@ -293,14 +320,20 @@ class _TasksViewState extends State<TasksView> {
       onTap: () => _toggleTask(task),
       child: Container(
         width: double.infinity,
-
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 12,
+        ),
         decoration: BoxDecoration(
-          color: isDark ? AppColor.darkSurface : AppColor.surface,
+          color: isDark
+              ? AppColor.darkSurface
+              : AppColor.surface,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? .20 : .04),
+              color: Colors.black.withValues(
+                alpha: isDark ? .20 : .04,
+              ),
               blurRadius: 8,
               spreadRadius: 1,
               offset: const Offset(0, 2),
@@ -332,10 +365,10 @@ class _TasksViewState extends State<TasksView> {
                 ),
                 child: task.isCompleted
                     ? const Icon(
-                        Icons.check,
-                        color: AppColor.textWhite,
-                        size: 15,
-                      )
+                  Icons.check,
+                  color: AppColor.textWhite,
+                  size: 15,
+                )
                     : null,
               ),
             ),
@@ -345,7 +378,8 @@ class _TasksViewState extends State<TasksView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                    CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         child: Text(
@@ -358,8 +392,8 @@ class _TasksViewState extends State<TasksView> {
                             fontWeight: FontWeight.bold,
                             color: task.isCompleted
                                 ? isDark
-                                      ? AppColor.textHint
-                                      : AppColor.textSecondary
+                                ? AppColor.textHint
+                                : AppColor.textSecondary
                                 : isDark
                                 ? AppColor.textWhite
                                 : AppColor.textPrimary,
@@ -384,7 +418,6 @@ class _TasksViewState extends State<TasksView> {
                             ),
                           ),
                           const SizedBox(height: 2),
-
                         ],
                       ),
                     ],
@@ -401,14 +434,17 @@ class _TasksViewState extends State<TasksView> {
                           color: _getCategoryColor(
                             task.category,
                           ).withValues(alpha: .08),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius:
+                          BorderRadius.circular(10),
                         ),
                         child: Text(
                           task.category,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: _getCategoryColor(task.category),
+                            color: _getCategoryColor(
+                              task.category,
+                            ),
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                           ),
@@ -422,7 +458,10 @@ class _TasksViewState extends State<TasksView> {
                           minHeight: 28,
                         ),
                         onPressed: () {
-                          context.go('/ReminderDetails', extra: task);
+                          context.go(
+                            '/ReminderDetails',
+                            extra: task,
+                          );
                         },
                         icon: const Icon(
                           Icons.arrow_back_ios_new_rounded,
@@ -471,11 +510,15 @@ class _TasksViewState extends State<TasksView> {
         height: 70,
         margin: const EdgeInsets.symmetric(horizontal: 3),
         decoration: BoxDecoration(
-          color: isDark ? AppColor.darkCard : AppColor.surface,
+          color: isDark
+              ? AppColor.darkCard
+              : AppColor.surface,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.05),
+              color: Colors.black.withValues(
+                alpha: isDark ? 0.20 : 0.05,
+              ),
               blurRadius: 6,
               spreadRadius: 1,
               offset: const Offset(0, 2),
@@ -492,7 +535,9 @@ class _TasksViewState extends State<TasksView> {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 10,
-                color: isDark ? AppColor.textHint : AppColor.textSecondary,
+                color: isDark
+                    ? AppColor.textHint
+                    : AppColor.textSecondary,
               ),
             ),
             const SizedBox(height: 3),
@@ -504,7 +549,9 @@ class _TasksViewState extends State<TasksView> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 17,
-                color: isDark ? AppColor.textWhite : AppColor.textPrimary,
+                color: isDark
+                    ? AppColor.textWhite
+                    : AppColor.textPrimary,
               ),
             ),
           ],

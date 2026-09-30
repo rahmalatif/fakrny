@@ -498,4 +498,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationDismiss => 'Dismiss';
+
+  @override
+  String get enterEmailAndPassword => 'Please enter your email and password';
+
+  @override
+  String get somethingWentWrong => 'Something went wrong';
+
+  @override
+  String get invalidEmailOrPassword => 'Invalid email or password';
+
+  @override
+  String get invalidEmail => 'Please enter a valid email';
+
+  @override
+  String get accountDisabled => 'This account has been disabled';
+
+  @override
+  String get googleSignInError =>
+      'An error occurred while signing in with Google';
+
+  @override
+  String get pleaseEnterYourEmail => 'Please enter your email';
+
+  @override
+  String get passwordResetLinkSent =>
+      'Password reset link has been sent to your email';
+
+  @override
+  String get noAccountFoundWithEmail => 'No account found with this email';
+
+  @override
+  String get user => 'User';
+
+  @override
+  String get pleaseFillAllFields => 'Please fill in all fields';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwords do not match';
+
+  @override
+  String get accountCreatedSuccessfully => 'Account created successfully';
+
+  @override
+  String get emailAlreadyRegistered => 'This email is already registered';
+
+  @override
+  String get weakPassword => 'Password is too weak';
 }

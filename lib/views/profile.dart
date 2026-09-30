@@ -203,7 +203,7 @@ class _ProfileViewState extends State<ProfileView> {
 
       SnackBarHelper.show(
         context,
-        message: e.toString(),
+        message: localizations.somethingWentWrong,
         type: SnackBarType.error,
       );
     }
@@ -216,11 +216,12 @@ class _ProfileViewState extends State<ProfileView> {
     final localeController = context.watch<LangController>();
     final isDark = themeController.isDark;
     final isArabic = localeController.locale.languageCode == 'ar';
+
     final displayName = user?.name.trim().isNotEmpty == true
         ? user!.name
-        : 'User';
-    final displayEmail = user?.email ?? '';
+        : localizations.user;
 
+    final displayEmail = user?.email ?? '';
 
     return Scaffold(
       backgroundColor: isDark ? AppColor.darkBackground : AppColor.background,
@@ -239,9 +240,7 @@ class _ProfileViewState extends State<ProfileView> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 15),
-
               Center(
                 child: Container(
                   width: 80,
@@ -249,7 +248,10 @@ class _ProfileViewState extends State<ProfileView> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isDark ? AppColor.darkSurface : AppColor.surface,
-                    border: Border.all(color: AppColor.grad1, width: 2),
+                    border: Border.all(
+                      color: AppColor.grad1,
+                      width: 2,
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: AppColor.grad1.withValues(alpha: 0.18),
@@ -262,27 +264,25 @@ class _ProfileViewState extends State<ProfileView> {
                   child: Center(
                     child: isLoading
                         ? const SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: AppColor.grad1,
-                            ),
-                          )
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColor.grad1,
+                      ),
+                    )
                         : Text(
-                            getInitials(displayName),
-                            style: const TextStyle(
-                              color: AppColor.grad1,
-                              fontSize: 21,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                      getInitials(displayName),
+                      style: const TextStyle(
+                        color: AppColor.grad1,
+                        fontSize: 21,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ),
-
               const SizedBox(height: 20),
-
               Center(
                 child: Text(
                   displayName,
@@ -293,9 +293,7 @@ class _ProfileViewState extends State<ProfileView> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 4),
-
               if (displayEmail.isNotEmpty)
                 Center(
                   child: Text(
@@ -308,9 +306,7 @@ class _ProfileViewState extends State<ProfileView> {
                     ),
                   ),
                 ),
-
               const SizedBox(height: 10),
-
               Row(
                 children: [
                   Expanded(
@@ -320,9 +316,7 @@ class _ProfileViewState extends State<ProfileView> {
                       title: localizations.streak,
                     ),
                   ),
-
                   const SizedBox(width: 10),
-
                   Expanded(
                     child: profileContainer(
                       context: context,
@@ -330,9 +324,7 @@ class _ProfileViewState extends State<ProfileView> {
                       title: localizations.progress,
                     ),
                   ),
-
                   const SizedBox(width: 10),
-
                   Expanded(
                     child: profileContainer(
                       context: context,
@@ -343,7 +335,6 @@ class _ProfileViewState extends State<ProfileView> {
                 ],
               ),
               const SizedBox(height: 20),
-
               Align(
                 alignment: isArabic
                     ? Alignment.centerRight
@@ -357,9 +348,7 @@ class _ProfileViewState extends State<ProfileView> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 12),
-
               buildSettingTile(
                 context: context,
                 title: localizations.darkMode,
@@ -372,15 +361,16 @@ class _ProfileViewState extends State<ProfileView> {
                   activeThumbColor: AppColor.grad1,
                 ),
               ),
-
               buildSettingTile(
                 context: context,
                 title: localizations.lang,
                 icon: Icons.language,
                 trailing: Text(
-                  isArabic ? 'العربية' : 'English',
+                  isArabic ? localizations.arabic : localizations.english,
                   style: TextStyle(
-                    color: isDark ? AppColor.textHint : AppColor.textSecondary,
+                    color: isDark
+                        ? AppColor.textHint
+                        : AppColor.textSecondary,
                     fontSize: 12,
                   ),
                 ),
@@ -388,19 +378,21 @@ class _ProfileViewState extends State<ProfileView> {
                   localeController.toggleLocale();
                 },
               ),
-
               buildSettingTile(
                 context: context,
                 title: localizations.logout,
                 icon: Icons.logout,
                 trailing: Icon(
-                  isArabic ? Icons.arrow_back_ios : Icons.arrow_forward_ios,
+                  isArabic
+                      ? Icons.arrow_back_ios
+                      : Icons.arrow_forward_ios,
                   size: 14,
-                  color: isDark ? AppColor.textHint : AppColor.textSecondary,
+                  color: isDark
+                      ? AppColor.textHint
+                      : AppColor.textSecondary,
                 ),
                 onTap: _logout,
               ),
-
               const SizedBox(height: 10),
             ],
           ),
@@ -489,10 +481,12 @@ Widget buildSettingTile({
       child: Row(
         textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
         children: [
-          Icon(icon, size: 20, color: AppColor.grad1),
-
+          Icon(
+            icon,
+            size: 20,
+            color: AppColor.grad1,
+          ),
           const SizedBox(width: 10),
-
           Expanded(
             child: Text(
               title,
@@ -503,7 +497,6 @@ Widget buildSettingTile({
               ),
             ),
           ),
-
           trailing,
         ],
       ),

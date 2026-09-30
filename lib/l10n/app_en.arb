@@ -231,6 +231,21 @@
              "notificationTaskStillWaiting": "Your task is still waiting for you",
              "notificationCompleted": "Completed",
              "notificationSnooze5Min": "Snooze 5 min",
-             "notificationDismiss": "Dismiss"
+             "notificationDismiss": "Dismiss",
+             "enterEmailAndPassword": "Please enter your email and password",
+             "somethingWentWrong": "Something went wrong",
+             "invalidEmailOrPassword": "Invalid email or password",
+             "invalidEmail": "Please enter a valid email",
+             "accountDisabled": "This account has been disabled",
+             "googleSignInError": "An error occurred while signing in with Google",
+             "pleaseEnterYourEmail": "Please enter your email",
+             "passwordResetLinkSent": "Password reset link has been sent to your email",
+             "noAccountFoundWithEmail": "No account found with this email",
+             "user": "User",
+             "pleaseFillAllFields": "Please fill in all fields",
+             "passwordsDoNotMatch": "Passwords do not match",
+             "accountCreatedSuccessfully": "Account created successfully",
+             "emailAlreadyRegistered": "This email is already registered",
+             "weakPassword": "Password is too weak"
 
 }

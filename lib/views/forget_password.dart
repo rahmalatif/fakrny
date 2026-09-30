@@ -30,12 +30,17 @@ class _ForgetPasswordViewState extends State<ForgetPasswordView> {
   }
 
   Future<void> sendResetPasswordEmail() async {
+    final l10n = AppLocalizations.of(context)!;
     final email = emailController.text.trim();
 
     if (email.isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Please enter your email')));
+      ).showSnackBar(
+        SnackBar(
+          content: Text(l10n.pleaseEnterYourEmail),
+        ),
+      );
       return;
     }
 
@@ -49,24 +54,28 @@ class _ForgetPasswordViewState extends State<ForgetPasswordView> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Password reset link has been sent to your email'),
+        SnackBar(
+          content: Text(l10n.passwordResetLinkSent),
         ),
       );
     } on FirebaseAuthException catch (e) {
-      String message = 'Something went wrong';
+      String message = l10n.somethingWentWrong;
 
       if (e.code == 'invalid-email') {
-        message = 'Please enter a valid email';
+        message = l10n.invalidEmail;
       } else if (e.code == 'user-not-found') {
-        message = 'No account found with this email';
+        message = l10n.noAccountFoundWithEmail;
       }
 
       if (!mounted) return;
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      ).showSnackBar(
+        SnackBar(
+          content: Text(message),
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -78,6 +87,7 @@ class _ForgetPasswordViewState extends State<ForgetPasswordView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final screenHeight = MediaQuery.of(context).size.height;
 
     return SafeArea(
@@ -89,7 +99,9 @@ class _ForgetPasswordViewState extends State<ForgetPasswordView> {
             Container(
               height: screenHeight * .3,
               width: double.infinity,
-              decoration: const BoxDecoration(gradient: AppGradient.primary),
+              decoration: const BoxDecoration(
+                gradient: AppGradient.primary,
+              ),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -112,7 +124,9 @@ class _ForgetPasswordViewState extends State<ForgetPasswordView> {
                       backgroundColor: AppColor.transparent,
                       child: const Padding(
                         padding: EdgeInsets.all(12),
-                        child: AppImage(image: 'assets/JPG_Images/logo.png'),
+                        child: AppImage(
+                          image: 'assets/JPG_Images/logo.png',
+                        ),
                       ),
                     ),
                   ),
@@ -123,23 +137,28 @@ class _ForgetPasswordViewState extends State<ForgetPasswordView> {
               alignment: Alignment.bottomCenter,
               child: Container(
                 width: double.infinity,
-                constraints: BoxConstraints(minHeight: screenHeight * .68),
+                constraints: BoxConstraints(
+                  minHeight: screenHeight * .68,
+                ),
                 decoration: BoxDecoration(
                   color: AppColor.surface,
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: const [
-                    BoxShadow(blurRadius: 20, color: Colors.black12),
+                    BoxShadow(
+                      blurRadius: 20,
+                      color: Colors.black12,
+                    ),
                   ],
                 ),
                 child: SingleChildScrollView(
                   keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  ScrollViewKeyboardDismissBehavior.onDrag,
                   padding: const EdgeInsets.all(18),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        AppLocalizations.of(context)!.forgetPassword,
+                        l10n.forgetPassword,
                         style: const TextStyle(
                           fontSize: 28,
                           color: AppColor.textPrimary,
@@ -148,7 +167,7 @@ class _ForgetPasswordViewState extends State<ForgetPasswordView> {
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        AppLocalizations.of(context)!.forgetPasswordSub,
+                        l10n.forgetPasswordSub,
                         style: const TextStyle(
                           fontSize: 16,
                           color: AppColor.textSecondary,
@@ -162,7 +181,7 @@ class _ForgetPasswordViewState extends State<ForgetPasswordView> {
                           Icons.email_outlined,
                           color: AppColor.textSecondary,
                         ),
-                        title: AppLocalizations.of(context)!.email,
+                        title: l10n.email,
                       ),
                       const SizedBox(height: 28),
                       GradiantButton(
@@ -175,21 +194,21 @@ class _ForgetPasswordViewState extends State<ForgetPasswordView> {
                           padding: const EdgeInsets.all(8.0),
                           child: isLoading
                               ? const SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: AppColor.textWhite,
-                                  ),
-                                )
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColor.textWhite,
+                            ),
+                          )
                               : Text(
-                                  AppLocalizations.of(context)!.sendResetLink,
-                                  style: const TextStyle(
-                                    color: AppColor.textWhite,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                  ),
-                                ),
+                            l10n.sendResetLink,
+                            style: const TextStyle(
+                              color: AppColor.textWhite,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 25),
@@ -199,7 +218,7 @@ class _ForgetPasswordViewState extends State<ForgetPasswordView> {
                             context.go('/Login');
                           },
                           child: Text(
-                            AppLocalizations.of(context)!.backToLogin,
+                            l10n.backToLogin,
                             style: const TextStyle(
                               color: AppColor.primary,
                               fontSize: 16,
