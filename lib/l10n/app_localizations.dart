@@ -997,6 +997,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'High'**
   String get priorityHigh;
+
+  /// No description provided for @notificationTaskReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Reminders'**
+  String get notificationTaskReminders;
+
+  /// No description provided for @notificationTaskRemindersDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications for task reminders'**
+  String get notificationTaskRemindersDescription;
+
+  /// No description provided for @notificationTaskComingUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Your task is coming up'**
+  String get notificationTaskComingUp;
+
+  /// No description provided for @notificationDontForgetTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Don’t forget your task'**
+  String get notificationDontForgetTask;
+
+  /// No description provided for @notificationTaskStillWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Your task is still waiting for you'**
+  String get notificationTaskStillWaiting;
+
+  /// No description provided for @notificationCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get notificationCompleted;
+
+  /// No description provided for @notificationSnooze5Min.
+  ///
+  /// In en, this message translates to:
+  /// **'Snooze 5 min'**
+  String get notificationSnooze5Min;
+
+  /// No description provided for @notificationDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get notificationDismiss;
 }
 
 class _AppLocalizationsDelegate

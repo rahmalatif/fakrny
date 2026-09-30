@@ -6,7 +6,6 @@ import 'package:untitled/services/auth_services.dart';
 import 'package:untitled/services/task_firestore_service.dart';
 import 'package:untitled/services/user_firestore_service.dart';
 
-
 class MockAuthServices extends Mock implements AuthServices {}
 
 class MockTaskFirestoreService extends Mock
@@ -217,7 +216,10 @@ void main() {
         scheduledAt: DateTime(2026, 9, 21),
       );
 
-      final result = await provider.addTask(task);
+      final result = await provider.addTask(
+        task,
+        languageCode: 'en',
+      );
 
       expect(result, isNull);
       expect(provider.tasks, isEmpty);
@@ -243,7 +245,10 @@ void main() {
         scheduledAt: DateTime(2026, 9, 21),
       );
 
-      final result = await provider.updateTask(task);
+      final result = await provider.updateTask(
+        task,
+        languageCode: 'en',
+      );
 
       expect(result, false);
       expect(provider.error, 'User is not logged in');

@@ -472,4 +472,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get priorityHigh => 'High';
+
+  @override
+  String get notificationTaskReminders => 'Task Reminders';
+
+  @override
+  String get notificationTaskRemindersDescription =>
+      'Notifications for task reminders';
+
+  @override
+  String get notificationTaskComingUp => 'Your task is coming up';
+
+  @override
+  String get notificationDontForgetTask => 'Don’t forget your task';
+
+  @override
+  String get notificationTaskStillWaiting =>
+      'Your task is still waiting for you';
+
+  @override
+  String get notificationCompleted => 'Completed';
+
+  @override
+  String get notificationSnooze5Min => 'Snooze 5 min';
+
+  @override
+  String get notificationDismiss => 'Dismiss';
 }

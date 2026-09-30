@@ -465,4 +465,28 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get priorityHigh => 'عالي';
+
+  @override
+  String get notificationTaskReminders => 'تذكيرات المهام';
+
+  @override
+  String get notificationTaskRemindersDescription => 'إشعارات تذكير بالمهام';
+
+  @override
+  String get notificationTaskComingUp => 'موعد مهمتك اقترب';
+
+  @override
+  String get notificationDontForgetTask => 'لا تنسي مهمتك';
+
+  @override
+  String get notificationTaskStillWaiting => 'مهمتك ما زالت في انتظارك';
+
+  @override
+  String get notificationCompleted => 'تم الإنجاز';
+
+  @override
+  String get notificationSnooze5Min => 'تأجيل 5 دقائق';
+
+  @override
+  String get notificationDismiss => 'إغلاق';
 }

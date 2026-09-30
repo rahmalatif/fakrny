@@ -222,8 +222,15 @@
           "categoryOther": "اخرى",
           "categoryStudy": "دراسة",
           "categoryHealth": "صحة",
-
           "priorityLow": "منخفض",
           "priorityMedium": "متوسط",
-          "priorityHigh": "عالي"
+          "priorityHigh": "عالي",
+            "notificationTaskReminders": "تذكيرات المهام",
+            "notificationTaskRemindersDescription": "إشعارات تذكير بالمهام",
+            "notificationTaskComingUp": "موعد مهمتك اقترب",
+            "notificationDontForgetTask": "لا تنسي مهمتك",
+            "notificationTaskStillWaiting": "مهمتك ما زالت في انتظارك",
+            "notificationCompleted": "تم الإنجاز",
+            "notificationSnooze5Min": "تأجيل 5 دقائق",
+            "notificationDismiss": "إغلاق"
 }

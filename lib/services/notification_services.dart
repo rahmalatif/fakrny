@@ -1,20 +1,25 @@
 import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/widgets.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+
+import '../l10n/app_localizations.dart';
 import '../model/tasks.dart';
 
 @pragma('vm:entry-point')
 Future<void> notificationTapBackground(
-  NotificationResponse notificationResponse,
-) async {
+    NotificationResponse notificationResponse,
+    ) async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp();
+
   tz.initializeTimeZones();
 
   try {
@@ -24,15 +29,17 @@ Future<void> notificationTapBackground(
     tz.setLocalLocation(tz.getLocation('UTC'));
   }
 
-  await NotificationServices._onNotificationResponse(notificationResponse);
+  await NotificationServices._onNotificationResponse(
+    notificationResponse,
+  );
 }
 
 class NotificationServices {
   static final FlutterLocalNotificationsPlugin notificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  FlutterLocalNotificationsPlugin();
 
   static final NotificationServices _instance =
-      NotificationServices._internal();
+  NotificationServices._internal();
 
   factory NotificationServices() {
     return _instance;
@@ -40,11 +47,11 @@ class NotificationServices {
 
   NotificationServices._internal();
 
-  static const String _channelId = 'task_reminders';
-  static const String _channelName = 'Task Reminders';
   static const String _completedAction = 'completed';
   static const String _snoozeAction = 'snooze';
   static const String _dismissAction = 'dismiss';
+
+  static const String _defaultLanguageCode = 'en';
 
   static int notificationIdForTask(String taskId) {
     int hash = 2166136261;
@@ -63,16 +70,84 @@ class NotificationServices {
     return baseId ^ 0x40000000;
   }
 
-  static int escalationNotificationId(String taskId, int level) {
+  static int escalationNotificationId(
+      String taskId,
+      int level,
+      ) {
     final baseId = notificationIdForTask(taskId);
 
     return baseId + 1000 + level;
   }
 
-  static String _getNotificationSound() {
-    final languageCode =
-        WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+  static AppLocalizations _localizations(
+      String? languageCode,
+      ) {
+    final code = languageCode == 'ar' ? 'ar' : 'en';
 
+    return lookupAppLocalizations(
+      Locale(code),
+    );
+  }
+
+  static String _createPayload({
+    required String taskId,
+    required String languageCode,
+  }) {
+    return jsonEncode({
+      'taskId': taskId,
+      'languageCode': languageCode,
+    });
+  }
+
+  static Map<String, dynamic>? _parsePayload(
+      String? payload,
+      ) {
+    if (payload == null || payload.isEmpty) {
+      return null;
+    }
+
+    try {
+      final decoded = jsonDecode(payload);
+
+      if (decoded is Map<String, dynamic>) {
+        return decoded;
+      }
+    } catch (_) {
+      return {
+        'taskId': payload,
+        'languageCode': _defaultLanguageCode,
+      };
+    }
+
+    return null;
+  }
+
+  static String? _taskIdFromPayload(
+      String? payload,
+      ) {
+    final data = _parsePayload(payload);
+
+    return data?['taskId'] as String?;
+  }
+
+  static String _languageFromPayload(
+      String? payload,
+      ) {
+    final data = _parsePayload(payload);
+
+    final languageCode =
+    data?['languageCode'] as String?;
+
+    if (languageCode == 'ar') {
+      return 'ar';
+    }
+
+    return 'en';
+  }
+
+  static String _getNotificationSound(
+      String languageCode,
+      ) {
     if (languageCode == 'ar') {
       return 'notif_arabic';
     }
@@ -91,32 +166,45 @@ class NotificationServices {
 
     await notificationsPlugin.initialize(
       initializationSettings,
-      onDidReceiveNotificationResponse: _onNotificationResponse,
-      onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
+      onDidReceiveNotificationResponse:
+      _onNotificationResponse,
+      onDidReceiveBackgroundNotificationResponse:
+      notificationTapBackground,
     );
 
     tz.initializeTimeZones();
 
-    final timezone = await FlutterTimezone.getLocalTimezone();
+    try {
+      final timezone =
+      await FlutterTimezone.getLocalTimezone();
 
-    tz.setLocalLocation(tz.getLocation(timezone));
+      tz.setLocalLocation(
+        tz.getLocation(timezone),
+      );
+    } catch (_) {
+      tz.setLocalLocation(
+        tz.getLocation('UTC'),
+      );
+    }
 
     await _requestPermission();
   }
 
   static Future<void> _requestPermission() async {
-    final androidPlugin = notificationsPlugin
+    final androidPlugin =
+    notificationsPlugin
         .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >();
+        AndroidFlutterLocalNotificationsPlugin
+    >();
 
     await androidPlugin?.requestNotificationsPermission();
+
     await androidPlugin?.requestExactAlarmsPermission();
   }
 
   static Future<void> _onNotificationResponse(
-    NotificationResponse response,
-  ) async {
+      NotificationResponse response,
+      ) async {
     final payload = response.payload;
 
     if (payload == null || payload.isEmpty) {
@@ -125,11 +213,17 @@ class NotificationServices {
 
     switch (response.actionId) {
       case _dismissAction:
-        await _handleDismiss(payload, response.id);
+        await _handleDismiss(
+          payload,
+          response.id,
+        );
         break;
 
       case _snoozeAction:
-        await _handleSnooze(payload, response.id);
+        await _handleSnooze(
+          payload,
+          response.id,
+        );
         break;
 
       case _completedAction:
@@ -138,42 +232,87 @@ class NotificationServices {
     }
   }
 
-  static Future<void> _handleDismiss(String taskId, int? notificationId) async {
+  static Future<void> _handleDismiss(
+      String payload,
+      int? notificationId,
+      ) async {
+    final taskId = _taskIdFromPayload(payload);
+
+    if (taskId == null) {
+      return;
+    }
+
     if (notificationId != null) {
-      await notificationsPlugin.cancel(notificationId);
+      await notificationsPlugin.cancel(
+        notificationId,
+      );
     }
 
     await cancelTaskNotification(taskId);
   }
 
   static Future<void> _handleSnooze(
-    String taskId,
-    int? currentNotificationId,
-  ) async {
-    if (currentNotificationId != null) {
-      await notificationsPlugin.cancel(currentNotificationId);
+      String payload,
+      int? currentNotificationId,
+      ) async {
+    final taskId = _taskIdFromPayload(payload);
+
+    if (taskId == null) {
+      return;
     }
 
-    final snoozeId = snoozeNotificationId(taskId);
+    final languageCode =
+    _languageFromPayload(payload);
 
-    await notificationsPlugin.cancel(snoozeId);
+    final l10n = _localizations(languageCode);
 
-    final snoozeTime = tz.TZDateTime.now(
-      tz.local,
-    ).add(const Duration(minutes: 5));
+    if (currentNotificationId != null) {
+      await notificationsPlugin.cancel(
+        currentNotificationId,
+      );
+    }
+
+    final snoozeId =
+    snoozeNotificationId(taskId);
+
+    await notificationsPlugin.cancel(
+      snoozeId,
+    );
+
+    final snoozeTime =
+    tz.TZDateTime.now(tz.local).add(
+      const Duration(minutes: 5),
+    );
+
+    final newPayload = _createPayload(
+      taskId: taskId,
+      languageCode: languageCode,
+    );
 
     await notificationsPlugin.zonedSchedule(
       snoozeId,
-      'Task Reminder',
-      'Your task is still waiting for you',
+      l10n.notificationTaskReminders,
+      l10n.notificationTaskStillWaiting,
       snoozeTime,
-      _notificationDetails(taskId: taskId),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      payload: taskId,
+      _notificationDetails(
+        taskId: taskId,
+        languageCode: languageCode,
+      ),
+      androidScheduleMode:
+      AndroidScheduleMode.exactAllowWhileIdle,
+      payload: newPayload,
     );
   }
 
-  static Future<void> _handleCompleted(String taskId) async {
+  static Future<void> _handleCompleted(
+      String payload,
+      ) async {
+    final taskId = _taskIdFromPayload(payload);
+
+    if (taskId == null) {
+      return;
+    }
+
     await cancelTaskNotification(taskId);
 
     try {
@@ -181,7 +320,9 @@ class NotificationServices {
         await Firebase.initializeApp();
       }
 
-      final user = FirebaseAuth.instance.currentUser;
+      final user =
+          FirebaseAuth.instance.currentUser;
+
       if (user != null) {
         await FirebaseFirestore.instance
             .collection('users')
@@ -189,14 +330,18 @@ class NotificationServices {
             .collection('tasks')
             .doc(taskId)
             .update({
-              'isCompleted': true,
-              'updatedAt': DateTime.now().toIso8601String(),
-            });
+          'isCompleted': true,
+          'updatedAt':
+          DateTime.now().toIso8601String(),
+        });
       }
     } catch (_) {}
   }
 
-  Future<void> scheduleTaskNotification(TaskModel task) async {
+  Future<void> scheduleTaskNotification(
+      TaskModel task, {
+        required String languageCode,
+      }) async {
     if (task.isCompleted) {
       await cancelTaskNotification(task.id);
       return;
@@ -206,51 +351,81 @@ class NotificationServices {
 
     switch (task.repeat) {
       case 'daily':
-        await _scheduleDailyNotification(task);
+        await _scheduleDailyNotification(
+          task,
+          languageCode,
+        );
         break;
 
       case 'weekly':
-        await _scheduleWeeklyNotification(task);
+        await _scheduleWeeklyNotification(
+          task,
+          languageCode,
+        );
         break;
 
       case 'custom':
-        await _scheduleCustomNotifications(task);
+        await _scheduleCustomNotifications(
+          task,
+          languageCode,
+        );
         break;
 
       default:
-        await _scheduleOneTimeNotification(task);
+        await _scheduleOneTimeNotification(
+          task,
+          languageCode,
+        );
     }
   }
 
-  Future<void> _scheduleOneTimeNotification(TaskModel task) async {
-    final reminderTime = task.scheduledAt.subtract(
-      Duration(minutes: task.remindBefore),
+  Future<void> _scheduleOneTimeNotification(
+      TaskModel task,
+      String languageCode,
+      ) async {
+    final reminderTime =
+    task.scheduledAt.subtract(
+      Duration(
+        minutes: task.remindBefore,
+      ),
     );
 
-    if (!reminderTime.isAfter(DateTime.now())) {
+    if (!reminderTime.isAfter(
+      DateTime.now(),
+    )) {
       return;
     }
 
     await scheduleNotification(
       id: notificationIdForTask(task.id),
       title: task.title,
-      body: 'Your task is coming up',
+      body: _localizations(languageCode)
+          .notificationTaskComingUp,
       dateTime: reminderTime,
-      payload: task.id,
+      taskId: task.id,
+      languageCode: languageCode,
     );
 
     await scheduleEscalationNotifications(
       task: task,
       reminderTime: reminderTime,
+      languageCode: languageCode,
     );
   }
 
-  Future<void> _scheduleDailyNotification(TaskModel task) async {
-    final reminderTime = task.scheduledAt.subtract(
-      Duration(minutes: task.remindBefore),
+  Future<void> _scheduleDailyNotification(
+      TaskModel task,
+      String languageCode,
+      ) async {
+    final reminderTime =
+    task.scheduledAt.subtract(
+      Duration(
+        minutes: task.remindBefore,
+      ),
     );
 
-    final now = tz.TZDateTime.now(tz.local);
+    final now =
+    tz.TZDateTime.now(tz.local);
 
     var scheduledDate = tz.TZDateTime(
       tz.local,
@@ -262,59 +437,115 @@ class NotificationServices {
     );
 
     if (!scheduledDate.isAfter(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
+      scheduledDate = scheduledDate.add(
+        const Duration(days: 1),
+      );
     }
+
+    final l10n =
+    _localizations(languageCode);
+
+    final payload = _createPayload(
+      taskId: task.id,
+      languageCode: languageCode,
+    );
 
     await notificationsPlugin.zonedSchedule(
       notificationIdForTask(task.id),
       task.title,
-      'Your task is coming up',
+      l10n.notificationTaskComingUp,
       scheduledDate,
-      _notificationDetails(taskId: task.id),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      matchDateTimeComponents: DateTimeComponents.time,
-      payload: task.id,
+      _notificationDetails(
+        taskId: task.id,
+        languageCode: languageCode,
+      ),
+      androidScheduleMode:
+      AndroidScheduleMode.exactAllowWhileIdle,
+      matchDateTimeComponents:
+      DateTimeComponents.time,
+      payload: payload,
     );
   }
 
-  Future<void> _scheduleWeeklyNotification(TaskModel task) async {
-    final reminderTime = task.scheduledAt.subtract(
-      Duration(minutes: task.remindBefore),
+  Future<void> _scheduleWeeklyNotification(
+      TaskModel task,
+      String languageCode,
+      ) async {
+    final reminderTime =
+    task.scheduledAt.subtract(
+      Duration(
+        minutes: task.remindBefore,
+      ),
     );
 
-    final scheduledDate = _nextWeekdayTime(
+    final scheduledDate =
+    _nextWeekdayTime(
       reminderTime.weekday,
       reminderTime.hour,
       reminderTime.minute,
     );
 
+    final l10n =
+    _localizations(languageCode);
+
+    final payload = _createPayload(
+      taskId: task.id,
+      languageCode: languageCode,
+    );
+
     await notificationsPlugin.zonedSchedule(
       notificationIdForTask(task.id),
       task.title,
-      'Your task is coming up',
+      l10n.notificationTaskComingUp,
       scheduledDate,
-      _notificationDetails(taskId: task.id),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
-      payload: task.id,
+      _notificationDetails(
+        taskId: task.id,
+        languageCode: languageCode,
+      ),
+      androidScheduleMode:
+      AndroidScheduleMode.exactAllowWhileIdle,
+      matchDateTimeComponents:
+      DateTimeComponents.dayOfWeekAndTime,
+      payload: payload,
     );
   }
 
-  Future<void> _scheduleCustomNotifications(TaskModel task) async {
+  Future<void> _scheduleCustomNotifications(
+      TaskModel task,
+      String languageCode,
+      ) async {
     if (task.repeatDays.isEmpty) {
       return;
     }
 
-    final reminderTime = task.scheduledAt.subtract(
-      Duration(minutes: task.remindBefore),
+    final reminderTime =
+    task.scheduledAt.subtract(
+      Duration(
+        minutes: task.remindBefore,
+      ),
     );
 
-    final baseId = notificationIdForTask(task.id);
+    final baseId =
+    notificationIdForTask(task.id);
 
-    for (int i = 0; i < task.repeatDays.length; i++) {
-      final weekday = task.repeatDays[i];
+    final l10n =
+    _localizations(languageCode);
 
-      final scheduledDate = _nextWeekdayTime(
+    final payload = _createPayload(
+      taskId: task.id,
+      languageCode: languageCode,
+    );
+
+    for (
+    int i = 0;
+    i < task.repeatDays.length;
+    i++
+    ) {
+      final weekday =
+      task.repeatDays[i];
+
+      final scheduledDate =
+      _nextWeekdayTime(
         weekday,
         reminderTime.hour,
         reminderTime.minute,
@@ -323,18 +554,28 @@ class NotificationServices {
       await notificationsPlugin.zonedSchedule(
         baseId + i + 1,
         task.title,
-        'Your task is coming up',
+        l10n.notificationTaskComingUp,
         scheduledDate,
-        _notificationDetails(taskId: task.id),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
-        payload: task.id,
+        _notificationDetails(
+          taskId: task.id,
+          languageCode: languageCode,
+        ),
+        androidScheduleMode:
+        AndroidScheduleMode.exactAllowWhileIdle,
+        matchDateTimeComponents:
+        DateTimeComponents.dayOfWeekAndTime,
+        payload: payload,
       );
     }
   }
 
-  tz.TZDateTime _nextWeekdayTime(int weekday, int hour, int minute) {
-    final now = tz.TZDateTime.now(tz.local);
+  tz.TZDateTime _nextWeekdayTime(
+      int weekday,
+      int hour,
+      int minute,
+      ) {
+    final now =
+    tz.TZDateTime.now(tz.local);
 
     var scheduledDate = tz.TZDateTime(
       tz.local,
@@ -345,8 +586,13 @@ class NotificationServices {
       minute,
     );
 
-    while (scheduledDate.weekday != weekday || !scheduledDate.isAfter(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    while (
+    scheduledDate.weekday != weekday ||
+        !scheduledDate.isAfter(now)) {
+      scheduledDate =
+          scheduledDate.add(
+            const Duration(days: 1),
+          );
     }
 
     return scheduledDate;
@@ -357,45 +603,68 @@ class NotificationServices {
     required String title,
     required String body,
     required DateTime dateTime,
-    String? payload,
+    required String taskId,
+    required String languageCode,
   }) async {
-    final scheduledDate = tz.TZDateTime.from(dateTime, tz.local);
+    final scheduledDate =
+    tz.TZDateTime.from(
+      dateTime,
+      tz.local,
+    );
+
+    final payload = _createPayload(
+      taskId: taskId,
+      languageCode: languageCode,
+    );
 
     await notificationsPlugin.zonedSchedule(
       id,
       title,
       body,
       scheduledDate,
-      _notificationDetails(taskId: payload),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      _notificationDetails(
+        taskId: taskId,
+        languageCode: languageCode,
+      ),
+      androidScheduleMode:
+      AndroidScheduleMode.exactAllowWhileIdle,
       payload: payload,
     );
   }
 
-  static NotificationDetails _notificationDetails({String? taskId}) {
+  static NotificationDetails _notificationDetails({
+    String? taskId,
+    required String languageCode,
+  }) {
+    final l10n =
+    _localizations(languageCode);
+
     return NotificationDetails(
       android: AndroidNotificationDetails(
-        _channelId,
-        _channelName,
-        channelDescription: 'Notifications for task reminders',
+        'task_reminders_$languageCode',
+        l10n.notificationTaskReminders,
+        channelDescription:
+        l10n.notificationTaskRemindersDescription,
         importance: Importance.high,
         priority: Priority.high,
-        sound: RawResourceAndroidNotificationSound(_getNotificationSound()),
+        sound: RawResourceAndroidNotificationSound(
+          _getNotificationSound(languageCode),
+        ),
         icon: '@mipmap/ic_launcher',
         actions: <AndroidNotificationAction>[
           AndroidNotificationAction(
             _completedAction,
-            'Completed',
+            l10n.notificationCompleted,
             showsUserInterface: false,
           ),
           AndroidNotificationAction(
             _snoozeAction,
-            'Snooze 5 min',
+            l10n.notificationSnooze5Min,
             showsUserInterface: false,
           ),
           AndroidNotificationAction(
             _dismissAction,
-            'Dismiss',
+            l10n.notificationDismiss,
             showsUserInterface: false,
           ),
         ],
@@ -403,51 +672,92 @@ class NotificationServices {
     );
   }
 
-  static Future<void> cancelTaskNotification(String taskId) async {
-    final notificationId = notificationIdForTask(taskId);
+  static Future<void> cancelTaskNotification(
+      String taskId,
+      ) async {
+    final notificationId =
+    notificationIdForTask(taskId);
 
-    await notificationsPlugin.cancel(notificationId);
+    await notificationsPlugin.cancel(
+      notificationId,
+    );
 
-    final snoozeId = snoozeNotificationId(taskId);
+    final snoozeId =
+    snoozeNotificationId(taskId);
 
-    await notificationsPlugin.cancel(snoozeId);
+    await notificationsPlugin.cancel(
+      snoozeId,
+    );
 
-    // escalation noti
     for (int level = 1; level <= 2; level++) {
-      final escalationId = escalationNotificationId(taskId, level);
+      final escalationId =
+      escalationNotificationId(
+        taskId,
+        level,
+      );
 
-      await notificationsPlugin.cancel(escalationId);
+      await notificationsPlugin.cancel(
+        escalationId,
+      );
     }
 
-    // repeat noti
     for (int i = 1; i <= 20; i++) {
-      await notificationsPlugin.cancel(notificationId + i);
+      await notificationsPlugin.cancel(
+        notificationId + i,
+      );
     }
   }
 
-  static Future<void> scheduleEscalationNotifications({
+  static Future<void>
+  scheduleEscalationNotifications({
     required TaskModel task,
     required DateTime reminderTime,
+    required String languageCode,
   }) async {
-    final firstEscalationTime = reminderTime.add(const Duration(minutes: 5));
+    final firstEscalationTime =
+    reminderTime.add(
+      const Duration(minutes: 5),
+    );
 
-    final secondEscalationTime = reminderTime.add(const Duration(minutes: 15));
+    final secondEscalationTime =
+    reminderTime.add(
+      const Duration(minutes: 15),
+    );
 
-    final firstId = escalationNotificationId(task.id, 1);
-    final secondId = escalationNotificationId(task.id, 2);
+    final firstId =
+    escalationNotificationId(
+      task.id,
+      1,
+    );
 
-    await notificationsPlugin.cancel(firstId);
-    await notificationsPlugin.cancel(secondId);
+    final secondId =
+    escalationNotificationId(
+      task.id,
+      2,
+    );
+
+    await notificationsPlugin.cancel(
+      firstId,
+    );
+
+    await notificationsPlugin.cancel(
+      secondId,
+    );
 
     final now = DateTime.now();
+
+    final l10n =
+    _localizations(languageCode);
 
     if (firstEscalationTime.isAfter(now)) {
       await scheduleNotification(
         id: firstId,
         title: task.title,
-        body: 'Don’t forget your task',
+        body:
+        l10n.notificationDontForgetTask,
         dateTime: firstEscalationTime,
-        payload: task.id,
+        taskId: task.id,
+        languageCode: languageCode,
       );
     }
 
@@ -455,9 +765,11 @@ class NotificationServices {
       await scheduleNotification(
         id: secondId,
         title: task.title,
-        body: 'Your task is still waiting for you',
+        body:
+        l10n.notificationTaskStillWaiting,
         dateTime: secondEscalationTime,
-        payload: task.id,
+        taskId: task.id,
+        languageCode: languageCode,
       );
     }
   }

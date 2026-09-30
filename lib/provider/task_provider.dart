@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
 import '../model/tasks.dart';
@@ -9,7 +10,6 @@ import '../services/user_firestore_service.dart';
 class TaskProvider extends ChangeNotifier {
   final TaskFirestoreService taskFirestoreService;
   final AuthServices authServices;
-
   final UserFirestoreService userFirestoreService;
 
   TaskProvider({
@@ -41,7 +41,9 @@ class TaskProvider extends ChangeNotifier {
 
       notifyListeners();
 
-      final userTasks = await taskFirestoreService.getTasks(currentUser.uid);
+      final userTasks = await taskFirestoreService.getTasks(
+        currentUser.uid,
+      );
 
       _tasks = userTasks;
     } catch (e) {
@@ -52,7 +54,10 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
-  Future<TaskModel?> addTask(TaskModel task) async {
+  Future<TaskModel?> addTask(
+      TaskModel task, {
+        required String languageCode,
+      }) async {
     final currentUser = authServices.currentUser;
 
     if (currentUser == null) {
@@ -90,7 +95,17 @@ class TaskProvider extends ChangeNotifier {
 
       _tasks.add(newTask);
 
-      _tasks.sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
+      _tasks.sort(
+            (a, b) => a.scheduledAt.compareTo(
+          b.scheduledAt,
+        ),
+      );
+
+      await NotificationServices()
+          .scheduleTaskNotification(
+        newTask,
+        languageCode: languageCode,
+      );
 
       return newTask;
     } catch (e) {
@@ -102,14 +117,19 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> toggleTask(TaskModel task) async {
+  Future<void> toggleTask(
+      TaskModel task, {
+        required String languageCode,
+      }) async {
     final currentUser = authServices.currentUser;
 
     if (currentUser == null) return;
 
     final newValue = !task.isCompleted;
 
-    final index = _tasks.indexWhere((element) => element.id == task.id);
+    final index = _tasks.indexWhere(
+          (element) => element.id == task.id,
+    );
 
     if (index == -1) return;
 
@@ -137,19 +157,24 @@ class TaskProvider extends ChangeNotifier {
       await taskFirestoreService.updateTask(
         uid: currentUser.uid,
         taskId: task.id,
-        data: {'isCompleted': newValue, 'updatedAt': DateTime.now()},
+        data: {
+          'isCompleted': newValue,
+          'updatedAt': DateTime.now(),
+        },
       );
 
       if (newValue) {
         await checkDailyStreak();
-      }
 
-      final notificationServices = NotificationServices();
-
-      if (newValue) {
-        await NotificationServices.cancelTaskNotification(task.id);
+        await NotificationServices.cancelTaskNotification(
+          task.id,
+        );
       } else {
-        await notificationServices.scheduleTaskNotification(updatedTask);
+        await NotificationServices()
+            .scheduleTaskNotification(
+          updatedTask,
+          languageCode: languageCode,
+        );
       }
     } catch (e) {
       _tasks[index] = task;
@@ -170,7 +195,10 @@ class TaskProvider extends ChangeNotifier {
     }).toList();
   }
 
-  Future<bool> updateTask(TaskModel task) async {
+  Future<bool> updateTask(
+      TaskModel task, {
+        required String languageCode,
+      }) async {
     final currentUser = authServices.currentUser;
 
     if (currentUser == null) {
@@ -203,12 +231,30 @@ class TaskProvider extends ChangeNotifier {
         },
       );
 
-      final index = _tasks.indexWhere((element) => element.id == task.id);
+      final index = _tasks.indexWhere(
+            (element) => element.id == task.id,
+      );
 
       if (index != -1) {
         _tasks[index] = task;
 
-        _tasks.sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
+        _tasks.sort(
+              (a, b) => a.scheduledAt.compareTo(
+            b.scheduledAt,
+          ),
+        );
+      }
+
+      if (task.isCompleted) {
+        await NotificationServices.cancelTaskNotification(
+          task.id,
+        );
+      } else {
+        await NotificationServices()
+            .scheduleTaskNotification(
+          task,
+          languageCode: languageCode,
+        );
       }
 
       return true;
@@ -241,9 +287,13 @@ class TaskProvider extends ChangeNotifier {
         taskId: taskId,
       );
 
-      _tasks.removeWhere((task) => task.id == taskId);
+      _tasks.removeWhere(
+            (task) => task.id == taskId,
+      );
 
-      await NotificationServices.cancelTaskNotification(taskId);
+      await NotificationServices.cancelTaskNotification(
+        taskId,
+      );
 
       return true;
     } catch (e) {
@@ -255,6 +305,24 @@ class TaskProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> rescheduleAllNotifications({
+    required String languageCode,
+  }) async {
+    for (final task in _tasks) {
+      if (task.isCompleted) {
+        await NotificationServices.cancelTaskNotification(
+          task.id,
+        );
+      } else {
+        await NotificationServices()
+            .scheduleTaskNotification(
+          task,
+          languageCode: languageCode,
+        );
+      }
+    }
+  }
+
   Future<void> checkDailyStreak() async {
     final currentUser = authServices.currentUser;
 
@@ -262,7 +330,11 @@ class TaskProvider extends ChangeNotifier {
 
     final now = DateTime.now();
 
-    final today = DateTime(now.year, now.month, now.day);
+    final today = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    );
 
     final todayTasks = _tasks.where((task) {
       final date = task.scheduledAt;
@@ -274,18 +346,27 @@ class TaskProvider extends ChangeNotifier {
 
     if (todayTasks.isEmpty) return;
 
-    final allCompleted = todayTasks.every((task) => task.isCompleted);
+    final allCompleted = todayTasks.every(
+          (task) => task.isCompleted,
+    );
 
     if (!allCompleted) return;
 
-    final user = await userFirestoreService.getUser(currentUser.uid);
+    final user =
+    await userFirestoreService.getUser(
+      currentUser.uid,
+    );
 
     if (user == null) return;
 
     final lastDate = user.lastCompletedDate;
 
     if (lastDate != null) {
-      final lastDay = DateTime(lastDate.year, lastDate.month, lastDate.day);
+      final lastDay = DateTime(
+        lastDate.year,
+        lastDate.month,
+        lastDate.day,
+      );
 
       if (lastDay == today) {
         return;
@@ -297,18 +378,25 @@ class TaskProvider extends ChangeNotifier {
     if (lastDate == null) {
       newStreak = 1;
     } else {
-      final lastDay = DateTime(lastDate.year, lastDate.month, lastDate.day);
+      final lastDay = DateTime(
+        lastDate.year,
+        lastDate.month,
+        lastDate.day,
+      );
 
-      final difference = today.difference(lastDay).inDays;
+      final difference =
+          today.difference(lastDay).inDays;
 
       if (difference == 1) {
-        newStreak = user.currentStreak + 1;
+        newStreak =
+            user.currentStreak + 1;
       } else {
         newStreak = 1;
       }
     }
 
-    final newLongest = newStreak > user.longestStreak
+    final newLongest =
+    newStreak > user.longestStreak
         ? newStreak
         : user.longestStreak;
 
@@ -321,7 +409,11 @@ class TaskProvider extends ChangeNotifier {
   }
 
   List<TaskModel> tasksForDate(DateTime date) {
-    final targetDate = DateTime(date.year, date.month, date.day);
+    final targetDate = DateTime(
+      date.year,
+      date.month,
+      date.day,
+    );
 
     return _tasks.where((task) {
       final taskDate = DateTime(
@@ -343,10 +435,13 @@ class TaskProvider extends ChangeNotifier {
           return true;
 
         case 'weekly':
-          return targetDate.weekday == taskDate.weekday;
+          return targetDate.weekday ==
+              taskDate.weekday;
 
         case 'custom':
-          return task.repeatDays.contains(targetDate.weekday);
+          return task.repeatDays.contains(
+            targetDate.weekday,
+          );
 
         default:
           return targetDate == taskDate;
@@ -371,15 +466,22 @@ class TaskProvider extends ChangeNotifier {
 
         case 'daily':
           for (int i = 0; i < 365; i++) {
-            dates.add(startDate.add(Duration(days: i)));
+            dates.add(
+              startDate.add(
+                Duration(days: i),
+              ),
+            );
           }
           break;
 
         case 'weekly':
           for (int i = 0; i < 365; i++) {
-            final date = startDate.add(Duration(days: i));
+            final date = startDate.add(
+              Duration(days: i),
+            );
 
-            if (date.weekday == startDate.weekday) {
+            if (date.weekday ==
+                startDate.weekday) {
               dates.add(date);
             }
           }
@@ -387,9 +489,13 @@ class TaskProvider extends ChangeNotifier {
 
         case 'custom':
           for (int i = 0; i < 365; i++) {
-            final date = startDate.add(Duration(days: i));
+            final date = startDate.add(
+              Duration(days: i),
+            );
 
-            if (task.repeatDays.contains(date.weekday)) {
+            if (task.repeatDays.contains(
+              date.weekday,
+            )) {
               dates.add(date);
             }
           }

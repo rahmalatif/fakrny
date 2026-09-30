@@ -221,10 +221,16 @@
            "categoryOther": "Other",
            "categoryStudy": "Study",
            "categoryHealth": "Health",
-
-
            "priorityLow": "Low",
            "priorityMedium": "Medium",
-           "priorityHigh": "High"
+           "priorityHigh": "High",
+             "notificationTaskReminders": "Task Reminders",
+             "notificationTaskRemindersDescription": "Notifications for task reminders",
+             "notificationTaskComingUp": "Your task is coming up",
+             "notificationDontForgetTask": "Don’t forget your task",
+             "notificationTaskStillWaiting": "Your task is still waiting for you",
+             "notificationCompleted": "Completed",
+             "notificationSnooze5Min": "Snooze 5 min",
+             "notificationDismiss": "Dismiss"
 
 }

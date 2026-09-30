@@ -28,16 +28,15 @@ class _ReminderViewState extends State<ReminderView> {
   String selectedPriority = 'high';
   int reminderBefore = 30;
   bool isLoading = false;
+
   bool get isDark => Theme.of(context).brightness == Brightness.dark;
 
   Color get backgroundColor =>
       isDark ? AppColor.darkBackground : AppColor.background;
 
-  Color get surfaceColor =>
-      isDark ? AppColor.darkSurface : AppColor.surface;
+  Color get surfaceColor => isDark ? AppColor.darkSurface : AppColor.surface;
 
-  Color get cardColor =>
-      isDark ? AppColor.darkCard : AppColor.border;
+  Color get cardColor => isDark ? AppColor.darkCard : AppColor.border;
 
   Color get primaryTextColor =>
       isDark ? AppColor.textWhite : AppColor.textPrimary;
@@ -79,6 +78,8 @@ class _ReminderViewState extends State<ReminderView> {
       lastDate: DateTime(2100),
     );
 
+    if (!mounted) return;
+
     if (pickedDate != null) {
       setState(() {
         selectedDate = pickedDate;
@@ -92,6 +93,8 @@ class _ReminderViewState extends State<ReminderView> {
       initialTime: selectedTime ?? TimeOfDay.now(),
     );
 
+    if (!mounted) return;
+
     if (pickedTime != null) {
       setState(() {
         selectedTime = pickedTime;
@@ -100,6 +103,9 @@ class _ReminderViewState extends State<ReminderView> {
   }
 
   Future<void> saveReminder() async {
+    final l10n = AppLocalizations.of(context)!;
+    final languageCode = Localizations.localeOf(context).languageCode;
+
     if (_titleController.text.trim().isEmpty) {
       SnackBarHelper.show(
         context,
@@ -170,7 +176,12 @@ class _ReminderViewState extends State<ReminderView> {
           repeatDays: List<int>.from(selectedRepeatDays),
         );
 
-        final taskWithId = await taskProvider.addTask(task);
+        final taskWithId = await taskProvider.addTask(
+          task,
+          languageCode: languageCode,
+        );
+
+        if (!mounted) return;
 
         if (taskWithId == null) {
           throw Exception(
@@ -178,12 +189,18 @@ class _ReminderViewState extends State<ReminderView> {
           );
         }
 
-        await NotificationServices()
-            .scheduleTaskNotification(taskWithId);
+        await NotificationServices().scheduleTaskNotification(
+          taskWithId,
+          languageCode: languageCode,
+        );
       } else {
         final notificationService = NotificationServices();
 
-        await NotificationServices.cancelTaskNotification(widget.task!.id);
+        await NotificationServices.cancelTaskNotification(
+          widget.task!.id,
+        );
+
+        if (!mounted) return;
 
         final updatedTask = TaskModel(
           id: widget.task!.id,
@@ -201,8 +218,12 @@ class _ReminderViewState extends State<ReminderView> {
           updatedAt: DateTime.now(),
         );
 
-        final success =
-        await taskProvider.updateTask(updatedTask);
+        final success = await taskProvider.updateTask(
+          updatedTask,
+          languageCode: languageCode,
+        );
+
+        if (!mounted) return;
 
         if (!success) {
           throw Exception(
@@ -211,8 +232,10 @@ class _ReminderViewState extends State<ReminderView> {
         }
 
         if (!updatedTask.isCompleted) {
-          await notificationService
-              .scheduleTaskNotification(updatedTask);
+          await notificationService.scheduleTaskNotification(
+            updatedTask,
+            languageCode: languageCode,
+          );
         }
       }
 
@@ -236,11 +259,11 @@ class _ReminderViewState extends State<ReminderView> {
         type: SnackBarType.error,
       );
     } finally {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
+      if (!mounted) return;
+
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -425,9 +448,7 @@ class _ReminderViewState extends State<ReminderView> {
             color: surfaceColor,
             borderRadius: BorderRadius.circular(13),
             border: Border.all(
-              color: isDark
-                  ? Colors.transparent
-                  : AppColor.border,
+              color: isDark ? Colors.transparent : AppColor.border,
             ),
           ),
           child: Row(
@@ -504,9 +525,7 @@ class _ReminderViewState extends State<ReminderView> {
           color: surfaceColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isDark
-                ? Colors.transparent
-                : AppColor.border,
+            color: isDark ? Colors.transparent : AppColor.border,
           ),
         ),
         child: Row(
@@ -606,9 +625,7 @@ class _ReminderViewState extends State<ReminderView> {
                 : surfaceColor,
             borderRadius: BorderRadius.circular(11),
             border: Border.all(
-              color: isSelected
-                  ? AppColor.primary
-                  : cardColor,
+              color: isSelected ? AppColor.primary : cardColor,
             ),
           ),
           child: Column(
@@ -663,9 +680,7 @@ class _ReminderViewState extends State<ReminderView> {
             color: surfaceColor,
             borderRadius: BorderRadius.circular(11),
             border: Border.all(
-              color: isDark
-                  ? Colors.transparent
-                  : AppColor.border,
+              color: isDark ? Colors.transparent : AppColor.border,
             ),
           ),
           child: DropdownButtonHideUnderline(
@@ -835,9 +850,7 @@ class _ReminderViewState extends State<ReminderView> {
             color: surfaceColor,
             borderRadius: BorderRadius.circular(11),
             border: Border.all(
-              color: isDark
-                  ? Colors.transparent
-                  : AppColor.border,
+              color: isDark ? Colors.transparent : AppColor.border,
             ),
           ),
           child: DropdownButtonHideUnderline(

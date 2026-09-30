@@ -269,8 +269,10 @@ class _TasksViewState extends State<TasksView> {
       updatedAt: DateTime.now(),
     );
 
-    final success = await taskProvider.updateTask(updatedTask);
-
+    final success = await taskProvider.updateTask(
+      updatedTask,
+      languageCode: Localizations.localeOf(context).languageCode,
+    );
     if (!mounted) return;
 
     if (!success) {

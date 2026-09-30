@@ -224,7 +224,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                       backgroundColor: AppColor.grad3,
 
                       child: Text(
-                        getInitials(user?.name ?? 'User'),
+                        getInitials(user?.name ?? ' '),
 
                         style: const TextStyle(
                           color: AppColor.textWhite,
@@ -331,7 +331,12 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                             color: getTaskColor(task.color),
                             isCompleted: task.isCompleted,
                             onCheck: () {
-                              context.read<TaskProvider>().toggleTask(task);
+                              final locale = Localizations.localeOf(context);
+
+                              context.read<TaskProvider>().toggleTask(
+                                task,
+                                languageCode: locale.languageCode,
+                              );
                             },
 
                             onTap: () async {
