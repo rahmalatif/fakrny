@@ -545,4 +545,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get weakPassword => 'Password is too weak';
+
+  @override
+  String get taskTimeMustBeFuture => 'The task time must be in the future.';
+
+  @override
+  String get reminderTimeMustBeFuture =>
+      'The reminder time has already passed. Please choose a shorter reminder time.';
 }

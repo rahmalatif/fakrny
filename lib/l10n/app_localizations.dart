@@ -1135,6 +1135,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Password is too weak'**
   String get weakPassword;
+
+  /// No description provided for @taskTimeMustBeFuture.
+  ///
+  /// In en, this message translates to:
+  /// **'The task time must be in the future.'**
+  String get taskTimeMustBeFuture;
+
+  /// No description provided for @reminderTimeMustBeFuture.
+  ///
+  /// In en, this message translates to:
+  /// **'The reminder time has already passed. Please choose a shorter reminder time.'**
+  String get reminderTimeMustBeFuture;
 }
 
 class _AppLocalizationsDelegate

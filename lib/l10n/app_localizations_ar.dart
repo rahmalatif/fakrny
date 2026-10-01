@@ -538,4 +538,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get weakPassword => 'كلمة المرور ضعيفة جدًا';
+
+  @override
+  String get taskTimeMustBeFuture => 'يجب أن يكون وقت المهمة في المستقبل.';
+
+  @override
+  String get reminderTimeMustBeFuture =>
+      'وقت التذكير أصبح في الماضي. من فضلك اختاري مدة تذكير أقصر.';
 }

@@ -90,9 +90,13 @@ class _ReminderViewState extends State<ReminderView> {
   }
 
   Future<void> selectTime() async {
+    final l10n = AppLocalizations.of(context)!;
+
     final pickedTime = await showTimePicker(
       context: context,
       initialTime: selectedTime ?? TimeOfDay.now(),
+      initialEntryMode: TimePickerEntryMode.input,
+      helpText: l10n.chooseTime,
     );
 
     if (!mounted) return;
@@ -108,6 +112,7 @@ class _ReminderViewState extends State<ReminderView> {
     final l10n = AppLocalizations.of(context)!;
 
     final languageCode = Localizations.localeOf(context).languageCode;
+
     if (_titleController.text.trim().isEmpty) {
       SnackBarHelper.show(
         context,
@@ -147,10 +152,21 @@ class _ReminderViewState extends State<ReminderView> {
       Duration(minutes: reminderBefore),
     );
 
-    if (reminderTime.isBefore(DateTime.now())) {
+    final now = DateTime.now();
+
+    if (scheduledAt.isBefore(now)) {
       SnackBarHelper.show(
         context,
-        message: l10n.chooseFutureReminderTime,
+        message: l10n.taskTimeMustBeFuture,
+        type: SnackBarType.warning,
+      );
+      return;
+    }
+
+    if (reminderTime.isBefore(now)) {
+      SnackBarHelper.show(
+        context,
+        message: l10n.reminderTimeMustBeFuture,
         type: SnackBarType.warning,
       );
       return;
