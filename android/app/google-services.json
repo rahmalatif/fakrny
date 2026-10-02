@@ -48,6 +48,42 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:441958759662:android:4c46b8a0894d7ea6a0c7ff",
+        "android_client_info": {
+          "package_name": "com.fakarny.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "441958759662-5bmcor94ojfnt3ufa5lj12vl96sfunkf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2l3PRKfhs2IORt5AZEJLkWxVLmA9mFLo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "441958759662-5bmcor94ojfnt3ufa5lj12vl96sfunkf.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "441958759662-3u5vn9ssievhi0rdtlgbadfi7p2bbea9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.untitled"
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"
