@@ -21,7 +21,8 @@ class _RegisterViewState extends State<RegisterView> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
-  TextEditingController();
+      TextEditingController();
+
   bool isPasswordVisible = false;
   bool isConfirmPasswordVisible = false;
   final AuthServices authServices = AuthServices();
@@ -43,20 +44,16 @@ class _RegisterViewState extends State<RegisterView> {
         emailController.text.trim().isEmpty ||
         passwordController.text.isEmpty ||
         confirmPasswordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.pleaseFillAllFields),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.pleaseFillAllFields)));
       return;
     }
 
     if (passwordController.text != confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.passwordsDoNotMatch),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.passwordsDoNotMatch)));
       return;
     }
 
@@ -73,11 +70,9 @@ class _RegisterViewState extends State<RegisterView> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.accountCreatedSuccessfully),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.accountCreatedSuccessfully)));
 
       context.go('/Login');
     } on FirebaseAuthException catch (e) {
@@ -95,11 +90,43 @@ class _RegisterViewState extends State<RegisterView> {
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(
-        SnackBar(
-          content: Text(message),
-        ),
-      );
+      ).showSnackBar(SnackBar(content: Text(message)));
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> registerWithGoogle() async {
+    final l10n = AppLocalizations.of(context)!;
+
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      final userCredential = await authServices.signInWithGoogle();
+
+      if (!mounted) return;
+
+      if (userCredential != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.accountCreatedSuccessfully)),
+        );
+
+        await authServices.logout();
+
+        if (!mounted) return;
+
+        context.go('/Login');
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.somethingWentWrong)));
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -130,15 +157,12 @@ class _RegisterViewState extends State<RegisterView> {
                   color: AppColor.surface,
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: const [
-                    BoxShadow(
-                      blurRadius: 20,
-                      color: Colors.black12,
-                    ),
+                    BoxShadow(blurRadius: 20, color: Colors.black12),
                   ],
                 ),
                 child: SingleChildScrollView(
                   keyboardDismissBehavior:
-                  ScrollViewKeyboardDismissBehavior.onDrag,
+                      ScrollViewKeyboardDismissBehavior.onDrag,
                   padding: const EdgeInsets.all(18),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -214,7 +238,7 @@ class _RegisterViewState extends State<RegisterView> {
                           onPressed: () {
                             setState(() {
                               isConfirmPasswordVisible =
-                              !isConfirmPasswordVisible;
+                                  !isConfirmPasswordVisible;
                             });
                           },
                           icon: Icon(
@@ -237,21 +261,21 @@ class _RegisterViewState extends State<RegisterView> {
                           padding: const EdgeInsets.all(8.0),
                           child: isLoading
                               ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: AppColor.textWhite,
-                            ),
-                          )
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColor.textWhite,
+                                  ),
+                                )
                               : Text(
-                            l10n.createAccount,
-                            style: const TextStyle(
-                              color: AppColor.textWhite,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                            ),
-                          ),
+                                  l10n.createAccount,
+                                  style: const TextStyle(
+                                    color: AppColor.textWhite,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                  ),
+                                ),
                         ),
                       ),
                       const SizedBox(height: 25),
@@ -264,9 +288,7 @@ class _RegisterViewState extends State<RegisterView> {
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Text(
                               l10n.continueWith,
                               style: const TextStyle(
@@ -290,9 +312,12 @@ class _RegisterViewState extends State<RegisterView> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            _socialButton(
-                              icon: 'assets/SVG/google_icon.svg',
-                              text: l10n.google,
+                            GestureDetector(
+                              onTap: isLoading ? null : registerWithGoogle,
+                              child: _socialButton(
+                                icon: 'assets/SVG/google_icon.svg',
+                                text: l10n.google,
+                              ),
                             ),
                           ],
                         ),
@@ -339,10 +364,7 @@ class _RegisterViewState extends State<RegisterView> {
   }
 }
 
-Widget _socialButton({
-  required String icon,
-  required String text,
-}) {
+Widget _socialButton({required String icon, required String text}) {
   return Container(
     width: 145,
     height: 55,
@@ -356,20 +378,14 @@ Widget _socialButton({
           offset: const Offset(0, 4),
         ),
       ],
-      border: Border.all(
-        color: AppColor.border,
-      ),
+      border: Border.all(color: AppColor.border),
     ),
     child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          AppImage(
-            image: icon,
-            width: 24,
-            height: 24,
-          ),
+          AppImage(image: icon, width: 24, height: 24),
           const SizedBox(width: 10),
           Text(
             text,

@@ -98,29 +98,20 @@ class _LoginViewState extends State<LoginView> {
         isGoogleLoading = true;
       });
 
-      await authServices.signInWithGoogle();
+      final userCredential = await authServices.signInWithGoogle();
 
       if (!mounted) return;
 
-      context.go('/Home');
-    } on FirebaseAuthException catch (e) {
-      debugPrint('🔥 Firebase Auth Error');
-      debugPrint('Code: ${e.code}');
-      debugPrint('Message: ${e.message}');
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '${e.code}: ${e.message}',
+      if (userCredential != null && userCredential.user != null) {
+        context.go('/Home');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.googleSignInError),
           ),
-        ),
-      );
-    } catch (e, stackTrace) {
-      debugPrint('🔥 Google Sign In Error: $e');
-      debugPrint('StackTrace: $stackTrace');
-
+        );
+      }
+    } catch (e) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
