@@ -122,7 +122,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get logout => 'تسجيل الخروج';
 
   @override
-  String get appSlogan => 'انسى... وإحنا نفكرك';
+  String get appSlogan => 'فكرني... عشان ما تنسيش حاجة مهمة. 💜';
 
   @override
   String get createReminder => 'إنشاء تذكير';
@@ -545,4 +545,22 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get reminderTimeMustBeFuture =>
       'وقت التذكير أصبح في الماضي. من فضلك اختاري مدة تذكير أقصر.';
+
+  @override
+  String get birthdayTomorrowTitle => 'عيد ميلادك بكرة! 🎂';
+
+  @override
+  String get birthdayTomorrowBody => 'استعد ليومك المميز 💜';
+
+  @override
+  String get birthdayTodayTitle => 'عيد ميلاد سعيد! 🎉';
+
+  @override
+  String get birthdayTodayBody => 'نتمنالك سنة جميلة ومليانة حاجات حلوة 💜';
+
+  @override
+  String get birthdayNotificationChannel => 'تذكيرات عيد الميلاد';
+
+  @override
+  String get birthdayNotificationChannelDescription => 'إشعارات عيد ميلادك';
 }

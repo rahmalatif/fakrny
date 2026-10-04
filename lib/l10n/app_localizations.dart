@@ -323,7 +323,7 @@ abstract class AppLocalizations {
   /// No description provided for @appSlogan.
   ///
   /// In en, this message translates to:
-  /// **'Forget it... We\'ll remember it for you.'**
+  /// **'Fakarny... so you never forget what matters. 💜'**
   String get appSlogan;
 
   /// No description provided for @createReminder.
@@ -1147,6 +1147,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The reminder time has already passed. Please choose a shorter reminder time.'**
   String get reminderTimeMustBeFuture;
+
+  /// No description provided for @birthdayTomorrowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your birthday is tomorrow! 🎂'**
+  String get birthdayTomorrowTitle;
+
+  /// No description provided for @birthdayTomorrowBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Get ready for your special day 💜'**
+  String get birthdayTomorrowBody;
+
+  /// No description provided for @birthdayTodayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Happy Birthday! 🎉'**
+  String get birthdayTodayTitle;
+
+  /// No description provided for @birthdayTodayBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Wishing you an amazing year ahead 💜'**
+  String get birthdayTodayBody;
+
+  /// No description provided for @birthdayNotificationChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Birthday reminders'**
+  String get birthdayNotificationChannel;
+
+  /// No description provided for @birthdayNotificationChannelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications for your birthday'**
+  String get birthdayNotificationChannelDescription;
 }
 
 class _AppLocalizationsDelegate

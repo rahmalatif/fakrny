@@ -37,7 +37,7 @@
   "darkMode": "Dark Mode",
   "logout": "Logout",
 
-  "appSlogan": "Forget it... We'll remember it for you.",
+  "appSlogan": "Fakarny... so you never forget what matters. 💜",
 
   "createReminder": "Create Reminder",
   "editReminder": "Edit Reminder",
@@ -219,5 +219,12 @@
   "weakPassword": "Password is too weak",
 
   "taskTimeMustBeFuture": "The task time must be in the future.",
-  "reminderTimeMustBeFuture": "The reminder time has already passed. Please choose a shorter reminder time."
+  "reminderTimeMustBeFuture": "The reminder time has already passed. Please choose a shorter reminder time.",
+    "birthdayTomorrowTitle": "Your birthday is tomorrow! 🎂",
+    "birthdayTomorrowBody": "Get ready for your special day 💜",
+    "birthdayTodayTitle": "Happy Birthday! 🎉",
+    "birthdayTodayBody": "Wishing you an amazing year ahead 💜",
+    "birthdayNotificationChannel": "Birthday reminders",
+    "birthdayNotificationChannelDescription": "Notifications for your birthday"
+
 }

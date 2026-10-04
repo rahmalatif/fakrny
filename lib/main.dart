@@ -22,13 +22,16 @@ void main() async {
 
   await NotificationServices.init();
 
+  await NotificationServices.scheduleBirthdayTest(
+    languageCode: 'en',
+  );
+
   await GoogleSignIn.instance.initialize(
     serverClientId:
         '441958759662-5bmcor94ojfnt3ufa5lj12vl96sfunkf.apps.googleusercontent.com',
   );
 
   final langController = LangController();
-
   await langController.loadSavedLanguage();
 
   runApp(

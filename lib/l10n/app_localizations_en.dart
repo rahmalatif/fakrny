@@ -124,7 +124,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logout => 'Logout';
 
   @override
-  String get appSlogan => 'Forget it... We\'ll remember it for you.';
+  String get appSlogan => 'Fakarny... so you never forget what matters. 💜';
 
   @override
   String get createReminder => 'Create Reminder';
@@ -552,4 +552,23 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get reminderTimeMustBeFuture =>
       'The reminder time has already passed. Please choose a shorter reminder time.';
+
+  @override
+  String get birthdayTomorrowTitle => 'Your birthday is tomorrow! 🎂';
+
+  @override
+  String get birthdayTomorrowBody => 'Get ready for your special day 💜';
+
+  @override
+  String get birthdayTodayTitle => 'Happy Birthday! 🎉';
+
+  @override
+  String get birthdayTodayBody => 'Wishing you an amazing year ahead 💜';
+
+  @override
+  String get birthdayNotificationChannel => 'Birthday reminders';
+
+  @override
+  String get birthdayNotificationChannelDescription =>
+      'Notifications for your birthday';
 }

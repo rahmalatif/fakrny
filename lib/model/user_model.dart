@@ -11,18 +11,22 @@ class UserModel {
   final DateTime? lastCompletedDate;
   final int? birthdayMonth;
   final int? birthdayDay;
+  final String voiceGender;
 
   UserModel({
     required this.uid,
     required this.name,
     required this.email,
-    this.photoUrl,
     required this.language,
+    this.photoUrl,
     this.createdAt,
     this.updatedAt,
     this.currentStreak = 0,
     this.longestStreak = 0,
-    this.lastCompletedDate, this.birthdayMonth, this.birthdayDay,
+    this.lastCompletedDate,
+    this.birthdayMonth,
+    this.birthdayDay,
+    this.voiceGender = 'female',
   });
 
   Map<String, dynamic> toMap() {
@@ -36,10 +40,16 @@ class UserModel {
       'currentStreak': currentStreak,
       'longestStreak': longestStreak,
       'lastCompletedDate': lastCompletedDate,
+      'birthdayMonth': birthdayMonth,
+      'birthdayDay': birthdayDay,
+      'voiceGender': voiceGender,
     };
   }
 
-  factory UserModel.fromMap(String uid, Map<String, dynamic> map) {
+  factory UserModel.fromMap(
+      String uid,
+      Map<String, dynamic> map,
+      ) {
     return UserModel(
       uid: uid,
       name: map['name'] ?? '',
@@ -51,6 +61,9 @@ class UserModel {
       currentStreak: map['currentStreak'] ?? 0,
       longestStreak: map['longestStreak'] ?? 0,
       lastCompletedDate: map['lastCompletedDate']?.toDate(),
+      birthdayMonth: map['birthdayMonth'],
+      birthdayDay: map['birthdayDay'],
+      voiceGender: map['voiceGender'] ?? 'female',
     );
   }
 }

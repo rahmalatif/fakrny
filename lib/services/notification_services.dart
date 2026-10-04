@@ -24,9 +24,14 @@ Future<void> notificationTapBackground(
 
   try {
     final timezone = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(timezone));
+
+    tz.setLocalLocation(
+      tz.getLocation(timezone),
+    );
   } catch (_) {
-    tz.setLocalLocation(tz.getLocation('UTC'));
+    tz.setLocalLocation(
+      tz.getLocation('UTC'),
+    );
   }
 
   await NotificationServices._onNotificationResponse(
@@ -52,6 +57,10 @@ class NotificationServices {
   static const String _dismissAction = 'dismiss';
 
   static const String _defaultLanguageCode = 'en';
+
+  static const int _birthdayTodayBaseId = 2000000000;
+  static const int _birthdayTomorrowBaseId = 2000000100;
+  static const int _birthdayYearsToSchedule = 5;
 
   static int notificationIdForTask(String taskId) {
     int hash = 2166136261;
@@ -194,8 +203,7 @@ class NotificationServices {
     final androidPlugin =
     notificationsPlugin
         .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin
-    >();
+        AndroidFlutterLocalNotificationsPlugin>();
 
     await androidPlugin?.requestNotificationsPermission();
 
@@ -264,7 +272,8 @@ class NotificationServices {
     final languageCode =
     _languageFromPayload(payload);
 
-    final l10n = _localizations(languageCode);
+    final l10n =
+    _localizations(languageCode);
 
     if (currentNotificationId != null) {
       await notificationsPlugin.cancel(
@@ -437,9 +446,10 @@ class NotificationServices {
     );
 
     if (!scheduledDate.isAfter(now)) {
-      scheduledDate = scheduledDate.add(
-        const Duration(days: 1),
-      );
+      scheduledDate =
+          scheduledDate.add(
+            const Duration(days: 1),
+          );
     }
 
     final l10n =
@@ -772,5 +782,184 @@ class NotificationServices {
         languageCode: languageCode,
       );
     }
+  }
+
+  static Future<void> scheduleBirthdayNotifications({
+    required int month,
+    required int day,
+    required String languageCode,
+  }) async {
+    await cancelBirthdayNotifications();
+
+    final now =
+    tz.TZDateTime.now(tz.local);
+
+    final l10n =
+    _localizations(languageCode);
+
+    for (
+    int yearOffset = 0;
+    yearOffset < _birthdayYearsToSchedule;
+    yearOffset++
+    ) {
+      final year =
+          now.year + yearOffset;
+
+      if (!_isValidDate(
+        year,
+        month,
+        day,
+      )) {
+        continue;
+      }
+
+      final birthdayDate =
+      tz.TZDateTime(
+        tz.local,
+        year,
+        month,
+        day,
+        0,
+        0,
+      );
+
+      if (!birthdayDate.isAfter(now)) {
+        continue;
+      }
+
+      final tomorrowDate =
+      birthdayDate.subtract(
+        const Duration(days: 1),
+      );
+
+      final tomorrowNotificationDate =
+      tz.TZDateTime(
+        tz.local,
+        tomorrowDate.year,
+        tomorrowDate.month,
+        tomorrowDate.day,
+        10,
+        0,
+      );
+
+      if (tomorrowNotificationDate.isAfter(now)) {
+        await notificationsPlugin.zonedSchedule(
+          _birthdayTomorrowBaseId +
+              yearOffset,
+          l10n.birthdayTomorrowTitle,
+          l10n.birthdayTomorrowBody,
+          tomorrowNotificationDate,
+          _birthdayNotificationDetails(
+            languageCode,
+          ),
+          androidScheduleMode:
+          AndroidScheduleMode.exactAllowWhileIdle,
+        );
+      }
+
+      await notificationsPlugin.zonedSchedule(
+        _birthdayTodayBaseId +
+            yearOffset,
+        l10n.birthdayTodayTitle,
+        l10n.birthdayTodayBody,
+        birthdayDate,
+        _birthdayNotificationDetails(
+          languageCode,
+        ),
+        androidScheduleMode:
+        AndroidScheduleMode.exactAllowWhileIdle,
+      );
+    }
+  }
+
+  static bool _isValidDate(
+      int year,
+      int month,
+      int day,
+      ) {
+    final date =
+    DateTime(year, month, day);
+
+    return date.year == year &&
+        date.month == month &&
+        date.day == day;
+  }
+
+  static NotificationDetails
+  _birthdayNotificationDetails(
+      String languageCode,
+      ) {
+    final l10n =
+    _localizations(languageCode);
+
+    return NotificationDetails(
+      android: AndroidNotificationDetails(
+        'birthday_reminders_$languageCode',
+        l10n.birthdayNotificationChannel,
+        channelDescription:
+        l10n.birthdayNotificationChannelDescription,
+        importance: Importance.high,
+        priority: Priority.high,
+        sound: RawResourceAndroidNotificationSound(
+          _getNotificationSound(languageCode),
+        ),
+        icon: '@mipmap/ic_launcher',
+      ),
+    );
+  }
+
+  static Future<void>
+  cancelBirthdayNotifications() async {
+    for (
+    int i = 0;
+    i < _birthdayYearsToSchedule;
+    i++
+    ) {
+      await notificationsPlugin.cancel(
+        _birthdayTodayBaseId + i,
+      );
+
+      await notificationsPlugin.cancel(
+        _birthdayTomorrowBaseId + i,
+      );
+    }
+  }
+  static Future<void> scheduleBirthdayTest({
+    required String languageCode,
+  }) async {
+    await notificationsPlugin.cancel(999001);
+    await notificationsPlugin.cancel(999002);
+
+    final now = tz.TZDateTime.now(tz.local);
+
+    final tomorrow = now.add(
+      const Duration(minutes: 2),
+    );
+
+    final today = now.add(
+      const Duration(minutes: 1),
+    );
+
+    final l10n = _localizations(languageCode);
+
+    await notificationsPlugin.zonedSchedule(
+      999001,
+      l10n.birthdayTomorrowTitle,
+      l10n.birthdayTomorrowBody,
+      tomorrow,
+      _birthdayNotificationDetails(languageCode),
+      androidScheduleMode:
+      AndroidScheduleMode.exactAllowWhileIdle,
+    );
+
+    await notificationsPlugin.zonedSchedule(
+      999002,
+      l10n.birthdayTodayTitle,
+      l10n.birthdayTodayBody,
+      today,
+      _birthdayNotificationDetails(languageCode),
+      androidScheduleMode:
+      AndroidScheduleMode.exactAllowWhileIdle,
+    );
   }
 }

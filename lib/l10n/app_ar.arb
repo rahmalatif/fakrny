@@ -36,7 +36,7 @@
   "lang": "اللغة",
   "darkMode": "الوضع الداكن",
   "logout": "تسجيل الخروج",
-  "appSlogan": "انسى... وإحنا نفكرك",
+  "appSlogan": "فكرني... عشان ما تنسيش حاجة مهمة. 💜",
   "createReminder": "إنشاء تذكير",
   "editReminder": "تعديل التذكير",
   "createReminderSub": "أضف تفاصيل التذكير الخاص بك",
@@ -212,7 +212,12 @@
   "accountCreatedSuccessfully": "تم إنشاء الحساب بنجاح",
   "emailAlreadyRegistered": "هذا البريد الإلكتروني مسجل بالفعل",
   "weakPassword": "كلمة المرور ضعيفة جدًا",
-
   "taskTimeMustBeFuture": "يجب أن يكون وقت المهمة في المستقبل.",
-  "reminderTimeMustBeFuture": "وقت التذكير أصبح في الماضي. من فضلك اختاري مدة تذكير أقصر."
+  "reminderTimeMustBeFuture": "وقت التذكير أصبح في الماضي. من فضلك اختاري مدة تذكير أقصر.",
+    "birthdayTomorrowTitle": "عيد ميلادك بكرة! 🎂",
+    "birthdayTomorrowBody": "استعد ليومك المميز 💜",
+    "birthdayTodayTitle": "عيد ميلاد سعيد! 🎉",
+    "birthdayTodayBody": "نتمنالك سنة جميلة ومليانة حاجات حلوة 💜",
+    "birthdayNotificationChannel": "تذكيرات عيد الميلاد",
+    "birthdayNotificationChannelDescription": "إشعارات عيد ميلادك"
 }
