@@ -46,4 +46,19 @@ class UserFirestoreService {
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
+
+  Future<void> updateBirthday({
+    required String uid,
+    required int month,
+    required int day,
+  }) async {
+    await firestore.collection('users').doc(uid).set(
+      {
+        'birthdayMonth': month,
+        'birthdayDay': day,
+        'updatedAt': FieldValue.serverTimestamp(),
+      },
+      SetOptions(merge: true),
+    );
+  }
 }

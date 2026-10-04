@@ -9,6 +9,8 @@ class UserModel {
   final int currentStreak;
   final int longestStreak;
   final DateTime? lastCompletedDate;
+  final int? birthdayMonth;
+  final int? birthdayDay;
 
   UserModel({
     required this.uid,
@@ -20,7 +22,7 @@ class UserModel {
     this.updatedAt,
     this.currentStreak = 0,
     this.longestStreak = 0,
-    this.lastCompletedDate,
+    this.lastCompletedDate, this.birthdayMonth, this.birthdayDay,
   });
 
   Map<String, dynamic> toMap() {
