@@ -122,7 +122,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get logout => 'تسجيل الخروج';
 
   @override
-  String get appSlogan => 'فكرني... عشان ما تنسيش حاجة مهمة. 💜';
+  String get appSlogan => 'فكرني... عشان ما تنسيش حاجة مهمة. ';
 
   @override
   String get createReminder => 'إنشاء تذكير';

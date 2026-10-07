@@ -168,195 +168,195 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     final todayTasks = taskProvider.todayTasks;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    final screenWidth = MediaQuery.sizeOf(context).width;
+
+    final horizontalPadding = screenWidth >= 600 ? 32.0 : 14.0;
+
     return Scaffold(
       backgroundColor: isDark ? AppColor.darkBackground : AppColor.background,
-
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 20, left: 14, right: 14),
-
-          child: Column(
-            children: [
-              Row(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 1000,
+            ),
+            child: Padding(
+              padding: EdgeInsets.only(
+                top: 20,
+                left: horizontalPadding,
+                right: horizontalPadding,
+              ),
+              child: Column(
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-
+                  Row(
                     children: [
-                      Text(
-                        '${getGreeting(context)}, $firstName',
-
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 26,
-
-                          color: isDark
-                              ? AppColor.textWhite
-                              : AppColor.textPrimary,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${getGreeting(context)}, $firstName',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 26,
+                              color: isDark
+                                  ? AppColor.textWhite
+                                  : AppColor.textPrimary,
+                            ),
+                          ),
+                          Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.todayTasksNum(todayTasks.length),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: isDark
+                                  ? AppColor.textHint
+                                  : AppColor.textSecondary,
+                            ),
+                          ),
+                        ],
                       ),
-
-                      Text(
-                        AppLocalizations.of(
-                          context,
-                        )!.todayTasksNum(todayTasks.length),
-
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-
-                          color: isDark
-                              ? AppColor.textHint
-                              : AppColor.textSecondary,
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: () {
+                          context.go('/Profile');
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: AppColor.grad3,
+                          child: Text(
+                            getInitials(user?.name ?? ' '),
+                            style: const TextStyle(
+                              color: AppColor.textWhite,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                     ],
                   ),
-
-                  const Spacer(),
-
-                  GestureDetector(
-                    onTap: () {
-                      context.go('/Profile');
-                    },
-
-                    child: CircleAvatar(
-                      backgroundColor: AppColor.grad3,
-
-                      child: Text(
-                        getInitials(user?.name ?? ' '),
-
-                        style: const TextStyle(
-                          color: AppColor.textWhite,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.today,
+                          style: TextStyle(
+                            color: isDark
+                                ? AppColor.textWhite
+                                : AppColor.textPrimary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24,
+                          ),
                         ),
-                      ),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: () {
+                            context.go('/Tasks');
+                          },
+                          child: Text(
+                            AppLocalizations.of(context)!.showAll,
+                            style: const TextStyle(
+                              color: AppColor.primary,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: taskProvider.isLoading
+                        ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                        : todayTasks.isEmpty
+                        ? EmptyState(
+                      icon: taskProvider.tasks.isEmpty
+                          ? Icons.task_alt
+                          : Icons.event_available,
+                      title: taskProvider.tasks.isEmpty
+                          ? AppLocalizations.of(context)!.noTasksYet
+                          : AppLocalizations.of(context)!
+                          .noTasksToday,
+                      message: taskProvider.tasks.isEmpty
+                          ? AppLocalizations.of(context)!
+                          .noTasksYetMessage
+                          : AppLocalizations.of(context)!
+                          .noTasksTodayMessage,
+                      buttonText:
+                      AppLocalizations.of(context)!.createTask,
+                      onPressed: () async {
+                        final taskProvider =
+                        context.read<TaskProvider>();
+
+                        final result =
+                        await context.push('/Reminder');
+
+                        if (!mounted) return;
+
+                        if (result == true) {
+                          await taskProvider.loadTasks();
+                        }
+                      },
+                    )
+                        : ListView.separated(
+                      itemCount: todayTasks.length,
+                      separatorBuilder: (context, index) {
+                        return const SizedBox(height: 10);
+                      },
+                      itemBuilder: (context, index) {
+                        final task = todayTasks[index];
+
+                        return TasksContanier(
+                          title: task.title,
+                          category: getLocalizedCategory(
+                            context,
+                            task.category,
+                          ),
+                          priority: getLocalizedPriority(
+                            context,
+                            task.priority,
+                          ),
+                          color: getTaskColor(task.color),
+                          isCompleted: task.isCompleted,
+                          onCheck: () {
+                            final locale =
+                            Localizations.localeOf(context);
+
+                            context
+                                .read<TaskProvider>()
+                                .toggleTask(
+                              task,
+                              languageCode:
+                              locale.languageCode,
+                            );
+                          },
+                          onTap: () async {
+                            final taskProvider =
+                            context.read<TaskProvider>();
+
+                            final result = await context.push(
+                              '/ReminderDetails',
+                              extra: task,
+                            );
+
+                            if (!context.mounted) return;
+
+                            if (result == true) {
+                              await taskProvider.loadTasks();
+                            }
+                          },
+                        );
+                      },
                     ),
                   ),
                 ],
               ),
-
-              const SizedBox(height: 20),
-
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-
-                child: Row(
-                  children: [
-                    Text(
-                      AppLocalizations.of(context)!.today,
-
-                      style: TextStyle(
-                        color: isDark
-                            ? AppColor.textWhite
-                            : AppColor.textPrimary,
-
-                        fontWeight: FontWeight.bold,
-
-                        fontSize: 24,
-                      ),
-                    ),
-
-                    const Spacer(),
-
-                    TextButton(
-                      onPressed: () {
-                        context.go('/Tasks');
-                      },
-
-                      child: Text(
-                        AppLocalizations.of(context)!.showAll,
-
-                        style: const TextStyle(
-                          color: AppColor.primary,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              Expanded(
-                child: taskProvider.isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : todayTasks.isEmpty
-                    ? EmptyState(
-                        icon: taskProvider.tasks.isEmpty
-                            ? Icons.task_alt
-                            : Icons.event_available,
-                        title: taskProvider.tasks.isEmpty
-                            ? AppLocalizations.of(context)!.noTasksYet
-                            : AppLocalizations.of(context)!.noTasksToday,
-                        message: taskProvider.tasks.isEmpty
-                            ? AppLocalizations.of(context)!.noTasksYetMessage
-                            : AppLocalizations.of(context)!.noTasksTodayMessage,
-                        buttonText: taskProvider.tasks.isEmpty
-                            ? AppLocalizations.of(context)!.createTask
-                            : AppLocalizations.of(context)!.createTask,
-                        onPressed: () async {
-                          final taskProvider = context.read<TaskProvider>();
-
-                          final result = await context.push('/Reminder');
-
-                          if (!mounted) return;
-
-                          if (result == true) {
-                            await taskProvider.loadTasks();
-                          }
-                        },
-                      )
-                    : ListView.separated(
-                        itemCount: todayTasks.length,
-
-                        separatorBuilder: (context, index) {
-                          return const SizedBox(height: 10);
-                        },
-
-                        itemBuilder: (context, index) {
-                          final task = todayTasks[index];
-
-                          return TasksContanier(
-                            title: task.title,
-                            category: getLocalizedCategory(
-                              context,
-                              task.category,
-                            ),
-                            priority: getLocalizedPriority(
-                              context,
-                              task.priority,
-                            ),
-                            color: getTaskColor(task.color),
-                            isCompleted: task.isCompleted,
-                            onCheck: () {
-                              final locale = Localizations.localeOf(context);
-
-                              context.read<TaskProvider>().toggleTask(
-                                task,
-                                languageCode: locale.languageCode,
-                              );
-                            },
-
-                            onTap: () async {
-                              final taskProvider = context.read<TaskProvider>();
-
-                              final result = await context.push(
-                                '/ReminderDetails',
-                                extra: task,
-                              );
-
-                              if (!context.mounted) return;
-                              if (result == true) {
-                                await taskProvider.loadTasks();
-                              }
-                            },
-                          );
-                        },
-                      ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -368,12 +368,12 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
             context.read<TaskProvider>().loadTasks();
           }
         },
-
         backgroundColor: AppColor.grad3,
-
-        child: const Icon(Icons.add, color: AppColor.textWhite),
+        child: const Icon(
+          Icons.add,
+          color: AppColor.textWhite,
+        ),
       ),
-
       bottomNavigationBar: const CustomNavBar(currentIndex: 0),
     );
   }

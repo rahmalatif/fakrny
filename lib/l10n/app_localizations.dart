@@ -323,7 +323,7 @@ abstract class AppLocalizations {
   /// No description provided for @appSlogan.
   ///
   /// In en, this message translates to:
-  /// **'Fakarny... so you never forget what matters. 💜'**
+  /// **'Fakarny... so you never forget what matters.'**
   String get appSlogan;
 
   /// No description provided for @createReminder.

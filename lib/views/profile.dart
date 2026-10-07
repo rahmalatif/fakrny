@@ -74,16 +74,12 @@ class _ProfileViewState extends State<ProfileView> {
 
   Future<void> _changeVoiceGender(String voiceGender) async {
     final currentUser = authServices.currentUser;
-    final localizations = AppLocalizations.of(context)!;
 
     if (currentUser == null || user == null) {
       return;
     }
 
     if (user!.voiceGender == voiceGender) {
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
       return;
     }
 
@@ -92,16 +88,16 @@ class _ProfileViewState extends State<ProfileView> {
     });
 
     try {
-      await userFirestoreService.updateVoiceGender(
-        uid: currentUser.uid,
-        voiceGender: voiceGender,
-      );
-
       final languageCode =
           Localizations.localeOf(context).languageCode;
 
       final birthdayMonth = user!.birthdayMonth;
       final birthdayDay = user!.birthdayDay;
+
+      await userFirestoreService.updateVoiceGender(
+        uid: currentUser.uid,
+        voiceGender: voiceGender,
+      );
 
       if (birthdayMonth != null && birthdayDay != null) {
         await NotificationServices.scheduleBirthdayNotifications(
@@ -136,7 +132,7 @@ class _ProfileViewState extends State<ProfileView> {
 
       if (!mounted) return;
 
-      Navigator.of(context).pop();
+      final localizations = AppLocalizations.of(context)!;
 
       SnackBarHelper.show(
         context,
@@ -150,7 +146,7 @@ class _ProfileViewState extends State<ProfileView> {
         isUpdatingVoice = false;
       });
 
-      Navigator.of(context).pop();
+      final localizations = AppLocalizations.of(context)!;
 
       SnackBarHelper.show(
         context,
@@ -159,8 +155,7 @@ class _ProfileViewState extends State<ProfileView> {
       );
     }
   }
-
-  void _showVoiceGenderDialog() {
+  Future<void> _showVoiceGenderDialog() async {
     final localizations = AppLocalizations.of(context)!;
     final isDark =
         Theme.of(context).brightness == Brightness.dark;
@@ -168,7 +163,7 @@ class _ProfileViewState extends State<ProfileView> {
     final currentVoice =
     user?.voiceGender == 'male' ? 'male' : 'female';
 
-    showModalBottomSheet(
+    final selectedVoice = await showModalBottomSheet<String>(
       context: context,
       backgroundColor:
       isDark ? AppColor.darkSurface : AppColor.surface,
@@ -218,10 +213,8 @@ class _ProfileViewState extends State<ProfileView> {
                   value: 'female',
                   selectedValue: currentVoice,
                   isDark: isDark,
-                  onTap: isUpdatingVoice
-                      ? null
-                      : () {
-                    _changeVoiceGender('female');
+                  onTap: () {
+                    Navigator.of(bottomSheetContext).pop('female');
                   },
                 ),
                 const SizedBox(height: 10),
@@ -232,30 +225,24 @@ class _ProfileViewState extends State<ProfileView> {
                   value: 'male',
                   selectedValue: currentVoice,
                   isDark: isDark,
-                  onTap: isUpdatingVoice
-                      ? null
-                      : () {
-                    _changeVoiceGender('male');
+                  onTap: () {
+                    Navigator.of(bottomSheetContext).pop('male');
                   },
                 ),
-                if (isUpdatingVoice) ...[
-                  const SizedBox(height: 18),
-                  const SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: AppColor.grad1,
-                    ),
-                  ),
-                ],
               ],
             ),
           ),
         );
       },
     );
+
+    if (!mounted || selectedVoice == null) {
+      return;
+    }
+
+    await _changeVoiceGender(selectedVoice);
   }
+
   Widget _voiceOption({
     required BuildContext context,
     required String title,

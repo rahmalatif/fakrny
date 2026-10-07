@@ -124,7 +124,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logout => 'Logout';
 
   @override
-  String get appSlogan => 'Fakarny... so you never forget what matters. 💜';
+  String get appSlogan => 'Fakarny... so you never forget what matters.';
 
   @override
   String get createReminder => 'Create Reminder';
