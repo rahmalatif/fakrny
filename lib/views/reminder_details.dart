@@ -3,10 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/model/tasks.dart';
+
 import '../core/design/theme/app_color.dart';
 import '../core/design/widgets/snack_bar.dart';
 import '../provider/task_provider.dart';
-import '../services/notification_services.dart';
 
 class ReminderDetailsView extends StatefulWidget {
   final TaskModel task;
@@ -22,7 +22,7 @@ class ReminderDetailsView extends StatefulWidget {
 
 class _ReminderDetailsViewState extends State<ReminderDetailsView> {
   late TaskModel task;
-  late bool isCompleted = false;
+  late bool isCompleted;
   bool isUpdating = false;
 
   @override
@@ -42,14 +42,6 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
     });
 
     try {
-      final notificationService = NotificationServices();
-
-      if (newValue) {
-        await NotificationServices.cancelTaskNotification(task.id);
-      }
-
-      if (!mounted) return;
-
       final updatedTask = TaskModel(
         id: task.id,
         title: task.title,
@@ -80,15 +72,6 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
           taskProvider.error ?? l10n.failedToUpdateTask,
         );
       }
-
-      if (!newValue) {
-        await notificationService.scheduleTaskNotification(
-          updatedTask,
-          languageCode: languageCode,
-        );
-      }
-
-      if (!mounted) return;
 
       setState(() {
         task = updatedTask;

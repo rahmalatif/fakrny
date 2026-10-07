@@ -163,6 +163,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chooseDateAndTime => 'Please choose date and time';
 
   @override
+  String get voiceGender => 'Notification Voice';
+
+  @override
+  String get female => 'Female';
+
+  @override
+  String get male => 'Male';
+
+  @override
+  String get voiceUpdated => 'Notification voice updated successfully';
+
+  @override
   String get category => 'Category';
 
   @override

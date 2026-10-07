@@ -7,7 +7,6 @@ import '../core/design/theme/app_color.dart';
 import '../core/design/widgets/snack_bar.dart';
 import '../model/tasks.dart';
 import '../provider/task_provider.dart';
-import '../services/notification_services.dart';
 
 class ReminderView extends StatefulWidget {
   final TaskModel? task;
@@ -110,7 +109,6 @@ class _ReminderViewState extends State<ReminderView> {
 
   Future<void> saveReminder() async {
     final l10n = AppLocalizations.of(context)!;
-
     final languageCode = Localizations.localeOf(context).languageCode;
 
     if (_titleController.text.trim().isEmpty) {
@@ -206,20 +204,7 @@ class _ReminderViewState extends State<ReminderView> {
             taskProvider.error ?? l10n.failedToCreateTask,
           );
         }
-
-        await NotificationServices().scheduleTaskNotification(
-          taskWithId,
-          languageCode: languageCode,
-        );
       } else {
-        final notificationService = NotificationServices();
-
-        await NotificationServices.cancelTaskNotification(
-          widget.task!.id,
-        );
-
-        if (!mounted) return;
-
         final updatedTask = TaskModel(
           id: widget.task!.id,
           title: _titleController.text.trim(),
@@ -246,13 +231,6 @@ class _ReminderViewState extends State<ReminderView> {
         if (!success) {
           throw Exception(
             taskProvider.error ?? l10n.failedToUpdateTask,
-          );
-        }
-
-        if (!updatedTask.isCompleted) {
-          await notificationService.scheduleTaskNotification(
-            updatedTask,
-            languageCode: languageCode,
           );
         }
       }

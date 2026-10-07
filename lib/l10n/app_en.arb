@@ -53,7 +53,10 @@
   "chooseDate": "Choose Date",
   "chooseTime": "Choose Time",
   "chooseDateAndTime": "Please choose date and time",
-
+"voiceGender": "Notification Voice",
+"female": "Female",
+"male": "Male",
+"voiceUpdated": "Notification voice updated successfully",
   "category": "Category",
   "chooseCategory": "Choose Category",
   "study": "Study",

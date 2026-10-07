@@ -58,8 +58,7 @@ class NotificationServices {
 
   static const String _defaultLanguageCode = 'en';
 
-  static const int _birthdayTodayBaseId = 2000000000;
-  static const int _birthdayTomorrowBaseId = 2000000100;
+  static const int _birthdayBaseId = 2000000000;
   static const int _birthdayYearsToSchedule = 5;
 
   static int notificationIdForTask(String taskId) {
@@ -101,10 +100,12 @@ class NotificationServices {
   static String _createPayload({
     required String taskId,
     required String languageCode,
+    required String voiceGender,
   }) {
     return jsonEncode({
       'taskId': taskId,
       'languageCode': languageCode,
+      'voiceGender': voiceGender,
     });
   }
 
@@ -125,6 +126,7 @@ class NotificationServices {
       return {
         'taskId': payload,
         'languageCode': _defaultLanguageCode,
+        'voiceGender': 'female',
       };
     }
 
@@ -147,29 +149,52 @@ class NotificationServices {
     final languageCode =
     data?['languageCode'] as String?;
 
-    if (languageCode == 'ar') {
-      return 'ar';
-    }
-
-    return 'en';
+    return languageCode == 'ar' ? 'ar' : 'en';
   }
 
-  static String _getNotificationSound(
-      String languageCode,
+  static String _voiceGenderFromPayload(
+      String? payload,
       ) {
-    if (languageCode == 'ar') {
-      return 'notif_arabic';
-    }
+    final data = _parsePayload(payload);
 
-    return 'notif_english';
+    final voiceGender =
+    data?['voiceGender'] as String?;
+
+    return voiceGender == 'male' ? 'male' : 'female';
+  }
+
+  static String _getNotificationSound({
+    required String languageCode,
+    required String voiceGender,
+  }) {
+    final language = languageCode == 'ar' ? 'ar' : 'en';
+
+    final gender =
+    voiceGender == 'male' ? 'male' : 'female';
+
+    return 'notif_${gender}_$language';
+  }
+
+  static String _getBirthdaySound({
+    required String languageCode,
+    required String voiceGender,
+  }) {
+    final language = languageCode == 'ar' ? 'ar' : 'en';
+
+    final gender =
+    voiceGender == 'male' ? 'male' : 'female';
+
+    return 'hbd_${gender}_$language';
   }
 
   static Future<void> init() async {
-    const androidSettings = AndroidInitializationSettings(
+    const androidSettings =
+    AndroidInitializationSettings(
       '@mipmap/ic_launcher',
     );
 
-    const initializationSettings = InitializationSettings(
+    const initializationSettings =
+    InitializationSettings(
       android: androidSettings,
     );
 
@@ -244,7 +269,8 @@ class NotificationServices {
       String payload,
       int? notificationId,
       ) async {
-    final taskId = _taskIdFromPayload(payload);
+    final taskId =
+    _taskIdFromPayload(payload);
 
     if (taskId == null) {
       return;
@@ -263,7 +289,8 @@ class NotificationServices {
       String payload,
       int? currentNotificationId,
       ) async {
-    final taskId = _taskIdFromPayload(payload);
+    final taskId =
+    _taskIdFromPayload(payload);
 
     if (taskId == null) {
       return;
@@ -271,6 +298,9 @@ class NotificationServices {
 
     final languageCode =
     _languageFromPayload(payload);
+
+    final voiceGender =
+    _voiceGenderFromPayload(payload);
 
     final l10n =
     _localizations(languageCode);
@@ -296,6 +326,7 @@ class NotificationServices {
     final newPayload = _createPayload(
       taskId: taskId,
       languageCode: languageCode,
+      voiceGender: voiceGender,
     );
 
     await notificationsPlugin.zonedSchedule(
@@ -306,6 +337,7 @@ class NotificationServices {
       _notificationDetails(
         taskId: taskId,
         languageCode: languageCode,
+        voiceGender: voiceGender,
       ),
       androidScheduleMode:
       AndroidScheduleMode.exactAllowWhileIdle,
@@ -316,7 +348,8 @@ class NotificationServices {
   static Future<void> _handleCompleted(
       String payload,
       ) async {
-    final taskId = _taskIdFromPayload(payload);
+    final taskId =
+    _taskIdFromPayload(payload);
 
     if (taskId == null) {
       return;
@@ -350,6 +383,7 @@ class NotificationServices {
   Future<void> scheduleTaskNotification(
       TaskModel task, {
         required String languageCode,
+        required String voiceGender,
       }) async {
     if (task.isCompleted) {
       await cancelTaskNotification(task.id);
@@ -363,6 +397,7 @@ class NotificationServices {
         await _scheduleDailyNotification(
           task,
           languageCode,
+          voiceGender,
         );
         break;
 
@@ -370,6 +405,7 @@ class NotificationServices {
         await _scheduleWeeklyNotification(
           task,
           languageCode,
+          voiceGender,
         );
         break;
 
@@ -377,6 +413,7 @@ class NotificationServices {
         await _scheduleCustomNotifications(
           task,
           languageCode,
+          voiceGender,
         );
         break;
 
@@ -384,6 +421,7 @@ class NotificationServices {
         await _scheduleOneTimeNotification(
           task,
           languageCode,
+          voiceGender,
         );
     }
   }
@@ -391,6 +429,7 @@ class NotificationServices {
   Future<void> _scheduleOneTimeNotification(
       TaskModel task,
       String languageCode,
+      String voiceGender,
       ) async {
     final reminderTime =
     task.scheduledAt.subtract(
@@ -413,18 +452,21 @@ class NotificationServices {
       dateTime: reminderTime,
       taskId: task.id,
       languageCode: languageCode,
+      voiceGender: voiceGender,
     );
 
     await scheduleEscalationNotifications(
       task: task,
       reminderTime: reminderTime,
       languageCode: languageCode,
+      voiceGender: voiceGender,
     );
   }
 
   Future<void> _scheduleDailyNotification(
       TaskModel task,
       String languageCode,
+      String voiceGender,
       ) async {
     final reminderTime =
     task.scheduledAt.subtract(
@@ -458,6 +500,7 @@ class NotificationServices {
     final payload = _createPayload(
       taskId: task.id,
       languageCode: languageCode,
+      voiceGender: voiceGender,
     );
 
     await notificationsPlugin.zonedSchedule(
@@ -468,6 +511,7 @@ class NotificationServices {
       _notificationDetails(
         taskId: task.id,
         languageCode: languageCode,
+        voiceGender: voiceGender,
       ),
       androidScheduleMode:
       AndroidScheduleMode.exactAllowWhileIdle,
@@ -480,6 +524,7 @@ class NotificationServices {
   Future<void> _scheduleWeeklyNotification(
       TaskModel task,
       String languageCode,
+      String voiceGender,
       ) async {
     final reminderTime =
     task.scheduledAt.subtract(
@@ -501,6 +546,7 @@ class NotificationServices {
     final payload = _createPayload(
       taskId: task.id,
       languageCode: languageCode,
+      voiceGender: voiceGender,
     );
 
     await notificationsPlugin.zonedSchedule(
@@ -511,6 +557,7 @@ class NotificationServices {
       _notificationDetails(
         taskId: task.id,
         languageCode: languageCode,
+        voiceGender: voiceGender,
       ),
       androidScheduleMode:
       AndroidScheduleMode.exactAllowWhileIdle,
@@ -523,6 +570,7 @@ class NotificationServices {
   Future<void> _scheduleCustomNotifications(
       TaskModel task,
       String languageCode,
+      String voiceGender,
       ) async {
     if (task.repeatDays.isEmpty) {
       return;
@@ -544,6 +592,7 @@ class NotificationServices {
     final payload = _createPayload(
       taskId: task.id,
       languageCode: languageCode,
+      voiceGender: voiceGender,
     );
 
     for (
@@ -569,6 +618,7 @@ class NotificationServices {
         _notificationDetails(
           taskId: task.id,
           languageCode: languageCode,
+          voiceGender: voiceGender,
         ),
         androidScheduleMode:
         AndroidScheduleMode.exactAllowWhileIdle,
@@ -615,6 +665,7 @@ class NotificationServices {
     required DateTime dateTime,
     required String taskId,
     required String languageCode,
+    required String voiceGender,
   }) async {
     final scheduledDate =
     tz.TZDateTime.from(
@@ -625,6 +676,7 @@ class NotificationServices {
     final payload = _createPayload(
       taskId: taskId,
       languageCode: languageCode,
+      voiceGender: voiceGender,
     );
 
     await notificationsPlugin.zonedSchedule(
@@ -635,6 +687,7 @@ class NotificationServices {
       _notificationDetails(
         taskId: taskId,
         languageCode: languageCode,
+        voiceGender: voiceGender,
       ),
       androidScheduleMode:
       AndroidScheduleMode.exactAllowWhileIdle,
@@ -645,20 +698,24 @@ class NotificationServices {
   static NotificationDetails _notificationDetails({
     String? taskId,
     required String languageCode,
+    required String voiceGender,
   }) {
     final l10n =
     _localizations(languageCode);
 
     return NotificationDetails(
       android: AndroidNotificationDetails(
-        'task_reminders_$languageCode',
+        'task_reminders_${languageCode}_$voiceGender',
         l10n.notificationTaskReminders,
         channelDescription:
         l10n.notificationTaskRemindersDescription,
         importance: Importance.high,
         priority: Priority.high,
         sound: RawResourceAndroidNotificationSound(
-          _getNotificationSound(languageCode),
+          _getNotificationSound(
+            languageCode: languageCode,
+            voiceGender: voiceGender,
+          ),
         ),
         icon: '@mipmap/ic_launcher',
         actions: <AndroidNotificationAction>[
@@ -699,19 +756,24 @@ class NotificationServices {
       snoozeId,
     );
 
-    for (int level = 1; level <= 2; level++) {
-      final escalationId =
-      escalationNotificationId(
-        taskId,
-        level,
-      );
-
+    for (
+    int level = 1;
+    level <= 2;
+    level++
+    ) {
       await notificationsPlugin.cancel(
-        escalationId,
+        escalationNotificationId(
+          taskId,
+          level,
+        ),
       );
     }
 
-    for (int i = 1; i <= 20; i++) {
+    for (
+    int i = 1;
+    i <= 20;
+    i++
+    ) {
       await notificationsPlugin.cancel(
         notificationId + i,
       );
@@ -723,6 +785,7 @@ class NotificationServices {
     required TaskModel task,
     required DateTime reminderTime,
     required String languageCode,
+    required String voiceGender,
   }) async {
     final firstEscalationTime =
     reminderTime.add(
@@ -768,6 +831,7 @@ class NotificationServices {
         dateTime: firstEscalationTime,
         taskId: task.id,
         languageCode: languageCode,
+        voiceGender: voiceGender,
       );
     }
 
@@ -780,6 +844,7 @@ class NotificationServices {
         dateTime: secondEscalationTime,
         taskId: task.id,
         languageCode: languageCode,
+        voiceGender: voiceGender,
       );
     }
   }
@@ -788,6 +853,7 @@ class NotificationServices {
     required int month,
     required int day,
     required String languageCode,
+    required String voiceGender,
   }) async {
     await cancelBirthdayNotifications();
 
@@ -827,44 +893,14 @@ class NotificationServices {
         continue;
       }
 
-      final tomorrowDate =
-      birthdayDate.subtract(
-        const Duration(days: 1),
-      );
-
-      final tomorrowNotificationDate =
-      tz.TZDateTime(
-        tz.local,
-        tomorrowDate.year,
-        tomorrowDate.month,
-        tomorrowDate.day,
-        10,
-        0,
-      );
-
-      if (tomorrowNotificationDate.isAfter(now)) {
-        await notificationsPlugin.zonedSchedule(
-          _birthdayTomorrowBaseId +
-              yearOffset,
-          l10n.birthdayTomorrowTitle,
-          l10n.birthdayTomorrowBody,
-          tomorrowNotificationDate,
-          _birthdayNotificationDetails(
-            languageCode,
-          ),
-          androidScheduleMode:
-          AndroidScheduleMode.exactAllowWhileIdle,
-        );
-      }
-
       await notificationsPlugin.zonedSchedule(
-        _birthdayTodayBaseId +
-            yearOffset,
+        _birthdayBaseId + yearOffset,
         l10n.birthdayTodayTitle,
         l10n.birthdayTodayBody,
         birthdayDate,
         _birthdayNotificationDetails(
-          languageCode,
+          languageCode: languageCode,
+          voiceGender: voiceGender,
         ),
         androidScheduleMode:
         AndroidScheduleMode.exactAllowWhileIdle,
@@ -886,22 +922,26 @@ class NotificationServices {
   }
 
   static NotificationDetails
-  _birthdayNotificationDetails(
-      String languageCode,
-      ) {
+  _birthdayNotificationDetails({
+    required String languageCode,
+    required String voiceGender,
+  }) {
     final l10n =
     _localizations(languageCode);
 
     return NotificationDetails(
       android: AndroidNotificationDetails(
-        'birthday_reminders_$languageCode',
+        'birthday_${languageCode}_$voiceGender',
         l10n.birthdayNotificationChannel,
         channelDescription:
         l10n.birthdayNotificationChannelDescription,
         importance: Importance.high,
         priority: Priority.high,
         sound: RawResourceAndroidNotificationSound(
-          _getNotificationSound(languageCode),
+          _getBirthdaySound(
+            languageCode: languageCode,
+            voiceGender: voiceGender,
+          ),
         ),
         icon: '@mipmap/ic_launcher',
       ),
@@ -916,50 +956,8 @@ class NotificationServices {
     i++
     ) {
       await notificationsPlugin.cancel(
-        _birthdayTodayBaseId + i,
-      );
-
-      await notificationsPlugin.cancel(
-        _birthdayTomorrowBaseId + i,
+        _birthdayBaseId + i,
       );
     }
-  }
-  static Future<void> scheduleBirthdayTest({
-    required String languageCode,
-  }) async {
-    await notificationsPlugin.cancel(999001);
-    await notificationsPlugin.cancel(999002);
-
-    final now = tz.TZDateTime.now(tz.local);
-
-    final tomorrow = now.add(
-      const Duration(minutes: 2),
-    );
-
-    final today = now.add(
-      const Duration(minutes: 1),
-    );
-
-    final l10n = _localizations(languageCode);
-
-    await notificationsPlugin.zonedSchedule(
-      999001,
-      l10n.birthdayTomorrowTitle,
-      l10n.birthdayTomorrowBody,
-      tomorrow,
-      _birthdayNotificationDetails(languageCode),
-      androidScheduleMode:
-      AndroidScheduleMode.exactAllowWhileIdle,
-    );
-
-    await notificationsPlugin.zonedSchedule(
-      999002,
-      l10n.birthdayTodayTitle,
-      l10n.birthdayTodayBody,
-      today,
-      _birthdayNotificationDetails(languageCode),
-      androidScheduleMode:
-      AndroidScheduleMode.exactAllowWhileIdle,
-    );
   }
 }

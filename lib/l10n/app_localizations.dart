@@ -398,6 +398,30 @@ abstract class AppLocalizations {
   /// **'Please choose date and time'**
   String get chooseDateAndTime;
 
+  /// No description provided for @voiceGender.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification Voice'**
+  String get voiceGender;
+
+  /// No description provided for @female.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get female;
+
+  /// No description provided for @male.
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
+  String get male;
+
+  /// No description provided for @voiceUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification voice updated successfully'**
+  String get voiceUpdated;
+
   /// No description provided for @category.
   ///
   /// In en, this message translates to:

@@ -39,20 +39,16 @@ class _SplashViewState extends State<SplashView> {
 
     if (!mounted) return;
 
-    // First launch:
-    // No language has been selected yet.
     if (selectedLanguage == null) {
       context.go(AppRoutes.language);
       return;
     }
 
-    // Language exists but onboarding hasn't finished.
     if (!onboardingCompleted) {
       context.go(AppRoutes.onboarding);
       return;
     }
 
-    // Onboarding finished and user is logged in.
     if (user != null) {
       await context.read<TaskProvider>().loadTasks();
 
@@ -62,7 +58,6 @@ class _SplashViewState extends State<SplashView> {
       return;
     }
 
-    // Onboarding finished but user isn't logged in.
     context.go(AppRoutes.login);
   }
 
@@ -96,12 +91,14 @@ class _SplashViewState extends State<SplashView> {
 
                     FadeInUp(
                       delay: const Duration(milliseconds: 700),
-                      child: Text(
-                        AppLocalizations.of(context)!.appName,
-                        style: const TextStyle(
-                          fontSize: 42,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      child: Center(
+                        child: Text(
+                          AppLocalizations.of(context)!.appName,
+                          style: const TextStyle(
+                            fontSize: 42,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),

@@ -83,8 +83,14 @@ flutter:
       - assets/JPG_Images/sun.png
       - assets/JPG_Images/moon2.png
       - assets/SVG/google_icon.svg
-      - assets/mp3/notif_arabic.wav
-      - assets/mp3/notif_english.wav
+      - assets/mp3/hbd_female_ar.mp3
+      - assets/mp3/hbd_female_en.mp3
+      - assets/mp3/hbd_male_ar.mp3
+      - assets/mp3/hbd_male_en.mp3
+      - assets/mp3/notification/notif_female_ar.mp3
+      - assets/mp3/notification/notif_female_en.mp3
+      - assets/mp3/notification/notif_male_ar.mp3
+      - assets/mp3/notification/notif_male_en.mp3
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

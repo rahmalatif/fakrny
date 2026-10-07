@@ -161,6 +161,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chooseDateAndTime => 'يرجى اختيار التاريخ والوقت';
 
   @override
+  String get voiceGender => 'صوت الإشعارات';
+
+  @override
+  String get female => 'أنثى';
+
+  @override
+  String get male => 'ذكر';
+
+  @override
+  String get voiceUpdated => 'تم تحديث صوت الإشعارات بنجاح';
+
+  @override
   String get category => 'التصنيف';
 
   @override

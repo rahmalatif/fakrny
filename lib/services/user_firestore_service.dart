@@ -61,4 +61,31 @@ class UserFirestoreService {
       SetOptions(merge: true),
     );
   }
+  Future<void> updateVoiceGender({
+    required String uid,
+    required String voiceGender,
+  }) async {
+    await firestore.collection('users').doc(uid).set(
+      {
+        'voiceGender': voiceGender,
+        'updatedAt': FieldValue.serverTimestamp(),
+      },
+      SetOptions(merge: true),
+    );
+  }
+  Future<String> getVoiceGender(String uid) async {
+    final doc = await firestore
+        .collection('users')
+        .doc(uid)
+        .get();
+
+    final data = doc.data();
+
+    final voiceGender =
+    data?['voiceGender'] as String?;
+
+    return voiceGender == 'male'
+        ? 'male'
+        : 'female';
+  }
 }

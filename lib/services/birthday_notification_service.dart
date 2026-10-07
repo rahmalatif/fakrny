@@ -5,11 +5,13 @@ class BirthdayNotificationService {
     required int month,
     required int day,
     required String language,
+    required String voiceGender,
   }) async {
     await NotificationServices.scheduleBirthdayNotifications(
       month: month,
       day: day,
       languageCode: language,
+      voiceGender: voiceGender,
     );
   }
 

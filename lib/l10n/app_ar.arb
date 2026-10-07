@@ -55,7 +55,10 @@
   "work": "عمل",
   "health": "صحة",
   "other": "أخرى",
-
+"voiceGender": "صوت الإشعارات",
+"female": "أنثى",
+"male": "ذكر",
+"voiceUpdated": "تم تحديث صوت الإشعارات بنجاح",
   "priority": "الأولوية",
   "high": "عالية",
   "medium": "متوسطة",

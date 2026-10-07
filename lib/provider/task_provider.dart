@@ -1,6 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
-
 import '../model/tasks.dart';
 import '../services/notification_services.dart';
 import '../services/task_firestore_service.dart';
@@ -29,6 +27,26 @@ class TaskProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   String? get error => _error;
+
+  Future<String> _getVoiceGender() async {
+    final currentUser = authServices.currentUser;
+
+    if (currentUser == null) {
+      return 'female';
+    }
+
+    final user = await userFirestoreService.getUser(
+      currentUser.uid,
+    );
+
+    if (user == null) {
+      return 'female';
+    }
+
+    return user.voiceGender == 'male'
+        ? 'male'
+        : 'female';
+  }
 
   Future<void> loadTasks() async {
     final currentUser = authServices.currentUser;
@@ -101,10 +119,13 @@ class TaskProvider extends ChangeNotifier {
         ),
       );
 
+      final voiceGender = await _getVoiceGender();
+
       await NotificationServices()
           .scheduleTaskNotification(
         newTask,
         languageCode: languageCode,
+        voiceGender: voiceGender,
       );
 
       return newTask;
@@ -170,10 +191,13 @@ class TaskProvider extends ChangeNotifier {
           task.id,
         );
       } else {
+        final voiceGender = await _getVoiceGender();
+
         await NotificationServices()
             .scheduleTaskNotification(
           updatedTask,
           languageCode: languageCode,
+          voiceGender: voiceGender,
         );
       }
     } catch (e) {
@@ -250,10 +274,13 @@ class TaskProvider extends ChangeNotifier {
           task.id,
         );
       } else {
+        final voiceGender = await _getVoiceGender();
+
         await NotificationServices()
             .scheduleTaskNotification(
           task,
           languageCode: languageCode,
+          voiceGender: voiceGender,
         );
       }
 
@@ -308,6 +335,8 @@ class TaskProvider extends ChangeNotifier {
   Future<void> rescheduleAllNotifications({
     required String languageCode,
   }) async {
+    final voiceGender = await _getVoiceGender();
+
     for (final task in _tasks) {
       if (task.isCompleted) {
         await NotificationServices.cancelTaskNotification(
@@ -318,6 +347,7 @@ class TaskProvider extends ChangeNotifier {
             .scheduleTaskNotification(
           task,
           languageCode: languageCode,
+          voiceGender: voiceGender,
         );
       }
     }
@@ -352,8 +382,7 @@ class TaskProvider extends ChangeNotifier {
 
     if (!allCompleted) return;
 
-    final user =
-    await userFirestoreService.getUser(
+    final user = await userFirestoreService.getUser(
       currentUser.uid,
     );
 

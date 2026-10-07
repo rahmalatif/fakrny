@@ -11,6 +11,7 @@ import 'package:untitled/services/auth_services.dart';
 import 'package:untitled/services/notification_services.dart';
 import 'package:untitled/services/task_firestore_service.dart';
 import 'package:untitled/services/user_firestore_service.dart';
+
 import 'core/design/theme/app_theme.dart';
 import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
@@ -18,17 +19,15 @@ import 'l10n/app_localizations.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   await NotificationServices.init();
 
-  await NotificationServices.scheduleBirthdayTest(
-    languageCode: 'en',
-  );
-
   await GoogleSignIn.instance.initialize(
     serverClientId:
-        '441958759662-5bmcor94ojfnt3ufa5lj12vl96sfunkf.apps.googleusercontent.com',
+    '441958759662-5bmcor94ojfnt3ufa5lj12vl96sfunkf.apps.googleusercontent.com',
   );
 
   final langController = LangController();
@@ -37,10 +36,12 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => ThemeController()),
-
-        ChangeNotifierProvider.value(value: langController),
-
+        ChangeNotifierProvider(
+          create: (_) => ThemeController(),
+        ),
+        ChangeNotifierProvider.value(
+          value: langController,
+        ),
         ChangeNotifierProvider(
           create: (_) => TaskProvider(
             taskFirestoreService: TaskFirestoreService(),
@@ -64,24 +65,22 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-
-      themeMode: themeController.isDark ? ThemeMode.dark : ThemeMode.light,
-
-      // The entire application uses this locale.
+      themeMode: themeController.isDark
+          ? ThemeMode.dark
+          : ThemeMode.light,
       locale: langController.locale,
-
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-
-      supportedLocales: const [Locale('en'), Locale('ar')],
-
+      supportedLocales: const [
+        Locale('en'),
+        Locale('ar'),
+      ],
       routerConfig: appRouter,
     );
   }
