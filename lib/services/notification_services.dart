@@ -826,8 +826,7 @@ class NotificationServices {
       await scheduleNotification(
         id: firstId,
         title: task.title,
-        body:
-        l10n.notificationDontForgetTask,
+        body: '${l10n.notificationDontForgetTask} ${task.title}',
         dateTime: firstEscalationTime,
         taskId: task.id,
         languageCode: languageCode,
@@ -839,8 +838,7 @@ class NotificationServices {
       await scheduleNotification(
         id: secondId,
         title: task.title,
-        body:
-        l10n.notificationTaskStillWaiting,
+        body: '${l10n.notificationTaskStillWaiting} ${task.title}',
         dateTime: secondEscalationTime,
         taskId: task.id,
         languageCode: languageCode,
