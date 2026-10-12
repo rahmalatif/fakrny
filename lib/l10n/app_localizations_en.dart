@@ -124,7 +124,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logout => 'Logout';
 
   @override
-  String get appSlogan => 'Fakarny... so you never forget what matters.';
+  String get appSlogan => 'Forget...And we Remind you.';
 
   @override
   String get createReminder => 'Create Reminder';
@@ -142,10 +142,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get title => 'Title';
 
   @override
-  String get titleHint => 'example: Study Biology';
+  String get titleHint => 'example: medicine ';
 
   @override
-  String get taskTitleHint => 'example: study Biology';
+  String get taskTitleHint => 'example: medicine ';
 
   @override
   String get date => 'Date';

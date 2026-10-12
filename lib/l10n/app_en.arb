@@ -37,7 +37,7 @@
   "darkMode": "Dark Mode",
   "logout": "Logout",
 
-  "appSlogan": "Fakarny... so you never forget what matters.",
+  "appSlogan": "Forget...And we Remind you.",
 
   "createReminder": "Create Reminder",
   "editReminder": "Edit Reminder",
@@ -45,8 +45,8 @@
   "addReminderDetails": "Add your reminder details",
 
   "title": "Title",
-  "titleHint": "example: Study Biology",
-  "taskTitleHint": "example: study Biology",
+  "titleHint": "example: medicine ",
+  "taskTitleHint": "example: medicine ",
 
   "date": "Date",
   "time": "Time",

@@ -32,8 +32,9 @@ class _SplashViewState extends State<SplashView> {
     final bool onboardingCompleted =
         prefs.getBool('onboarding_completed') ?? false;
 
-    final String? selectedLanguage =
-    prefs.getString(LangController.languageKey);
+    final String? selectedLanguage = prefs.getString(
+      LangController.languageKey,
+    );
 
     final User? user = FirebaseAuth.instance.currentUser;
 
@@ -118,11 +119,13 @@ class _SplashViewState extends State<SplashView> {
 
                     FadeInUp(
                       delay: const Duration(milliseconds: 1300),
-                      child: Text(
-                        AppLocalizations.of(context)!.appSlogan,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
+                      child: Center(
+                        child: Text(
+                          AppLocalizations.of(context)!.appSlogan,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                          ),
                         ),
                       ),
                     ),

@@ -323,7 +323,7 @@ abstract class AppLocalizations {
   /// No description provided for @appSlogan.
   ///
   /// In en, this message translates to:
-  /// **'Fakarny... so you never forget what matters.'**
+  /// **'Forget...And we Remind you.'**
   String get appSlogan;
 
   /// No description provided for @createReminder.
@@ -359,13 +359,13 @@ abstract class AppLocalizations {
   /// No description provided for @titleHint.
   ///
   /// In en, this message translates to:
-  /// **'example: Study Biology'**
+  /// **'example: medicine '**
   String get titleHint;
 
   /// No description provided for @taskTitleHint.
   ///
   /// In en, this message translates to:
-  /// **'example: study Biology'**
+  /// **'example: medicine '**
   String get taskTitleHint;
 
   /// No description provided for @date.

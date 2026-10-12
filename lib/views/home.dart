@@ -194,7 +194,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${getGreeting(context)}, $firstName',
+                            '${getGreeting(context)}, \n$firstName',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 26,

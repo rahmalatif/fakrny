@@ -234,7 +234,11 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
           ),
           child: IconButton(
             onPressed: () {
-              context.pop(true);
+              if (context.canPop()) {
+                context.pop(true);
+              } else {
+                context.go('/Home');
+              }
             },
             icon: Icon(
               Icons.arrow_back_ios_new,
