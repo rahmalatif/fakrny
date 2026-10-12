@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:untitled/l10n/app_localizations.dart';
@@ -282,64 +283,75 @@ class _CalenderViewState extends State<CalenderView> {
     );
   }
 
+
   Widget _taskCard(TaskModel task) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: isDark ? AppColor.darkCard : AppColor.secondary,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: AppColor.primary,
-              borderRadius: BorderRadius.circular(10),
+    return InkWell(
+      onTap: () {
+        context.push(
+          '/ReminderDetails',
+          extra: task,
+        );
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: isDark ? AppColor.darkCard : AppColor.secondary,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: AppColor.primary,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.task_alt,
+                color: AppColor.textWhite,
+                size: 20,
+              ),
             ),
-            child: const Icon(
-              Icons.task_alt,
-              color: AppColor.textWhite,
-              size: 20,
-            ),
-          ),
-
-          const SizedBox(width: 12),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  task.title,
-                  textAlign: TextAlign.right,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? AppColor.textWhite : AppColor.textPrimary,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    task.title,
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: isDark
+                          ? AppColor.textWhite
+                          : AppColor.textPrimary,
+                    ),
                   ),
-                ),
-
-                const SizedBox(height: 5),
-
-                Text(
-                  _formatTime(task.scheduledAt),
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: isDark ? AppColor.textHint : AppColor.textSecondary,
+                  const SizedBox(height: 5),
+                  Text(
+                    _formatTime(task.scheduledAt),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isDark
+                          ? AppColor.textHint
+                          : AppColor.textSecondary,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+
 
   String _formatTime(DateTime dateTime) {
     final hour = dateTime.hour > 12
