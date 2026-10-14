@@ -368,6 +368,12 @@ abstract class AppLocalizations {
   /// **'example: medicine '**
   String get taskTitleHint;
 
+  /// No description provided for @dailyQuoteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quote of the Day'**
+  String get dailyQuoteTitle;
+
   /// No description provided for @date.
   ///
   /// In en, this message translates to:

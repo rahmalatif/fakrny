@@ -146,6 +146,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get taskTitleHint => 'مثال:جرعه دواء';
 
   @override
+  String get dailyQuoteTitle => 'اقتباس اليوم';
+
+  @override
   String get date => 'التاريخ';
 
   @override

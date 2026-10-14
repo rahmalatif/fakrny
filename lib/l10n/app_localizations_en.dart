@@ -148,6 +148,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get taskTitleHint => 'example: medicine ';
 
   @override
+  String get dailyQuoteTitle => 'Quote of the Day';
+
+  @override
   String get date => 'Date';
 
   @override

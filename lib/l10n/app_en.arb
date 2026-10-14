@@ -47,7 +47,7 @@
   "title": "Title",
   "titleHint": "example: medicine ",
   "taskTitleHint": "example: medicine ",
-
+"dailyQuoteTitle": "Quote of the Day",
   "date": "Date",
   "time": "Time",
   "chooseDate": "Choose Date",

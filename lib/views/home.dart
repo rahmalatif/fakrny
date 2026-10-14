@@ -5,6 +5,7 @@ import 'package:untitled/core/design/theme/app_color.dart';
 import 'package:untitled/core/design/widgets/tasks_contanier.dart';
 import 'package:untitled/l10n/app_localizations.dart';
 import 'package:untitled/provider/task_provider.dart';
+import '../core/design/widgets/daily_quote_card.dart';
 import '../core/design/widgets/empty_states.dart';
 import '../core/design/widgets/nav_bar.dart';
 import '../model/user_model.dart';
@@ -177,9 +178,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 1000,
-            ),
+            constraints: const BoxConstraints(maxWidth: 1000),
             child: Padding(
               padding: EdgeInsets.only(
                 top: 20,
@@ -237,6 +236,12 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                     ],
                   ),
                   const SizedBox(height: 20),
+                  const SizedBox(height: 20),
+
+                  const DailyQuoteCard(),
+
+                  const SizedBox(height: 12),
+
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
@@ -270,89 +275,85 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                   ),
                   Expanded(
                     child: taskProvider.isLoading
-                        ? const Center(
-                      child: CircularProgressIndicator(),
-                    )
+                        ? const Center(child: CircularProgressIndicator())
                         : todayTasks.isEmpty
                         ? EmptyState(
-                      icon: taskProvider.tasks.isEmpty
-                          ? Icons.task_alt
-                          : Icons.event_available,
-                      title: taskProvider.tasks.isEmpty
-                          ? AppLocalizations.of(context)!.noTasksYet
-                          : AppLocalizations.of(context)!
-                          .noTasksToday,
-                      message: taskProvider.tasks.isEmpty
-                          ? AppLocalizations.of(context)!
-                          .noTasksYetMessage
-                          : AppLocalizations.of(context)!
-                          .noTasksTodayMessage,
-                      buttonText:
-                      AppLocalizations.of(context)!.createTask,
-                      onPressed: () async {
-                        final taskProvider =
-                        context.read<TaskProvider>();
+                            icon: taskProvider.tasks.isEmpty
+                                ? Icons.task_alt
+                                : Icons.event_available,
+                            title: taskProvider.tasks.isEmpty
+                                ? AppLocalizations.of(context)!.noTasksYet
+                                : AppLocalizations.of(context)!.noTasksToday,
+                            message: taskProvider.tasks.isEmpty
+                                ? AppLocalizations.of(
+                                    context,
+                                  )!.noTasksYetMessage
+                                : AppLocalizations.of(
+                                    context,
+                                  )!.noTasksTodayMessage,
+                            buttonText: AppLocalizations.of(
+                              context,
+                            )!.createTask,
+                            onPressed: () async {
+                              final taskProvider = context.read<TaskProvider>();
 
-                        final result =
-                        await context.push('/Reminder');
+                              final result = await context.push('/Reminder');
 
-                        if (!mounted) return;
+                              if (!mounted) return;
 
-                        if (result == true) {
-                          await taskProvider.loadTasks();
-                        }
-                      },
-                    )
+                              if (result == true) {
+                                await taskProvider.loadTasks();
+                              }
+                            },
+                          )
                         : ListView.separated(
-                      itemCount: todayTasks.length,
-                      separatorBuilder: (context, index) {
-                        return const SizedBox(height: 10);
-                      },
-                      itemBuilder: (context, index) {
-                        final task = todayTasks[index];
+                            itemCount: todayTasks.length,
+                            separatorBuilder: (context, index) {
+                              return const SizedBox(height: 10);
+                            },
+                            itemBuilder: (context, index) {
+                              final task = todayTasks[index];
 
-                        return TasksContanier(
-                          title: task.title,
-                          category: getLocalizedCategory(
-                            context,
-                            task.category,
+                              return TasksContanier(
+                                title: task.title,
+                                category: getLocalizedCategory(
+                                  context,
+                                  task.category,
+                                ),
+                                priority: getLocalizedPriority(
+                                  context,
+                                  task.priority,
+                                ),
+                                color: getTaskColor(task.color),
+                                isCompleted: task.isCompleted,
+                                onCheck: () {
+                                  final locale = Localizations.localeOf(
+                                    context,
+                                  );
+
+                                  context.read<TaskProvider>().toggleTask(
+                                    task,
+                                    languageCode: locale.languageCode,
+                                  );
+                                },
+                                onTap: () async {
+                                  final taskProvider = context
+                                      .read<TaskProvider>();
+
+                                  final result = await context.push(
+                                    '/ReminderDetails',
+                                    extra: task,
+                                  );
+
+                                  if (!context.mounted) return;
+
+                                  if (result == true) {
+                                    await taskProvider.loadTasks();
+                                  }
+                                },
+                              );
+                            },
                           ),
-                          priority: getLocalizedPriority(
-                            context,
-                            task.priority,
-                          ),
-                          color: getTaskColor(task.color),
-                          isCompleted: task.isCompleted,
-                          onCheck: () {
-                            final locale =
-                            Localizations.localeOf(context);
-
-                            context
-                                .read<TaskProvider>()
-                                .toggleTask(
-                              task,
-                              languageCode:
-                              locale.languageCode,
-                            );
-                          },
-                          onTap: () async {
-                            final taskProvider =
-                            context.read<TaskProvider>();
-
-                            final result = await context.push(
-                              '/ReminderDetails',
-                              extra: task,
-                            );
-
-                            if (!context.mounted) return;
-
-                            if (result == true) {
-                              await taskProvider.loadTasks();
-                            }
-                          },
-                        );
-                      },
-                    ),
                   ),
                 ],
               ),
@@ -369,10 +370,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
           }
         },
         backgroundColor: AppColor.grad3,
-        child: const Icon(
-          Icons.add,
-          color: AppColor.textWhite,
-        ),
+        child: const Icon(Icons.add, color: AppColor.textWhite),
       ),
       bottomNavigationBar: const CustomNavBar(currentIndex: 0),
     );
