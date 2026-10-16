@@ -643,22 +643,19 @@ class NotificationServices {
     final secondEscalationTime = reminderTime.add(const Duration(minutes: 15));
 
     final firstId = escalationNotificationId(task.id, 1);
-
     final secondId = escalationNotificationId(task.id, 2);
 
     await notificationsPlugin.cancel(firstId);
-
     await notificationsPlugin.cancel(secondId);
 
     final now = DateTime.now();
-
     final l10n = _localizations(languageCode);
 
     if (firstEscalationTime.isAfter(now)) {
       await scheduleNotification(
         id: firstId,
         title: task.title,
-        body: '${l10n.notificationDontForgetTask} ${task.title}',
+        body: l10n.notificationFiveMinutesLate(task.title),
         dateTime: firstEscalationTime,
         taskId: task.id,
         languageCode: languageCode,
@@ -670,7 +667,7 @@ class NotificationServices {
       await scheduleNotification(
         id: secondId,
         title: task.title,
-        body: '${l10n.notificationTaskStillWaiting} ${task.title}',
+        body: l10n.notificationFifteenMinutesLate(task.title),
         dateTime: secondEscalationTime,
         taskId: task.id,
         languageCode: languageCode,

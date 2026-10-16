@@ -74,6 +74,22 @@
       "minutes": {}
     }
   },
+  "notificationFiveMinutesLate": "فات 5 دقايق على التذكير! لسه مخلصتش \{task}\. متنساش تكملها!",
+  "@notificationFiveMinutesLate": {
+    "placeholders": {
+      "task": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationFifteenMinutesLate": "لسه مخلصتش \{task}\؟ فات 15 دقيقة من وقت التذكير. يلا خلّصها!",
+  "@notificationFifteenMinutesLate": {
+    "placeholders": {
+      "task": {
+        "type": "String"
+      }
+    }
+  },
   "oneHourBefore": "قبل ساعة واحدة",
   "minutes": "دقيقة",
 

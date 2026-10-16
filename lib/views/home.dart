@@ -76,7 +76,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     final name = user?.name.trim() ?? '';
 
     if (name.isEmpty) {
-      return 'User';
+      return ' ';
     }
 
     return name.split(RegExp(r'\s+')).first;
@@ -121,6 +121,25 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
       return Color(int.parse(color, radix: 16));
     } catch (_) {
       return AppColor.primary;
+    }
+  }
+
+  Color getCategoryDotColor(String category) {
+    switch (category.toLowerCase().trim()) {
+      case 'work':
+        return const Color(0xFF3B82F6); // Blue
+
+      case 'study':
+        return const Color(0xFF8B5CF6); // Purple
+
+      case 'health':
+        return const Color(0xFF22C55E); // Green
+
+      case 'other':
+        return const Color(0xFFF59E0B); // Orange
+
+      default:
+        return Colors.grey;
     }
   }
 
@@ -313,11 +332,17 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                             },
                             itemBuilder: (context, index) {
                               final task = todayTasks[index];
-
+                              final taskTime = TimeOfDay.fromDateTime(
+                                task.scheduledAt,
+                              ).format(context);
                               return TasksContanier(
                                 title: task.title,
+                                time: taskTime,
                                 category: getLocalizedCategory(
                                   context,
+                                  task.category,
+                                ),
+                                categoryColor: getCategoryDotColor(
                                   task.category,
                                 ),
                                 priority: getLocalizedPriority(
@@ -361,17 +386,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result = await context.push('/Reminder');
 
-          if (result == true && context.mounted) {
-            context.read<TaskProvider>().loadTasks();
-          }
-        },
-        backgroundColor: AppColor.grad3,
-        child: const Icon(Icons.add, color: AppColor.textWhite),
-      ),
       bottomNavigationBar: const CustomNavBar(currentIndex: 0),
     );
   }

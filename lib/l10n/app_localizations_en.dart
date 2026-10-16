@@ -133,6 +133,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editReminder => 'Edit Reminder';
 
   @override
+  String notificationFiveMinutesLate(String task) {
+    return 'You\'re 5 minutes late! You haven\'t completed \"$task\" yet. Don\'t forget it!';
+  }
+
+  @override
+  String notificationFifteenMinutesLate(String task) {
+    return 'Still haven\'t completed \"$task\"? It\'s been 15 minutes since your reminder. Time to get it done!';
+  }
+
+  @override
   String get createReminderSub => 'Add your reminder details';
 
   @override

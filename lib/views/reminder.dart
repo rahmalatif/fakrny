@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -33,11 +34,9 @@ class _ReminderViewState extends State<ReminderView> {
   Color get backgroundColor =>
       isDark ? AppColor.darkBackground : AppColor.background;
 
-  Color get surfaceColor =>
-      isDark ? AppColor.darkSurface : AppColor.surface;
+  Color get surfaceColor => isDark ? AppColor.darkSurface : AppColor.surface;
 
-  Color get cardColor =>
-      isDark ? AppColor.darkCard : AppColor.border;
+  Color get cardColor => isDark ? AppColor.darkCard : AppColor.border;
 
   Color get primaryTextColor =>
       isDark ? AppColor.textWhite : AppColor.textPrimary;
@@ -89,13 +88,123 @@ class _ReminderViewState extends State<ReminderView> {
   }
 
   Future<void> selectTime() async {
+    final initialTime = selectedTime ?? TimeOfDay.now();
+
+    DateTime selectedDateTime = DateTime(
+      2024,
+      1,
+      1,
+      initialTime.hour,
+      initialTime.minute,
+    );
+
     final l10n = AppLocalizations.of(context)!;
 
-    final pickedTime = await showTimePicker(
+    final pickedTime = await showDialog<TimeOfDay>(
       context: context,
-      initialTime: selectedTime ?? TimeOfDay.now(),
-      initialEntryMode: TimePickerEntryMode.input,
-      helpText: l10n.chooseTime,
+      builder: (dialogContext) {
+        final isDark = Theme.of(dialogContext).brightness == Brightness.dark;
+
+        final backgroundColor = isDark
+            ? AppColor.darkSurface
+            : AppColor.surface;
+
+        final textColor = isDark ? AppColor.textWhite : AppColor.textPrimary;
+
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            final formattedTime =
+                '${selectedDateTime.hour.toString().padLeft(2, '0')}:'
+                '${selectedDateTime.minute.toString().padLeft(2, '0')}';
+
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: AppColor.primary.withValues(alpha: 0.15),
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      l10n.chooseTime,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    SizedBox(
+                      height: 180,
+                      child: CupertinoTheme(
+                        data: CupertinoThemeData(
+                          brightness: isDark
+                              ? Brightness.dark
+                              : Brightness.light,
+                          primaryColor: AppColor.primary,
+                          textTheme: CupertinoTextThemeData(
+                            dateTimePickerTextStyle: TextStyle(
+                              color: textColor,
+                              fontSize: 22,
+                            ),
+                          ),
+                        ),
+                        child: CupertinoDatePicker(
+                          mode: CupertinoDatePickerMode.time,
+                          initialDateTime: selectedDateTime,
+                          use24hFormat: false,
+                          minuteInterval: 1,
+                          onDateTimeChanged: (dateTime) {
+                            setDialogState(() {
+                              selectedDateTime = dateTime;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    const SizedBox(height: 12),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(dialogContext).pop(
+                            TimeOfDay(
+                              hour: selectedDateTime.hour,
+                              minute: selectedDateTime.minute,
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColor.primary,
+                          foregroundColor: AppColor.textWhite,
+                          padding: const EdgeInsets.symmetric(vertical: 13),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(l10n.chooseTime),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
 
     if (!mounted) return;
@@ -200,9 +309,7 @@ class _ReminderViewState extends State<ReminderView> {
         if (!mounted) return;
 
         if (taskWithId == null) {
-          throw Exception(
-            taskProvider.error ?? l10n.failedToCreateTask,
-          );
+          throw Exception(taskProvider.error ?? l10n.failedToCreateTask);
         }
       } else {
         final updatedTask = TaskModel(
@@ -229,9 +336,7 @@ class _ReminderViewState extends State<ReminderView> {
         if (!mounted) return;
 
         if (!success) {
-          throw Exception(
-            taskProvider.error ?? l10n.failedToUpdateTask,
-          );
+          throw Exception(taskProvider.error ?? l10n.failedToUpdateTask);
         }
       }
 
@@ -284,10 +389,8 @@ class _ReminderViewState extends State<ReminderView> {
   }
 
   String get formattedTime {
-    final l10n = AppLocalizations.of(context)!;
-
     if (selectedTime == null) {
-      return l10n.chooseTime;
+      return AppLocalizations.of(context)!.chooseTime;
     }
 
     return selectedTime!.format(context);
@@ -364,12 +467,7 @@ class _ReminderViewState extends State<ReminderView> {
                 ],
               ),
             ),
-            Positioned(
-              left: 24,
-              right: 24,
-              bottom: 12,
-              child: _saveButton(),
-            ),
+            Positioned(left: 24, right: 24, bottom: 12, child: _saveButton()),
           ],
         ),
       ),
@@ -389,19 +487,13 @@ class _ReminderViewState extends State<ReminderView> {
               context.go('/Home');
             }
           },
-          child: Icon(
-            Icons.arrow_back,
-            color: primaryTextColor,
-            size: 28,
-          ),
+          child: Icon(Icons.arrow_back, color: primaryTextColor, size: 28),
         ),
         const Spacer(),
         Column(
           children: [
             Text(
-              widget.task == null
-                  ? l10n.createReminder
-                  : l10n.editReminder,
+              widget.task == null ? l10n.createReminder : l10n.editReminder,
               style: TextStyle(
                 color: primaryTextColor,
                 fontSize: 21,
@@ -411,10 +503,7 @@ class _ReminderViewState extends State<ReminderView> {
             const SizedBox(height: 4),
             Text(
               l10n.addReminderDetails,
-              style: TextStyle(
-                color: secondaryTextColor,
-                fontSize: 9,
-              ),
+              style: TextStyle(color: secondaryTextColor, fontSize: 9),
             ),
           ],
         ),
@@ -432,10 +521,7 @@ class _ReminderViewState extends State<ReminderView> {
       children: [
         Text(
           l10n.title,
-          style: TextStyle(
-            color: secondaryTextColor,
-            fontSize: 10,
-          ),
+          style: TextStyle(color: secondaryTextColor, fontSize: 10),
         ),
         const SizedBox(height: 6),
         Container(
@@ -459,10 +545,7 @@ class _ReminderViewState extends State<ReminderView> {
               Expanded(
                 child: TextField(
                   controller: _titleController,
-                  style: TextStyle(
-                    color: primaryTextColor,
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: primaryTextColor, fontSize: 13),
                   cursorColor: AppColor.primary,
                   decoration: InputDecoration(
                     border: InputBorder.none,
@@ -513,10 +596,7 @@ class _ReminderViewState extends State<ReminderView> {
       onTap: onTap,
       child: Container(
         height: 62,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 7,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
           color: surfaceColor,
           borderRadius: BorderRadius.circular(12),
@@ -533,10 +613,7 @@ class _ReminderViewState extends State<ReminderView> {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
-                      color: secondaryTextColor,
-                      fontSize: 10,
-                    ),
+                    style: TextStyle(color: secondaryTextColor, fontSize: 10),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -550,11 +627,7 @@ class _ReminderViewState extends State<ReminderView> {
                 ],
               ),
             ),
-            Icon(
-              icon,
-              color: secondaryTextColor,
-              size: 19,
-            ),
+            Icon(icon, color: secondaryTextColor, size: 19),
           ],
         ),
       ),
@@ -580,10 +653,7 @@ class _ReminderViewState extends State<ReminderView> {
             const Spacer(),
             Text(
               l10n.chooseCategory,
-              style: TextStyle(
-                color: secondaryTextColor,
-                fontSize: 10,
-              ),
+              style: TextStyle(color: secondaryTextColor, fontSize: 10),
             ),
           ],
         ),
@@ -629,22 +699,16 @@ class _ReminderViewState extends State<ReminderView> {
             children: [
               Icon(
                 categoryIcon(category),
-                color: isSelected
-                    ? AppColor.primary
-                    : secondaryTextColor,
+                color: isSelected ? AppColor.primary : secondaryTextColor,
                 size: 20,
               ),
               const SizedBox(height: 4),
               Text(
                 categoryName(category),
                 style: TextStyle(
-                  color: isSelected
-                      ? AppColor.primary
-                      : secondaryTextColor,
+                  color: isSelected ? AppColor.primary : secondaryTextColor,
                   fontSize: 9,
-                  fontWeight: isSelected
-                      ? FontWeight.bold
-                      : FontWeight.normal,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
             ],
@@ -689,19 +753,10 @@ class _ReminderViewState extends State<ReminderView> {
                 color: secondaryTextColor,
                 size: 21,
               ),
-              style: TextStyle(
-                color: primaryTextColor,
-                fontSize: 11,
-              ),
+              style: TextStyle(color: primaryTextColor, fontSize: 11),
               items: [
-                DropdownMenuItem(
-                  value: 0,
-                  child: Text(l10n.atTaskTime),
-                ),
-                DropdownMenuItem(
-                  value: 5,
-                  child: Text(l10n.minutesBefore(5)),
-                ),
+                DropdownMenuItem(value: 0, child: Text(l10n.atTaskTime)),
+                DropdownMenuItem(value: 5, child: Text(l10n.minutesBefore(5))),
                 DropdownMenuItem(
                   value: 10,
                   child: Text(l10n.minutesBefore(10)),
@@ -714,10 +769,7 @@ class _ReminderViewState extends State<ReminderView> {
                   value: 30,
                   child: Text(l10n.minutesBefore(30)),
                 ),
-                DropdownMenuItem(
-                  value: 60,
-                  child: Text(l10n.oneHourBefore),
-                ),
+                DropdownMenuItem(value: 60, child: Text(l10n.oneHourBefore)),
               ],
               onChanged: (value) {
                 if (value == null) return;
@@ -750,30 +802,18 @@ class _ReminderViewState extends State<ReminderView> {
         const SizedBox(height: 9),
         Row(
           children: [
-            _priorityButton(
-              value: 'high',
-              iconColor: AppColor.error,
-            ),
+            _priorityButton(value: 'high', iconColor: AppColor.error),
             const SizedBox(width: 7),
-            _priorityButton(
-              value: 'medium',
-              iconColor: Colors.amber,
-            ),
+            _priorityButton(value: 'medium', iconColor: Colors.amber),
             const SizedBox(width: 7),
-            _priorityButton(
-              value: 'low',
-              iconColor: Colors.green,
-            ),
+            _priorityButton(value: 'low', iconColor: Colors.green),
           ],
         ),
       ],
     );
   }
 
-  Widget _priorityButton({
-    required String value,
-    required Color iconColor,
-  }) {
+  Widget _priorityButton({required String value, required Color iconColor}) {
     final isSelected = selectedPriority == value;
 
     return Expanded(
@@ -802,21 +842,13 @@ class _ReminderViewState extends State<ReminderView> {
               Text(
                 priorityName(value),
                 style: TextStyle(
-                  color: isSelected
-                      ? iconColor
-                      : secondaryTextColor,
+                  color: isSelected ? iconColor : secondaryTextColor,
                   fontSize: 10,
-                  fontWeight: isSelected
-                      ? FontWeight.bold
-                      : FontWeight.normal,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
               const SizedBox(width: 5),
-              Icon(
-                Icons.flag_outlined,
-                color: iconColor,
-                size: 14,
-              ),
+              Icon(Icons.flag_outlined, color: iconColor, size: 14),
             ],
           ),
         ),
@@ -854,31 +886,16 @@ class _ReminderViewState extends State<ReminderView> {
               value: selectedRepeat,
               isExpanded: true,
               dropdownColor: surfaceColor,
-              icon: Icon(
-                Icons.keyboard_arrow_down,
-                color: secondaryTextColor,
-              ),
-              style: TextStyle(
-                color: primaryTextColor,
-                fontSize: 11,
-              ),
+              icon: Icon(Icons.keyboard_arrow_down, color: secondaryTextColor),
+              style: TextStyle(color: primaryTextColor, fontSize: 11),
               items: [
                 DropdownMenuItem(
                   value: 'none',
                   child: Text(l10n.doesNotRepeat),
                 ),
-                DropdownMenuItem(
-                  value: 'daily',
-                  child: Text(l10n.everyDay),
-                ),
-                DropdownMenuItem(
-                  value: 'weekly',
-                  child: Text(l10n.everyWeek),
-                ),
-                DropdownMenuItem(
-                  value: 'custom',
-                  child: Text(l10n.customDays),
-                ),
+                DropdownMenuItem(value: 'daily', child: Text(l10n.everyDay)),
+                DropdownMenuItem(value: 'weekly', child: Text(l10n.everyWeek)),
+                DropdownMenuItem(value: 'custom', child: Text(l10n.customDays)),
               ],
               onChanged: (value) {
                 if (value == null) return;
@@ -927,9 +944,7 @@ class _ReminderViewState extends State<ReminderView> {
 
         return Expanded(
           child: Padding(
-            padding: EdgeInsets.only(
-              right: index == days.length - 1 ? 0 : 5,
-            ),
+            padding: EdgeInsets.only(right: index == days.length - 1 ? 0 : 5),
             child: GestureDetector(
               onTap: () {
                 setState(() {
@@ -945,14 +960,10 @@ class _ReminderViewState extends State<ReminderView> {
               child: Container(
                 height: 42,
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppColor.primary
-                      : surfaceColor,
+                  color: isSelected ? AppColor.primary : surfaceColor,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: isSelected
-                        ? AppColor.primary
-                        : cardColor,
+                    color: isSelected ? AppColor.primary : cardColor,
                   ),
                 ),
                 child: Center(
@@ -984,41 +995,38 @@ class _ReminderViewState extends State<ReminderView> {
         onPressed: isLoading ? null : saveReminder,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColor.primary,
-          disabledBackgroundColor:
-          AppColor.primary.withValues(alpha: .6),
+          disabledBackgroundColor: AppColor.primary.withValues(alpha: .6),
           elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(9),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
         ),
         child: isLoading
             ? const SizedBox(
-          width: 18,
-          height: 18,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: AppColor.textWhite,
-          ),
-        )
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColor.textWhite,
+                ),
+              )
             : Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.notifications_none,
-              color: AppColor.textWhite,
-              size: 16,
-            ),
-            const SizedBox(width: 7),
-            Text(
-              l10n.saveReminder,
-              style: const TextStyle(
-                color: AppColor.textWhite,
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.notifications_none,
+                    color: AppColor.textWhite,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 7),
+                  Text(
+                    l10n.saveReminder,
+                    style: const TextStyle(
+                      color: AppColor.textWhite,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }

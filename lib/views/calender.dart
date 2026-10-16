@@ -49,11 +49,7 @@ class _CalenderViewState extends State<CalenderView> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: AppColor.grad3,
-        child: const Icon(Icons.add, color: AppColor.textWhite),
-      ),
+
       bottomNavigationBar: const CustomNavBar(currentIndex: 2),
     );
   }

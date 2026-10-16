@@ -338,6 +338,18 @@ abstract class AppLocalizations {
   /// **'Edit Reminder'**
   String get editReminder;
 
+  /// No description provided for @notificationFiveMinutesLate.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re 5 minutes late! You haven\'t completed \"{task}\" yet. Don\'t forget it!'**
+  String notificationFiveMinutesLate(String task);
+
+  /// No description provided for @notificationFifteenMinutesLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Still haven\'t completed \"{task}\"? It\'s been 15 minutes since your reminder. Time to get it done!'**
+  String notificationFifteenMinutesLate(String task);
+
   /// No description provided for @createReminderSub.
   ///
   /// In en, this message translates to:

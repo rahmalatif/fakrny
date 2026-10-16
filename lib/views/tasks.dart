@@ -285,64 +285,92 @@ class _TasksViewState extends State<TasksView> {
 
   Widget _taskCard(TaskModel task) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final time =
         '${task.scheduledAt.hour.toString().padLeft(2, '0')}:'
         '${task.scheduledAt.minute.toString().padLeft(2, '0')}';
 
+    final date =
+        '${task.scheduledAt.day.toString().padLeft(2, '0')}/'
+        '${task.scheduledAt.month.toString().padLeft(2, '0')}/'
+        '${task.scheduledAt.year}';
+
+    final textColor = isDark ? AppColor.textWhite : AppColor.textPrimary;
+
+    final secondaryColor = isDark ? AppColor.textHint : AppColor.textSecondary;
+
+    final categoryColor = _getCategoryColor(task.category);
+
     return GestureDetector(
       onTap: () => _toggleTask(task),
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isDark ? AppColor.darkSurface : AppColor.surface,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: task.isCompleted
+                ? AppColor.success.withValues(alpha: 0.35)
+                : isDark
+                ? Colors.white.withValues(alpha: 0.06)
+                : AppColor.border.withValues(alpha: 0.6),
+            width: 1,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? .20 : .04),
-              blurRadius: 8,
-              spreadRadius: 1,
-              offset: const Offset(0, 2),
+              color: Colors.black.withValues(alpha: isDark ? 0.12 : 0.035),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Completion Checkbox
             GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: () => _toggleTask(task),
-              child: Container(
-                width: 24,
-                height: 24,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: 23,
+                height: 23,
+                margin: const EdgeInsets.only(top: 3),
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
                   color: task.isCompleted
                       ? AppColor.success
-                      : isDark
-                      ? AppColor.darkCard
-                      : AppColor.surface,
+                      : Colors.transparent,
+                  shape: BoxShape.circle,
                   border: Border.all(
                     color: task.isCompleted
                         ? AppColor.success
                         : isDark
                         ? AppColor.disabled
                         : AppColor.border,
+                    width: 1.5,
                   ),
                 ),
                 child: task.isCompleted
                     ? const Icon(
-                        Icons.check,
+                        Icons.check_rounded,
                         color: AppColor.textWhite,
                         size: 15,
                       )
                     : null,
               ),
             ),
+
             const SizedBox(width: 12),
+
+            // Task Content
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Title and Details Button
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -352,89 +380,158 @@ class _TasksViewState extends State<TasksView> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 15.5,
-                            height: 1.25,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            height: 1.35,
+                            fontWeight: FontWeight.w700,
                             color: task.isCompleted
-                                ? isDark
-                                      ? AppColor.textHint
-                                      : AppColor.textSecondary
-                                : isDark
-                                ? AppColor.textWhite
-                                : AppColor.textPrimary,
+                                ? secondaryColor
+                                : textColor,
                             decoration: task.isCompleted
                                 ? TextDecoration.lineThrough
-                                : null,
+                                : TextDecoration.none,
+                            decorationColor: secondaryColor,
                           ),
                         ),
                       ),
+
                       const SizedBox(width: 8),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            time,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: isDark
-                                  ? AppColor.textHint
-                                  : AppColor.textSecondary,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 7),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 9,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _getCategoryColor(
-                            task.category,
-                          ).withValues(alpha: .08),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          task.category,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: _getCategoryColor(task.category),
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Spacer(),
-                      IconButton(
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(
-                          minWidth: 28,
-                          minHeight: 28,
-                        ),
-                        onPressed: () {
+
+                      // Details Button
+                      InkWell(
+                        onTap: () {
                           context.go('/ReminderDetails', extra: task);
                         },
-                        icon: const Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          size: 14,
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          width: 30,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? AppColor.darkCard
+                                : AppColor.background,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 13,
+                            color: secondaryColor,
+                          ),
                         ),
                       ),
                     ],
                   ),
+
+                  const SizedBox(height: 12),
+
+                  // Date, Time and Category
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Wrap(
+                          spacing: 12,
+                          runSpacing: 8,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            _taskInfoItem(
+                              icon: Icons.calendar_today_rounded,
+                              value: date,
+                              color: secondaryColor,
+                            ),
+                            _taskInfoItem(
+                              icon: Icons.access_time_rounded,
+                              value: time,
+                              color: secondaryColor,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(width: 8),
+
+                      Flexible(
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: categoryColor.withValues(alpha: 0.10),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: categoryColor.withValues(alpha: 0.12),
+                              ),
+                            ),
+                            child: Text(
+                              task.category,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: categoryColor,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Completion Status
+                  if (task.isCompleted) ...[
+                    const SizedBox(height: 12),
+
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.check_circle_rounded,
+                          size: 14,
+                          color: AppColor.success,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          AppLocalizations.of(context)!.completed,
+                          style: const TextStyle(
+                            color: AppColor.success,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _taskInfoItem({
+    required IconData icon,
+    required String value,
+    required Color color,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 13, color: color),
+        const SizedBox(width: 5),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            color: color,
+          ),
+        ),
+      ],
     );
   }
 
