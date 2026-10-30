@@ -21,9 +21,11 @@ class ReminderView extends StatefulWidget {
 class _ReminderViewState extends State<ReminderView> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
+  DateTime? selectedRepeatEndDate;
   String selectedRepeat = 'none';
   List<int> selectedRepeatDays = [];
   final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   String selectedCategory = 'study';
   String selectedPriority = 'high';
   int reminderBefore = 30;
@@ -50,8 +52,8 @@ class _ReminderViewState extends State<ReminderView> {
 
     if (widget.task != null) {
       final task = widget.task!;
-
       _titleController.text = task.title;
+      _descriptionController.text = task.description;
       selectedDate = task.scheduledAt;
       selectedTime = TimeOfDay.fromDateTime(task.scheduledAt);
       selectedCategory = task.category;
@@ -59,12 +61,14 @@ class _ReminderViewState extends State<ReminderView> {
       reminderBefore = task.remindBefore;
       selectedRepeat = task.repeat;
       selectedRepeatDays = List<int>.from(task.repeatDays);
+      selectedRepeatEndDate = task.repeatEndDate;
     }
   }
 
   @override
   void dispose() {
     _titleController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -83,6 +87,30 @@ class _ReminderViewState extends State<ReminderView> {
     if (pickedDate != null) {
       setState(() {
         selectedDate = pickedDate;
+        if (selectedRepeatEndDate != null &&
+            selectedRepeatEndDate!.isBefore(pickedDate)) {
+          selectedRepeatEndDate = null;
+        }
+      });
+    }
+  }
+
+  Future<void> selectRepeatEndDate() async {
+    final initial = selectedRepeatEndDate ??
+        (selectedDate ?? DateTime.now()).add(const Duration(days: 30));
+
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: selectedDate ?? DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+
+    if (!mounted) return;
+
+    if (pickedDate != null) {
+      setState(() {
+        selectedRepeatEndDate = pickedDate;
       });
     }
   }
@@ -104,19 +132,12 @@ class _ReminderViewState extends State<ReminderView> {
       context: context,
       builder: (dialogContext) {
         final isDark = Theme.of(dialogContext).brightness == Brightness.dark;
-
-        final backgroundColor = isDark
-            ? AppColor.darkSurface
-            : AppColor.surface;
-
+        final backgroundColor =
+        isDark ? AppColor.darkSurface : AppColor.surface;
         final textColor = isDark ? AppColor.textWhite : AppColor.textPrimary;
 
         return StatefulBuilder(
           builder: (context, setDialogState) {
-            final formattedTime =
-                '${selectedDateTime.hour.toString().padLeft(2, '0')}:'
-                '${selectedDateTime.minute.toString().padLeft(2, '0')}';
-
             return Dialog(
               backgroundColor: Colors.transparent,
               insetPadding: const EdgeInsets.symmetric(horizontal: 20),
@@ -140,16 +161,13 @@ class _ReminderViewState extends State<ReminderView> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     const SizedBox(height: 20),
-
                     SizedBox(
                       height: 180,
                       child: CupertinoTheme(
                         data: CupertinoThemeData(
-                          brightness: isDark
-                              ? Brightness.dark
-                              : Brightness.light,
+                          brightness:
+                          isDark ? Brightness.dark : Brightness.light,
                           primaryColor: AppColor.primary,
                           textTheme: CupertinoTextThemeData(
                             dateTimePickerTextStyle: TextStyle(
@@ -171,11 +189,7 @@ class _ReminderViewState extends State<ReminderView> {
                         ),
                       ),
                     ),
-
-                    const SizedBox(height: 12),
-
-                    const SizedBox(height: 12),
-
+                    const SizedBox(height: 18),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -285,12 +299,13 @@ class _ReminderViewState extends State<ReminderView> {
 
     try {
       final taskProvider = context.read<TaskProvider>();
+      final descriptionText = _descriptionController.text.trim();
 
       if (widget.task == null) {
         final task = TaskModel(
           id: '',
           title: _titleController.text.trim(),
-          description: '',
+          description: descriptionText,
           scheduledAt: scheduledAt,
           category: selectedCategory,
           priority: selectedPriority,
@@ -299,6 +314,7 @@ class _ReminderViewState extends State<ReminderView> {
           remindBefore: reminderBefore,
           repeat: selectedRepeat,
           repeatDays: List<int>.from(selectedRepeatDays),
+          repeatEndDate: selectedRepeat != 'none' ? selectedRepeatEndDate : null,
         );
 
         final taskWithId = await taskProvider.addTask(
@@ -315,7 +331,7 @@ class _ReminderViewState extends State<ReminderView> {
         final updatedTask = TaskModel(
           id: widget.task!.id,
           title: _titleController.text.trim(),
-          description: widget.task!.description,
+          description: descriptionText,
           scheduledAt: scheduledAt,
           category: selectedCategory,
           priority: selectedPriority,
@@ -326,6 +342,7 @@ class _ReminderViewState extends State<ReminderView> {
           remindBefore: reminderBefore,
           createdAt: widget.task!.createdAt,
           updatedAt: DateTime.now(),
+          repeatEndDate: selectedRepeat != 'none' ? selectedRepeatEndDate : null,
         );
 
         final success = await taskProvider.updateTask(
@@ -378,22 +395,20 @@ class _ReminderViewState extends State<ReminderView> {
 
   String get formattedDate {
     final l10n = AppLocalizations.of(context)!;
-
-    if (selectedDate == null) {
-      return l10n.chooseDate;
-    }
-
-    return '${selectedDate!.day}/'
-        '${selectedDate!.month}/'
-        '${selectedDate!.year}';
+    if (selectedDate == null) return l10n.chooseDate;
+    return '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}';
   }
 
   String get formattedTime {
     if (selectedTime == null) {
       return AppLocalizations.of(context)!.chooseTime;
     }
-
     return selectedTime!.format(context);
+  }
+
+  String get formattedRepeatEndDate {
+    if (selectedRepeatEndDate == null) return 'بدون تحديد (مستمر)';
+    return '${selectedRepeatEndDate!.day}/${selectedRepeatEndDate!.month}/${selectedRepeatEndDate!.year}';
   }
 
   IconData categoryIcon(String category) {
@@ -411,7 +426,6 @@ class _ReminderViewState extends State<ReminderView> {
 
   String categoryName(String category) {
     final l10n = AppLocalizations.of(context)!;
-
     switch (category) {
       case 'study':
         return l10n.study;
@@ -426,7 +440,6 @@ class _ReminderViewState extends State<ReminderView> {
 
   String priorityName(String priority) {
     final l10n = AppLocalizations.of(context)!;
-
     switch (priority) {
       case 'high':
         return l10n.high;
@@ -452,6 +465,8 @@ class _ReminderViewState extends State<ReminderView> {
                   _header(),
                   const SizedBox(height: 26),
                   _titleSection(),
+                  const SizedBox(height: 14),
+                  _descriptionSection(),
                   const SizedBox(height: 18),
                   _dateCard(),
                   const SizedBox(height: 10),
@@ -550,6 +565,78 @@ class _ReminderViewState extends State<ReminderView> {
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     hintText: l10n.taskTitleHint,
+                    hintStyle: TextStyle(
+                      color: secondaryTextColor,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _descriptionSection() {
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              isAr ? 'الوصف' : 'Description',
+              style: TextStyle(color: secondaryTextColor, fontSize: 10),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              isAr ? '(اختياري)' : '(Optional)',
+              style: TextStyle(
+                color: secondaryTextColor.withValues(alpha: 0.6),
+                fontSize: 9,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
+          decoration: BoxDecoration(
+            color: surfaceColor,
+            borderRadius: BorderRadius.circular(13),
+            border: Border.all(
+              color: isDark ? Colors.transparent : AppColor.border,
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Icon(
+                  Icons.notes_rounded,
+                  color: secondaryTextColor,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextField(
+                  controller: _descriptionController,
+                  maxLines: 3,
+                  minLines: 1,
+                  style: TextStyle(color: primaryTextColor, fontSize: 13),
+                  cursorColor: AppColor.primary,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                    hintText: isAr
+                        ? 'أضف تفاصيل إضافية عن المهمة...'
+                        : 'Add extra details about the task...',
                     hintStyle: TextStyle(
                       color: secondaryTextColor,
                       fontSize: 12,
@@ -773,7 +860,6 @@ class _ReminderViewState extends State<ReminderView> {
               ],
               onChanged: (value) {
                 if (value == null) return;
-
                 setState(() {
                   reminderBefore = value;
                 });
@@ -895,6 +981,7 @@ class _ReminderViewState extends State<ReminderView> {
                 ),
                 DropdownMenuItem(value: 'daily', child: Text(l10n.everyDay)),
                 DropdownMenuItem(value: 'weekly', child: Text(l10n.everyWeek)),
+                DropdownMenuItem(value: 'monthly', child: const Text('كل شهر')),
                 DropdownMenuItem(value: 'custom', child: Text(l10n.customDays)),
               ],
               onChanged: (value) {
@@ -902,9 +989,9 @@ class _ReminderViewState extends State<ReminderView> {
 
                 setState(() {
                   selectedRepeat = value;
-
-                  if (value != 'custom') {
+                  if (value == 'none') {
                     selectedRepeatDays = [];
+                    selectedRepeatEndDate = null;
                   }
                 });
               },
@@ -915,7 +1002,171 @@ class _ReminderViewState extends State<ReminderView> {
           const SizedBox(height: 10),
           _repeatDaysSelector(),
         ],
+        if (selectedRepeat != 'none') ...[
+          const SizedBox(height: 12),
+          _repeatEndDateSelector(),
+        ],
       ],
+    );
+  }
+
+  Widget _repeatEndDateSelector() {
+    final baseDate = selectedDate ?? DateTime.now();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: selectRepeatEndDate,
+          child: Container(
+            height: 50,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: surfaceColor,
+              borderRadius: BorderRadius.circular(11),
+              border: Border.all(
+                color: isDark ? Colors.transparent : AppColor.border,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.event_repeat, size: 18, color: secondaryTextColor),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'تاريخ انتهاء التكرار',
+                        style: TextStyle(color: secondaryTextColor, fontSize: 9),
+                      ),
+                      Text(
+                        formattedRepeatEndDate,
+                        style: TextStyle(
+                          color: primaryTextColor,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (selectedRepeatEndDate != null)
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedRepeatEndDate = null;
+                      });
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(Icons.close, size: 16, color: secondaryTextColor),
+                    ),
+                  )
+                else
+                  Icon(Icons.calendar_today, size: 16, color: secondaryTextColor),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          child: Row(
+            children: [
+              _quickEndDateChip(
+                label: 'أسبوعين',
+                targetDate: DateTime(
+                  baseDate.year,
+                  baseDate.month,
+                  baseDate.day + 14,
+                ),
+              ),
+              const SizedBox(width: 6),
+              _quickEndDateChip(
+                label: 'شهر',
+                targetDate: DateTime(
+                  baseDate.year,
+                  baseDate.month + 1,
+                  baseDate.day,
+                ),
+              ),
+              const SizedBox(width: 6),
+              _quickEndDateChip(
+                label: '3 أشهر',
+                targetDate: DateTime(
+                  baseDate.year,
+                  baseDate.month + 3,
+                  baseDate.day,
+                ),
+              ),
+              const SizedBox(width: 6),
+              _quickEndDateChip(
+                label: '6 أشهر',
+                targetDate: DateTime(
+                  baseDate.year,
+                  baseDate.month + 6,
+                  baseDate.day,
+                ),
+              ),
+              const SizedBox(width: 6),
+              _quickEndDateChip(
+                label: 'سنة',
+                targetDate: DateTime(
+                  baseDate.year + 1,
+                  baseDate.month,
+                  baseDate.day,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _quickEndDateChip({
+    required String label,
+    required DateTime targetDate,
+  }) {
+    final isSelected = selectedRepeatEndDate != null &&
+        selectedRepeatEndDate!.year == targetDate.year &&
+        selectedRepeatEndDate!.month == targetDate.month &&
+        selectedRepeatEndDate!.day == targetDate.day;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          if (isSelected) {
+            selectedRepeatEndDate = null;
+          } else {
+            selectedRepeatEndDate = targetDate;
+          }
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColor.primary.withValues(alpha: 0.15)
+              : surfaceColor,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? AppColor.primary : cardColor,
+            width: 1,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            color: isSelected ? AppColor.primary : secondaryTextColor,
+          ),
+        ),
+      ),
     );
   }
 
@@ -953,7 +1204,6 @@ class _ReminderViewState extends State<ReminderView> {
                   } else {
                     selectedRepeatDays.add(value);
                   }
-
                   selectedRepeatDays.sort();
                 });
               },
@@ -1001,32 +1251,32 @@ class _ReminderViewState extends State<ReminderView> {
         ),
         child: isLoading
             ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppColor.textWhite,
-                ),
-              )
+          width: 18,
+          height: 18,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: AppColor.textWhite,
+          ),
+        )
             : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.notifications_none,
-                    color: AppColor.textWhite,
-                    size: 16,
-                  ),
-                  const SizedBox(width: 7),
-                  Text(
-                    l10n.saveReminder,
-                    style: const TextStyle(
-                      color: AppColor.textWhite,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.notifications_none,
+              color: AppColor.textWhite,
+              size: 16,
+            ),
+            const SizedBox(width: 7),
+            Text(
+              l10n.saveReminder,
+              style: const TextStyle(
+                color: AppColor.textWhite,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
               ),
+            ),
+          ],
+        ),
       ),
     );
   }

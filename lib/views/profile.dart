@@ -23,8 +23,7 @@ class ProfileView extends StatefulWidget {
 
 class _ProfileViewState extends State<ProfileView> {
   final AuthServices authServices = AuthServices();
-  final UserFirestoreService userFirestoreService =
-  UserFirestoreService();
+  final UserFirestoreService userFirestoreService = UserFirestoreService();
 
   UserModel? user;
   bool isLoading = true;
@@ -33,10 +32,10 @@ class _ProfileViewState extends State<ProfileView> {
   @override
   void initState() {
     super.initState();
-
     _loadProfile();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       context.read<TaskProvider>().loadTasks();
     });
   }
@@ -54,8 +53,7 @@ class _ProfileViewState extends State<ProfileView> {
     }
 
     try {
-      final userData =
-      await userFirestoreService.getUser(currentUser.uid);
+      final userData = await userFirestoreService.getUser(currentUser.uid);
 
       if (!mounted) return;
 
@@ -63,9 +61,8 @@ class _ProfileViewState extends State<ProfileView> {
         user = userData;
         isLoading = false;
       });
-    } catch (e) {
+    } catch (_) {
       if (!mounted) return;
-
       setState(() {
         isLoading = false;
       });
@@ -83,29 +80,43 @@ class _ProfileViewState extends State<ProfileView> {
       return;
     }
 
+    // جلب كود اللغة قبل أي عمليات async لتفادي مشاكل الـ context
+    final languageCode = Localizations.localeOf(context).languageCode;
+    final localizations = AppLocalizations.of(context)!;
+
     setState(() {
       isUpdatingVoice = true;
     });
 
     try {
-      final languageCode =
-          Localizations.localeOf(context).languageCode;
-
       final birthdayMonth = user!.birthdayMonth;
       final birthdayDay = user!.birthdayDay;
 
+      // 1. تحديث الصوت في Firestore أولاً
       await userFirestoreService.updateVoiceGender(
         uid: currentUser.uid,
         voiceGender: voiceGender,
       );
 
-      if (birthdayMonth != null && birthdayDay != null) {
-        await NotificationServices.scheduleBirthdayNotifications(
-          month: birthdayMonth,
-          day: birthdayDay,
-          languageCode: languageCode,
-          voiceGender: voiceGender,
-        );
+      // 2. محاولة تحديث الإشعارات بأمان دون إيقاف العملية لو الموبايل رفض إذن التنبيهات
+      try {
+        if (birthdayMonth != null && birthdayDay != null) {
+          await NotificationServices.scheduleBirthdayNotifications(
+            month: birthdayMonth,
+            day: birthdayDay,
+            languageCode: languageCode,
+            voiceGender: voiceGender,
+          );
+        }
+
+        // إعادة جدولة إشعارات التاسكات بالصوت الجديد
+        if (mounted) {
+          await context.read<TaskProvider>().rescheduleAllNotifications(
+            languageCode: languageCode,
+          );
+        }
+      } catch (notificationError) {
+        debugPrint('Notification reschedule non-fatal error: $notificationError');
       }
 
       if (!mounted) return;
@@ -118,7 +129,7 @@ class _ProfileViewState extends State<ProfileView> {
           photoUrl: user!.photoUrl,
           language: user!.language,
           createdAt: user!.createdAt,
-          updatedAt: user!.updatedAt,
+          updatedAt: DateTime.now(),
           currentStreak: user!.currentStreak,
           longestStreak: user!.longestStreak,
           lastCompletedDate: user!.lastCompletedDate,
@@ -126,13 +137,8 @@ class _ProfileViewState extends State<ProfileView> {
           birthdayDay: user!.birthdayDay,
           voiceGender: voiceGender,
         );
-
         isUpdatingVoice = false;
       });
-
-      if (!mounted) return;
-
-      final localizations = AppLocalizations.of(context)!;
 
       SnackBarHelper.show(
         context,
@@ -140,13 +146,13 @@ class _ProfileViewState extends State<ProfileView> {
         type: SnackBarType.success,
       );
     } catch (e) {
+      debugPrint('Error updating voice gender: $e');
+
       if (!mounted) return;
 
       setState(() {
         isUpdatingVoice = false;
       });
-
-      final localizations = AppLocalizations.of(context)!;
 
       SnackBarHelper.show(
         context,
@@ -155,18 +161,16 @@ class _ProfileViewState extends State<ProfileView> {
       );
     }
   }
+
   Future<void> _showVoiceGenderDialog() async {
     final localizations = AppLocalizations.of(context)!;
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final currentVoice =
-    user?.voiceGender == 'male' ? 'male' : 'female';
+    final currentVoice = user?.voiceGender == 'male' ? 'male' : 'female';
 
     final selectedVoice = await showModalBottomSheet<String>(
       context: context,
-      backgroundColor:
-      isDark ? AppColor.darkSurface : AppColor.surface,
+      backgroundColor: isDark ? AppColor.darkSurface : AppColor.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(22),
@@ -175,12 +179,7 @@ class _ProfileViewState extends State<ProfileView> {
       builder: (bottomSheetContext) {
         return SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              20,
-              14,
-              20,
-              20,
-            ),
+            padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -188,9 +187,7 @@ class _ProfileViewState extends State<ProfileView> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? AppColor.textHint
-                        : AppColor.border,
+                    color: isDark ? AppColor.textHint : AppColor.border,
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -200,9 +197,7 @@ class _ProfileViewState extends State<ProfileView> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: isDark
-                        ? AppColor.textWhite
-                        : AppColor.textPrimary,
+                    color: isDark ? AppColor.textWhite : AppColor.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 18),
@@ -293,12 +288,8 @@ class _ProfileViewState extends State<ProfileView> {
                 title,
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: isSelected
-                      ? FontWeight.bold
-                      : FontWeight.normal,
-                  color: isDark
-                      ? AppColor.textWhite
-                      : AppColor.textPrimary,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: isDark ? AppColor.textWhite : AppColor.textPrimary,
                 ),
               ),
             ),
@@ -322,12 +313,7 @@ class _ProfileViewState extends State<ProfileView> {
     final parts = name.trim().split(RegExp(r'\s+'));
 
     if (parts.length == 1) {
-      return parts[0]
-          .substring(
-        0,
-        parts[0].length >= 2 ? 2 : 1,
-      )
-          .toUpperCase();
+      return parts[0].substring(0, parts[0].length >= 2 ? 2 : 1).toUpperCase();
     }
 
     return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
@@ -349,53 +335,7 @@ class _ProfileViewState extends State<ProfileView> {
     if (totalTasks == 0) {
       return 0;
     }
-
     return ((completedTasks / totalTasks) * 100).round();
-  }
-
-  int get streak {
-    final tasks = context.read<TaskProvider>().tasks;
-
-    final completedDays = <DateTime>{};
-
-    for (final task in tasks) {
-      if (!task.isCompleted) continue;
-
-      final date = DateTime(
-        task.scheduledAt.year,
-        task.scheduledAt.month,
-        task.scheduledAt.day,
-      );
-
-      completedDays.add(date);
-    }
-
-    if (completedDays.isEmpty) {
-      return 0;
-    }
-
-    final today = DateTime(
-      DateTime.now().year,
-      DateTime.now().month,
-      DateTime.now().day,
-    );
-
-    if (!completedDays.contains(today)) {
-      return 0;
-    }
-
-    int currentStreak = 1;
-    DateTime expectedDay =
-    today.subtract(const Duration(days: 1));
-
-    while (completedDays.contains(expectedDay)) {
-      currentStreak++;
-
-      expectedDay =
-          expectedDay.subtract(const Duration(days: 1));
-    }
-
-    return currentStreak;
   }
 
   Future<void> _logout() async {
@@ -404,27 +344,20 @@ class _ProfileViewState extends State<ProfileView> {
     final shouldLogout = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
-        final isDark =
-            Theme.of(dialogContext).brightness ==
-                Brightness.dark;
+        final isDark = Theme.of(dialogContext).brightness == Brightness.dark;
 
         return AlertDialog(
-          backgroundColor:
-          isDark ? AppColor.darkSurface : AppColor.surface,
+          backgroundColor: isDark ? AppColor.darkSurface : AppColor.surface,
           title: Text(
             localizations.logout,
             style: TextStyle(
-              color: isDark
-                  ? AppColor.textWhite
-                  : AppColor.textPrimary,
+              color: isDark ? AppColor.textWhite : AppColor.textPrimary,
             ),
           ),
           content: Text(
             localizations.logoutConfirmation,
             style: TextStyle(
-              color: isDark
-                  ? AppColor.textHint
-                  : AppColor.textSecondary,
+              color: isDark ? AppColor.textHint : AppColor.textSecondary,
             ),
           ),
           actions: [
@@ -456,13 +389,10 @@ class _ProfileViewState extends State<ProfileView> {
 
     try {
       await FirebaseAuth.instance.signOut();
-
       if (!mounted) return;
-
       context.go('/Login');
     } catch (e) {
       if (!mounted) return;
-
       SnackBarHelper.show(
         context,
         message: localizations.somethingWentWrong,
@@ -474,31 +404,24 @@ class _ProfileViewState extends State<ProfileView> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    final themeController =
-    context.watch<ThemeController>();
-    final localeController =
-    context.watch<LangController>();
+    final themeController = context.watch<ThemeController>();
+    final localeController = context.watch<LangController>();
 
     final isDark = themeController.isDark;
-    final isArabic =
-        localeController.locale.languageCode == 'ar';
+    final isArabic = localeController.locale.languageCode == 'ar';
 
-    final displayName =
-    user?.name.trim().isNotEmpty == true
+    final displayName = user?.name.trim().isNotEmpty == true
         ? user!.name
         : localizations.user;
 
     final displayEmail = user?.email ?? '';
 
-    final voiceGender =
-    user?.voiceGender == 'male'
+    final voiceGender = user?.voiceGender == 'male'
         ? localizations.male
         : localizations.female;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? AppColor.darkBackground
-          : AppColor.background,
+      backgroundColor: isDark ? AppColor.darkBackground : AppColor.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(18.0),
@@ -510,9 +433,7 @@ class _ProfileViewState extends State<ProfileView> {
                   style: TextStyle(
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
-                    color: isDark
-                        ? AppColor.textWhite
-                        : AppColor.textPrimary,
+                    color: isDark ? AppColor.textWhite : AppColor.textPrimary,
                   ),
                 ),
               ),
@@ -523,17 +444,14 @@ class _ProfileViewState extends State<ProfileView> {
                   height: 80,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isDark
-                        ? AppColor.darkSurface
-                        : AppColor.surface,
+                    color: isDark ? AppColor.darkSurface : AppColor.surface,
                     border: Border.all(
                       color: AppColor.grad1,
                       width: 2,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColor.grad1
-                            .withValues(alpha: 0.18),
+                        color: AppColor.grad1.withValues(alpha: 0.18),
                         blurRadius: 10,
                         spreadRadius: 2,
                         offset: const Offset(0, 3),
@@ -541,12 +459,11 @@ class _ProfileViewState extends State<ProfileView> {
                     ],
                   ),
                   child: Center(
-                    child: isLoading
+                    child: (isLoading || isUpdatingVoice)
                         ? const SizedBox(
                       width: 22,
                       height: 22,
-                      child:
-                      CircularProgressIndicator(
+                      child: CircularProgressIndicator(
                         strokeWidth: 2,
                         color: AppColor.grad1,
                       ),
@@ -569,9 +486,7 @@ class _ProfileViewState extends State<ProfileView> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
-                    color: isDark
-                        ? AppColor.textWhite
-                        : AppColor.textPrimary,
+                    color: isDark ? AppColor.textWhite : AppColor.textPrimary,
                   ),
                 ),
               ),
@@ -582,23 +497,13 @@ class _ProfileViewState extends State<ProfileView> {
                     displayEmail,
                     style: TextStyle(
                       fontSize: 11,
-                      color: isDark
-                          ? AppColor.textHint
-                          : AppColor.textSecondary,
+                      color: isDark ? AppColor.textHint : AppColor.textSecondary,
                     ),
                   ),
                 ),
               const SizedBox(height: 10),
               Row(
                 children: [
-                  Expanded(
-                    child: profileContainer(
-                      context: context,
-                      value: '$streak',
-                      title: localizations.streak,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
                   Expanded(
                     child: profileContainer(
                       context: context,
@@ -618,15 +523,12 @@ class _ProfileViewState extends State<ProfileView> {
               ),
               const SizedBox(height: 20),
               Align(
-                alignment: isArabic
-                    ? Alignment.centerRight
-                    : Alignment.centerLeft,
+                alignment:
+                isArabic ? Alignment.centerRight : Alignment.centerLeft,
                 child: Text(
                   localizations.settings,
                   style: TextStyle(
-                    color: isDark
-                        ? AppColor.textWhite
-                        : AppColor.textPrimary,
+                    color: isDark ? AppColor.textWhite : AppColor.textPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -650,13 +552,9 @@ class _ProfileViewState extends State<ProfileView> {
                 title: localizations.lang,
                 icon: Icons.language,
                 trailing: Text(
-                  isArabic
-                      ? localizations.arabic
-                      : localizations.english,
+                  isArabic ? localizations.arabic : localizations.english,
                   style: TextStyle(
-                    color: isDark
-                        ? AppColor.textHint
-                        : AppColor.textSecondary,
+                    color: isDark ? AppColor.textHint : AppColor.textSecondary,
                     fontSize: 12,
                   ),
                 ),
@@ -671,15 +569,28 @@ class _ProfileViewState extends State<ProfileView> {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      voiceGender,
-                      style: TextStyle(
-                        color: isDark
-                            ? AppColor.textHint
-                            : AppColor.textSecondary,
-                        fontSize: 12,
+                    if (isUpdatingVoice)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 6),
+                        child: SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColor.grad1,
+                          ),
+                        ),
+                      )
+                    else
+                      Text(
+                        voiceGender,
+                        style: TextStyle(
+                          color: isDark
+                              ? AppColor.textHint
+                              : AppColor.textSecondary,
+                          fontSize: 12,
+                        ),
                       ),
-                    ),
                     const SizedBox(width: 6),
                     Icon(
                       isArabic
@@ -692,7 +603,7 @@ class _ProfileViewState extends State<ProfileView> {
                     ),
                   ],
                 ),
-                onTap: _showVoiceGenderDialog,
+                onTap: isUpdatingVoice ? null : _showVoiceGenderDialog,
               ),
               buildSettingTile(
                 context: context,
@@ -703,9 +614,7 @@ class _ProfileViewState extends State<ProfileView> {
                       ? Icons.arrow_back_ios
                       : Icons.arrow_forward_ios,
                   size: 14,
-                  color: isDark
-                      ? AppColor.textHint
-                      : AppColor.textSecondary,
+                  color: isDark ? AppColor.textHint : AppColor.textSecondary,
                 ),
                 onTap: _logout,
               ),
@@ -714,8 +623,7 @@ class _ProfileViewState extends State<ProfileView> {
           ),
         ),
       ),
-      bottomNavigationBar:
-      const CustomNavBar(currentIndex: 3),
+      bottomNavigationBar: const CustomNavBar(currentIndex: 3),
     );
   }
 }
@@ -725,15 +633,12 @@ Widget profileContainer({
   required String value,
   required String title,
 }) {
-  final isDark =
-      Theme.of(context).brightness == Brightness.dark;
+  final isDark = Theme.of(context).brightness == Brightness.dark;
 
   return Container(
     height: 80,
     decoration: BoxDecoration(
-      color: isDark
-          ? AppColor.darkCard
-          : AppColor.surface,
+      color: isDark ? AppColor.darkCard : AppColor.surface,
       borderRadius: BorderRadius.circular(10),
       boxShadow: [
         BoxShadow(
@@ -752,9 +657,7 @@ Widget profileContainer({
         Text(
           value,
           style: TextStyle(
-            color: isDark
-                ? AppColor.textWhite
-                : AppColor.textPrimary,
+            color: isDark ? AppColor.textWhite : AppColor.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 17,
           ),
@@ -764,9 +667,7 @@ Widget profileContainer({
           title,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: isDark
-                ? AppColor.textHint
-                : AppColor.textSecondary,
+            color: isDark ? AppColor.textHint : AppColor.textSecondary,
             fontSize: 10,
           ),
         ),
@@ -782,11 +683,8 @@ Widget buildSettingTile({
   required Widget trailing,
   VoidCallback? onTap,
 }) {
-  final isDark =
-      Theme.of(context).brightness == Brightness.dark;
-
-  final isArabic =
-      Localizations.localeOf(context).languageCode == 'ar';
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+  final isArabic = Localizations.localeOf(context).languageCode == 'ar';
 
   return InkWell(
     onTap: onTap,
@@ -795,9 +693,7 @@ Widget buildSettingTile({
       margin: const EdgeInsets.only(bottom: 2),
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: isDark
-            ? AppColor.darkSurface
-            : AppColor.surface,
+        color: isDark ? AppColor.darkSurface : AppColor.surface,
         border: Border(
           bottom: BorderSide(
             color: isDark
@@ -807,8 +703,7 @@ Widget buildSettingTile({
         ),
       ),
       child: Row(
-        textDirection:
-        isArabic ? TextDirection.rtl : TextDirection.ltr,
+        textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
         children: [
           Icon(
             icon,
@@ -819,13 +714,10 @@ Widget buildSettingTile({
           Expanded(
             child: Text(
               title,
-              textAlign:
-              isArabic ? TextAlign.right : TextAlign.left,
+              textAlign: isArabic ? TextAlign.right : TextAlign.left,
               style: TextStyle(
                 fontSize: 13,
-                color: isDark
-                    ? AppColor.textWhite
-                    : AppColor.textPrimary,
+                color: isDark ? AppColor.textWhite : AppColor.textPrimary,
               ),
             ),
           ),

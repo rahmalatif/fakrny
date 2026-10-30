@@ -341,13 +341,13 @@ abstract class AppLocalizations {
   /// No description provided for @notificationFiveMinutesLate.
   ///
   /// In en, this message translates to:
-  /// **'You\'re 5 minutes late! You haven\'t completed \"{task}\" yet. Don\'t forget it!'**
+  /// **'You\'re 5 minutes late! You haven\'t completed {task}? yet. Don\'t forget it!'**
   String notificationFiveMinutesLate(String task);
 
   /// No description provided for @notificationFifteenMinutesLate.
   ///
   /// In en, this message translates to:
-  /// **'Still haven\'t completed \"{task}\"? It\'s been 15 minutes since your reminder. Time to get it done!'**
+  /// **'Still haven\'t completed {task}? It\'s been 15 minutes since your reminder. Time to get it done!'**
   String notificationFifteenMinutesLate(String task);
 
   /// No description provided for @createReminderSub.
@@ -361,6 +361,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add your reminder details'**
   String get addReminderDetails;
+
+  /// No description provided for @showMoreTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Show 10 More'**
+  String get showMoreTasks;
 
   /// No description provided for @title.
   ///

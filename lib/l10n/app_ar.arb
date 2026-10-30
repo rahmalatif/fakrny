@@ -74,7 +74,7 @@
       "minutes": {}
     }
   },
-  "notificationFiveMinutesLate": "فات 5 دقايق على التذكير! لسه مخلصتش \{task}\. متنساش تكملها!",
+  "notificationFiveMinutesLate": "فات 5 دقايق على التذكير! لسه مخلصتش {task}. متنساش تكملها!",
   "@notificationFiveMinutesLate": {
     "placeholders": {
       "task": {
@@ -82,7 +82,7 @@
       }
     }
   },
-  "notificationFifteenMinutesLate": "لسه مخلصتش \{task}\؟ فات 15 دقيقة من وقت التذكير. يلا خلّصها!",
+  "notificationFifteenMinutesLate": "لسه مخلصتش {task}؟ فات 15 دقيقة من وقت التذكير. يلا خلّصها!",
   "@notificationFifteenMinutesLate": {
     "placeholders": {
       "task": {
@@ -94,7 +94,7 @@
   "minutes": "دقيقة",
 
   "saveReminder": "حفظ التذكير",
-
+"showMoreTasks": "عرض 10 مهام إضافية",
   "repeat": "التكرار",
   "doesNotRepeat": "لا يتكرر",
   "everyDay": "كل يوم",

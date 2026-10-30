@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,12 +12,11 @@ import 'package:timezone/timezone.dart' as tz;
 
 import '../l10n/app_localizations.dart';
 import '../model/tasks.dart';
-import 'dart:typed_data';
 
 @pragma('vm:entry-point')
 Future<void> notificationTapBackground(
-  NotificationResponse notificationResponse,
-) async {
+    NotificationResponse notificationResponse,
+    ) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp();
@@ -25,7 +25,6 @@ Future<void> notificationTapBackground(
 
   try {
     final timezone = await FlutterTimezone.getLocalTimezone();
-
     tz.setLocalLocation(tz.getLocation(timezone));
   } catch (_) {
     tz.setLocalLocation(tz.getLocation('UTC'));
@@ -36,10 +35,10 @@ Future<void> notificationTapBackground(
 
 class NotificationServices {
   static final FlutterLocalNotificationsPlugin notificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  FlutterLocalNotificationsPlugin();
 
   static final NotificationServices _instance =
-      NotificationServices._internal();
+  NotificationServices._internal();
 
   factory NotificationServices() {
     return _instance;
@@ -56,6 +55,16 @@ class NotificationServices {
   static const int _birthdayBaseId = 2000000000;
   static const int _birthdayYearsToSchedule = 5;
 
+  // نمط اهتزاز طويل ومميز وقوي (يبدأ فوراً: 500ms اهتزاز، 200ms صمت، 500ms اهتزاز، 200ms صمت، 800ms اهتزاز ممتد)
+  static final Int64List _fakarnyVibrationPattern = Int64List.fromList([
+    0,   // البداية فوراً
+    500, // اهتزاز قوي
+    200, // فاصل
+    500, // اهتزاز قوي
+    200, // فاصل
+    800, // اهتزاز طويل وممتد
+  ]);
+
   static int notificationIdForTask(String taskId) {
     int hash = 2166136261;
 
@@ -69,19 +78,16 @@ class NotificationServices {
 
   static int snoozeNotificationId(String taskId) {
     final baseId = notificationIdForTask(taskId);
-
     return baseId ^ 0x40000000;
   }
 
   static int escalationNotificationId(String taskId, int level) {
     final baseId = notificationIdForTask(taskId);
-
     return baseId + 1000 + level;
   }
 
   static AppLocalizations _localizations(String? languageCode) {
     final code = languageCode == 'ar' ? 'ar' : 'en';
-
     return lookupAppLocalizations(Locale(code));
   }
 
@@ -104,7 +110,6 @@ class NotificationServices {
 
     try {
       final decoded = jsonDecode(payload);
-
       if (decoded is Map<String, dynamic>) {
         return decoded;
       }
@@ -121,23 +126,18 @@ class NotificationServices {
 
   static String? _taskIdFromPayload(String? payload) {
     final data = _parsePayload(payload);
-
     return data?['taskId'] as String?;
   }
 
   static String _languageFromPayload(String? payload) {
     final data = _parsePayload(payload);
-
     final languageCode = data?['languageCode'] as String?;
-
     return languageCode == 'ar' ? 'ar' : 'en';
   }
 
   static String _voiceGenderFromPayload(String? payload) {
     final data = _parsePayload(payload);
-
     final voiceGender = data?['voiceGender'] as String?;
-
     return voiceGender == 'male' ? 'male' : 'female';
   }
 
@@ -146,9 +146,7 @@ class NotificationServices {
     required String voiceGender,
   }) {
     final language = languageCode == 'ar' ? 'ar' : 'en';
-
     final gender = voiceGender == 'male' ? 'male' : 'female';
-
     return 'notif_${gender}_$language';
   }
 
@@ -157,9 +155,7 @@ class NotificationServices {
     required String voiceGender,
   }) {
     final language = languageCode == 'ar' ? 'ar' : 'en';
-
     final gender = voiceGender == 'male' ? 'male' : 'female';
-
     return 'hbd_${gender}_$language';
   }
 
@@ -182,7 +178,6 @@ class NotificationServices {
 
     try {
       final timezone = await FlutterTimezone.getLocalTimezone();
-
       tz.setLocalLocation(tz.getLocation(timezone));
     } catch (_) {
       tz.setLocalLocation(tz.getLocation('UTC'));
@@ -194,17 +189,16 @@ class NotificationServices {
   static Future<void> _requestPermission() async {
     final androidPlugin = notificationsPlugin
         .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >();
+        AndroidFlutterLocalNotificationsPlugin
+    >();
 
     await androidPlugin?.requestNotificationsPermission();
-
     await androidPlugin?.requestExactAlarmsPermission();
   }
 
   static Future<void> _onNotificationResponse(
-    NotificationResponse response,
-  ) async {
+      NotificationResponse response,
+      ) async {
     final payload = response.payload;
 
     if (payload == null || payload.isEmpty) {
@@ -227,9 +221,9 @@ class NotificationServices {
   }
 
   static Future<void> _handleDismiss(
-    String payload,
-    int? notificationId,
-  ) async {
+      String payload,
+      int? notificationId,
+      ) async {
     final taskId = _taskIdFromPayload(payload);
 
     if (taskId == null) {
@@ -244,9 +238,9 @@ class NotificationServices {
   }
 
   static Future<void> _handleSnooze(
-    String payload,
-    int? currentNotificationId,
-  ) async {
+      String payload,
+      int? currentNotificationId,
+      ) async {
     final taskId = _taskIdFromPayload(payload);
 
     if (taskId == null) {
@@ -254,9 +248,7 @@ class NotificationServices {
     }
 
     final languageCode = _languageFromPayload(payload);
-
     final voiceGender = _voiceGenderFromPayload(payload);
-
     final l10n = _localizations(languageCode);
 
     if (currentNotificationId != null) {
@@ -264,12 +256,10 @@ class NotificationServices {
     }
 
     final snoozeId = snoozeNotificationId(taskId);
-
     await notificationsPlugin.cancel(snoozeId);
 
-    final snoozeTime = tz.TZDateTime.now(
-      tz.local,
-    ).add(const Duration(minutes: 5));
+    final snoozeTime =
+    tz.TZDateTime.now(tz.local).add(const Duration(minutes: 5));
 
     final newPayload = _createPayload(
       taskId: taskId,
@@ -299,8 +289,6 @@ class NotificationServices {
       return;
     }
 
-    await cancelTaskNotification(taskId);
-
     try {
       if (Firebase.apps.isEmpty) {
         await Firebase.initializeApp();
@@ -308,25 +296,68 @@ class NotificationServices {
 
       final user = FirebaseAuth.instance.currentUser;
 
-      if (user != null) {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .collection('tasks')
-            .doc(taskId)
-            .update({
-              'isCompleted': true,
-              'updatedAt': DateTime.now().toIso8601String(),
-            });
+      if (user == null) {
+        return;
       }
-    } catch (_) {}
+
+      final taskRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('tasks')
+          .doc(taskId);
+
+      final taskSnapshot = await taskRef.get();
+
+      if (!taskSnapshot.exists) {
+        return;
+      }
+
+      final taskData = taskSnapshot.data();
+
+      if (taskData == null) {
+        return;
+      }
+
+      final repeat = taskData['repeat'] as String? ?? 'none';
+      final now = DateTime.now();
+
+      final dateKey =
+          '${now.year.toString().padLeft(4, '0')}-'
+          '${now.month.toString().padLeft(2, '0')}-'
+          '${now.day.toString().padLeft(2, '0')}';
+
+      if (repeat == 'none') {
+        await taskRef.update({
+          'isCompleted': true,
+          'updatedAt': now.toIso8601String(),
+        });
+
+        await cancelTaskNotification(taskId);
+      } else {
+        await taskRef.update({
+          'isCompleted': false,
+          'completedDates': FieldValue.arrayUnion([dateKey]),
+          'updatedAt': now.toIso8601String(),
+        });
+
+        await notificationsPlugin.cancel(snoozeNotificationId(taskId));
+
+        for (int level = 1; level <= 2; level++) {
+          await notificationsPlugin.cancel(
+            escalationNotificationId(taskId, level),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Error completing task from notification: $e');
+    }
   }
 
   Future<void> scheduleTaskNotification(
-    TaskModel task, {
-    required String languageCode,
-    required String voiceGender,
-  }) async {
+      TaskModel task, {
+        required String languageCode,
+        required String voiceGender,
+      }) async {
     if (task.isCompleted) {
       await cancelTaskNotification(task.id);
       return;
@@ -353,10 +384,10 @@ class NotificationServices {
   }
 
   Future<void> _scheduleOneTimeNotification(
-    TaskModel task,
-    String languageCode,
-    String voiceGender,
-  ) async {
+      TaskModel task,
+      String languageCode,
+      String voiceGender,
+      ) async {
     final reminderTime = task.scheduledAt.subtract(
       Duration(minutes: task.remindBefore),
     );
@@ -384,10 +415,10 @@ class NotificationServices {
   }
 
   Future<void> _scheduleDailyNotification(
-    TaskModel task,
-    String languageCode,
-    String voiceGender,
-  ) async {
+      TaskModel task,
+      String languageCode,
+      String voiceGender,
+      ) async {
     final reminderTime = task.scheduledAt.subtract(
       Duration(minutes: task.remindBefore),
     );
@@ -432,10 +463,10 @@ class NotificationServices {
   }
 
   Future<void> _scheduleWeeklyNotification(
-    TaskModel task,
-    String languageCode,
-    String voiceGender,
-  ) async {
+      TaskModel task,
+      String languageCode,
+      String voiceGender,
+      ) async {
     final reminderTime = task.scheduledAt.subtract(
       Duration(minutes: task.remindBefore),
     );
@@ -471,10 +502,10 @@ class NotificationServices {
   }
 
   Future<void> _scheduleCustomNotifications(
-    TaskModel task,
-    String languageCode,
-    String voiceGender,
-  ) async {
+      TaskModel task,
+      String languageCode,
+      String voiceGender,
+      ) async {
     if (task.repeatDays.isEmpty) {
       return;
     }
@@ -484,7 +515,6 @@ class NotificationServices {
     );
 
     final baseId = notificationIdForTask(task.id);
-
     final l10n = _localizations(languageCode);
 
     final payload = _createPayload(
@@ -579,10 +609,11 @@ class NotificationServices {
 
     return NotificationDetails(
       android: AndroidNotificationDetails(
-        'task_reminders_${languageCode}_$voiceGender',
+        // تم تحديث الـ ID إلى v2 لتجديد القناة في نظام أندرويد وتطبيق نمط الاهتزاز الجديد
+        'task_reminders_v2_${languageCode}_$voiceGender',
         l10n.notificationTaskReminders,
         channelDescription: l10n.notificationTaskRemindersDescription,
-        importance: Importance.high,
+        importance: Importance.max,
         priority: Priority.high,
         sound: RawResourceAndroidNotificationSound(
           _getNotificationSound(
@@ -620,7 +651,6 @@ class NotificationServices {
     await notificationsPlugin.cancel(notificationId);
 
     final snoozeId = snoozeNotificationId(taskId);
-
     await notificationsPlugin.cancel(snoozeId);
 
     for (int level = 1; level <= 2; level++) {
@@ -639,7 +669,6 @@ class NotificationServices {
     required String voiceGender,
   }) async {
     final firstEscalationTime = reminderTime.add(const Duration(minutes: 5));
-
     final secondEscalationTime = reminderTime.add(const Duration(minutes: 15));
 
     final firstId = escalationNotificationId(task.id, 1);
@@ -685,13 +714,12 @@ class NotificationServices {
     await cancelBirthdayNotifications();
 
     final now = tz.TZDateTime.now(tz.local);
-
     final l10n = _localizations(languageCode);
 
     for (
-      int yearOffset = 0;
-      yearOffset < _birthdayYearsToSchedule;
-      yearOffset++
+    int yearOffset = 0;
+    yearOffset < _birthdayYearsToSchedule;
+    yearOffset++
     ) {
       final year = now.year + yearOffset;
 
@@ -721,7 +749,6 @@ class NotificationServices {
 
   static bool _isValidDate(int year, int month, int day) {
     final date = DateTime(year, month, day);
-
     return date.year == year && date.month == month && date.day == day;
   }
 
@@ -733,11 +760,13 @@ class NotificationServices {
 
     return NotificationDetails(
       android: AndroidNotificationDetails(
-        'birthday_${languageCode}_$voiceGender',
+        'birthday_v2_${languageCode}_$voiceGender',
         l10n.birthdayNotificationChannel,
         channelDescription: l10n.birthdayNotificationChannelDescription,
-        importance: Importance.high,
+        importance: Importance.max,
         priority: Priority.high,
+        enableVibration: true,
+        vibrationPattern: _fakarnyVibrationPattern,
         sound: RawResourceAndroidNotificationSound(
           _getBirthdaySound(
             languageCode: languageCode,
@@ -754,13 +783,4 @@ class NotificationServices {
       await notificationsPlugin.cancel(_birthdayBaseId + i);
     }
   }
-
-  static final Int64List _fakarnyVibrationPattern = Int64List.fromList([
-    0, // Start immediately
-    200, // Vibrate
-    150, // Pause
-    200, // Vibrate
-    300, // Pause
-    600, // Long vibration
-  ]);
 }

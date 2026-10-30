@@ -132,12 +132,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String notificationFiveMinutesLate(String task) {
-    return 'فات 5 دقايق على التذكير! لسه مخلصتش \"$task\". متنساش تكملها!';
+    return 'فات 5 دقايق على التذكير! لسه مخلصتش $task. متنساش تكملها!';
   }
 
   @override
   String notificationFifteenMinutesLate(String task) {
-    return 'لسه مخلصتش \"$task\"؟ فات 15 دقيقة من وقت التذكير. يلا خلّصها!';
+    return 'لسه مخلصتش $task؟ فات 15 دقيقة من وقت التذكير. يلا خلّصها!';
   }
 
   @override
@@ -145,6 +145,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get addReminderDetails => 'أضف تفاصيل التذكير الخاص بك';
+
+  @override
+  String get showMoreTasks => 'عرض 10 مهام إضافية';
 
   @override
   String get title => 'العنوان';

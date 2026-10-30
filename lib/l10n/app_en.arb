@@ -41,7 +41,7 @@
 
   "createReminder": "Create Reminder",
   "editReminder": "Edit Reminder",
-  "notificationFiveMinutesLate": "You're 5 minutes late! You haven't completed \{task}\ yet. Don't forget it!",
+  "notificationFiveMinutesLate": "You're 5 minutes late! You haven't completed {task}? yet. Don't forget it!",
   "@notificationFiveMinutesLate": {
     "placeholders": {
       "task": {
@@ -49,7 +49,7 @@
       }
     }
   },
-  "notificationFifteenMinutesLate": "Still haven't completed \{task}\? It's been 15 minutes since your reminder. Time to get it done!",
+  "notificationFifteenMinutesLate": "Still haven't completed {task}? It's been 15 minutes since your reminder. Time to get it done!",
   "@notificationFifteenMinutesLate": {
     "placeholders": {
       "task": {
@@ -59,7 +59,7 @@
   },
   "createReminderSub": "Add your reminder details",
   "addReminderDetails": "Add your reminder details",
-
+"showMoreTasks": "Show 10 More",
   "title": "Title",
   "titleHint": "example: medicine ",
   "taskTitleHint": "example: medicine ",

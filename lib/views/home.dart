@@ -332,6 +332,13 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                             },
                             itemBuilder: (context, index) {
                               final task = todayTasks[index];
+
+                              final selectedDate = DateTime.now();
+
+                              final isCompleted = taskProvider.isTaskCompletedOnDate(
+                                task,
+                                selectedDate,
+                              );
                               final taskTime = TimeOfDay.fromDateTime(
                                 task.scheduledAt,
                               ).format(context);
@@ -350,18 +357,16 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                                   task.priority,
                                 ),
                                 color: getTaskColor(task.color),
-                                isCompleted: task.isCompleted,
+                                isCompleted: isCompleted,
                                 onCheck: () {
-                                  final locale = Localizations.localeOf(
-                                    context,
-                                  );
+                                  final locale = Localizations.localeOf(context);
 
                                   context.read<TaskProvider>().toggleTask(
                                     task,
                                     languageCode: locale.languageCode,
+                                    targetDate: selectedDate,
                                   );
-                                },
-                                onTap: () async {
+                                },                                onTap: () async {
                                   final taskProvider = context
                                       .read<TaskProvider>();
 

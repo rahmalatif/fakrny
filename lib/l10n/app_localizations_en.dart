@@ -134,12 +134,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String notificationFiveMinutesLate(String task) {
-    return 'You\'re 5 minutes late! You haven\'t completed \"$task\" yet. Don\'t forget it!';
+    return 'You\'re 5 minutes late! You haven\'t completed $task? yet. Don\'t forget it!';
   }
 
   @override
   String notificationFifteenMinutesLate(String task) {
-    return 'Still haven\'t completed \"$task\"? It\'s been 15 minutes since your reminder. Time to get it done!';
+    return 'Still haven\'t completed $task? It\'s been 15 minutes since your reminder. Time to get it done!';
   }
 
   @override
@@ -147,6 +147,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addReminderDetails => 'Add your reminder details';
+
+  @override
+  String get showMoreTasks => 'Show 10 More';
 
   @override
   String get title => 'Title';

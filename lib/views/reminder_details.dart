@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/l10n/app_localizations.dart';
@@ -32,10 +33,35 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
     isCompleted = task.isCompleted;
   }
 
+  /// نمط اهتزاز طويل ومميز لإشعار المستخدم بالإنجاز
+  Future<void> _triggerCelebrationVibration() async {
+    // نبضة أولى متوسطة
+    await HapticFeedback.mediumImpact();
+    await Future.delayed(const Duration(milliseconds: 90));
+
+    // نبضة ثانية قوية
+    await HapticFeedback.heavyImpact();
+    await Future.delayed(const Duration(milliseconds: 110));
+
+    // نبضة ثالثة طويلة وقوية لإتمام النمط
+    await HapticFeedback.heavyImpact();
+    await Future.delayed(const Duration(milliseconds: 140));
+
+    // نقرة تأكيد نهائية
+    await HapticFeedback.vibrate();
+  }
+
   Future<void> toggleCompleted() async {
     final newValue = !isCompleted;
     final taskProvider = context.read<TaskProvider>();
     final languageCode = Localizations.localeOf(context).languageCode;
+
+    // تشغيل الاهتزاز الطويل والمميز فقط عند إكمال المهمة
+    if (newValue) {
+      _triggerCelebrationVibration();
+    } else {
+      HapticFeedback.lightImpact();
+    }
 
     setState(() {
       isUpdating = true;
@@ -51,11 +77,13 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
         priority: task.priority,
         color: task.color,
         isCompleted: newValue,
+        completedDates: List<String>.from(task.completedDates),
         repeat: task.repeat,
+        repeatDays: List<int>.from(task.repeatDays),
         remindBefore: task.remindBefore,
         createdAt: task.createdAt,
         updatedAt: DateTime.now(),
-        repeatDays: task.repeatDays,
+        repeatEndDate: task.repeatEndDate,
       );
 
       final success = await taskProvider.updateTask(
@@ -67,7 +95,6 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
 
       if (!success) {
         final l10n = AppLocalizations.of(context)!;
-
         throw Exception(
           taskProvider.error ?? l10n.failedToUpdateTask,
         );
@@ -103,17 +130,89 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
   }
 
   String formatTime(DateTime dateTime) {
-    final hour = dateTime.hour % 12 == 0
-        ? 12
-        : dateTime.hour % 12;
-
+    final hour = dateTime.hour % 12 == 0 ? 12 : dateTime.hour % 12;
     final minute = dateTime.minute.toString().padLeft(2, '0');
-
     final period = dateTime.hour >= 12
         ? AppLocalizations.of(context)!.pm
         : AppLocalizations.of(context)!.am;
 
     return '$hour:$minute $period';
+  }
+
+  String _getLocalizedCategory(BuildContext context, String category) {
+    final l10n = AppLocalizations.of(context)!;
+
+    switch (category.toLowerCase().trim()) {
+      case 'work':
+      case 'عمل':
+        return l10n.work;
+      case 'study':
+      case 'دراسة':
+      case 'مذاكرة':
+        return l10n.study;
+      case 'health':
+      case 'صحة':
+        return l10n.health;
+      case 'other':
+      case 'أخرى':
+      case 'اخرى':
+        return l10n.other;
+      default:
+        return category;
+    }
+  }
+
+  String _getLocalizedPriority(BuildContext context, String priority) {
+    final l10n = AppLocalizations.of(context)!;
+
+    switch (priority.toLowerCase().trim()) {
+      case 'high':
+      case 'عالية':
+      case 'مرتفعة':
+        return l10n.high;
+      case 'medium':
+      case 'متوسطة':
+        return l10n.medium;
+      case 'low':
+      case 'منخفضة':
+        return l10n.low;
+      default:
+        return priority;
+    }
+  }
+
+  IconData _getCategoryIcon(String category) {
+    switch (category.toLowerCase().trim()) {
+      case 'study':
+      case 'دراسة':
+      case 'مذاكرة':
+        return Icons.school_outlined;
+      case 'work':
+      case 'عمل':
+        return Icons.work_outline;
+      case 'health':
+      case 'صحة':
+        return Icons.favorite_border;
+      default:
+        return Icons.more_horiz;
+    }
+  }
+
+  Color _getPriorityColor(String priority) {
+    switch (priority.toLowerCase().trim()) {
+      case 'high':
+      case 'عالية':
+      case 'مرتفعة':
+        return AppColor.error;
+      case 'medium':
+      case 'متوسطة':
+        return Colors.amber;
+      case 'low':
+      case 'منخفضة':
+        return Colors.green;
+      default:
+        return AppColor.primary;
+    }
   }
 
   Future<void> _deleteReminder() async {
@@ -145,7 +244,6 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
     );
 
     if (!mounted) return;
-
     if (shouldDelete != true) return;
 
     try {
@@ -183,10 +281,10 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final hasDescription = task.description.trim().isNotEmpty;
 
     return Scaffold(
-      backgroundColor:
-      isDark ? AppColor.darkBackground : AppColor.background,
+      backgroundColor: isDark ? AppColor.darkBackground : AppColor.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(
@@ -198,6 +296,10 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
               _header(),
               const SizedBox(height: 18),
               _reminderHeader(),
+              if (hasDescription) ...[
+                const SizedBox(height: 12),
+                _descriptionSection(),
+              ],
               const SizedBox(height: 12),
               _infoSection(),
               const SizedBox(height: 15),
@@ -222,9 +324,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
           width: 38,
           height: 38,
           decoration: BoxDecoration(
-            color: isDark
-                ? AppColor.darkSurface
-                : AppColor.surface,
+            color: isDark ? AppColor.darkSurface : AppColor.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isDark
@@ -243,9 +343,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
             icon: Icon(
               Icons.arrow_back_ios_new,
               size: 16,
-              color: isDark
-                  ? AppColor.textWhite
-                  : AppColor.textPrimary,
+              color: isDark ? AppColor.textWhite : AppColor.textPrimary,
             ),
           ),
         ),
@@ -257,18 +355,14 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: isDark
-                    ? AppColor.textWhite
-                    : AppColor.textPrimary,
+                color: isDark ? AppColor.textWhite : AppColor.textPrimary,
               ),
             ),
             Text(
               l10n.reminderDetails,
               style: TextStyle(
                 fontSize: 9,
-                color: isDark
-                    ? AppColor.textHint
-                    : AppColor.textSecondary,
+                color: isDark ? AppColor.textHint : AppColor.textSecondary,
               ),
             ),
           ],
@@ -278,9 +372,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
           width: 38,
           height: 38,
           decoration: BoxDecoration(
-            color: isDark
-                ? AppColor.darkSurface
-                : AppColor.surface,
+            color: isDark ? AppColor.darkSurface : AppColor.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isDark
@@ -293,9 +385,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
             icon: Icon(
               Icons.more_horiz,
               size: 20,
-              color: isDark
-                  ? AppColor.textWhite
-                  : AppColor.textPrimary,
+              color: isDark ? AppColor.textWhite : AppColor.textPrimary,
             ),
           ),
         ),
@@ -305,14 +395,15 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
 
   Widget _reminderHeader() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final localizedCategory = _getLocalizedCategory(context, task.category);
+    final localizedPriority = _getLocalizedPriority(context, task.priority);
+    final priorityColor = _getPriorityColor(task.priority);
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark
-            ? AppColor.darkSurface
-            : AppColor.surface,
+        color: isDark ? AppColor.darkSurface : AppColor.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -333,8 +424,8 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
               color: AppColor.primary.withValues(alpha: .08),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.school_outlined,
+            child: Icon(
+              _getCategoryIcon(task.category),
               color: AppColor.primary,
             ),
           ),
@@ -348,19 +439,18 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: isDark
-                        ? AppColor.textWhite
-                        : AppColor.textPrimary,
+                    color: isDark ? AppColor.textWhite : AppColor.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 5),
                 Row(
                   children: [
                     Text(
-                      task.category,
+                      localizedCategory,
                       style: const TextStyle(
                         color: AppColor.primary,
                         fontSize: 11,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -376,9 +466,9 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      task.priority,
+                      localizedPriority,
                       style: TextStyle(
-                        color: AppColor.error.withValues(alpha: .8),
+                        color: priorityColor,
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
                       ),
@@ -393,16 +483,66 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
     );
   }
 
+  Widget _descriptionSection() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? AppColor.darkSurface : AppColor.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.05)
+              : AppColor.border.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.notes_rounded,
+                size: 16,
+                color: isDark ? AppColor.textHint : AppColor.textSecondary,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                isAr ? 'الوصف' : 'Description',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? AppColor.textHint : AppColor.textSecondary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            task.description,
+            style: TextStyle(
+              fontSize: 13,
+              height: 1.5,
+              color: isDark ? AppColor.textWhite : AppColor.textPrimary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _infoSection() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
 
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: isDark
-            ? AppColor.darkSurface
-            : AppColor.surface,
+        color: isDark ? AppColor.darkSurface : AppColor.surface,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -425,7 +565,15 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
             title: l10n.reminderBefore,
             value: '${task.remindBefore} ${l10n.minutes}',
           ),
-          _divider(),
+          if (task.repeatEndDate != null) ...[
+            _divider(),
+            _infoRow(
+              icon: Icons.event_repeat_rounded,
+              title: isAr ? 'نهاية التكرار' : 'Repeat Ends',
+              value:
+              '${task.repeatEndDate!.day}/${task.repeatEndDate!.month}/${task.repeatEndDate!.year}',
+            ),
+          ],
         ],
       ),
     );
@@ -449,18 +597,14 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
           Icon(
             icon,
             size: 17,
-            color: isDark
-                ? AppColor.textHint
-                : AppColor.textSecondary,
+            color: isDark ? AppColor.textHint : AppColor.textSecondary,
           ),
           const SizedBox(width: 10),
           Text(
             title,
             style: TextStyle(
               fontSize: 11,
-              color: isDark
-                  ? AppColor.textHint
-                  : AppColor.textSecondary,
+              color: isDark ? AppColor.textHint : AppColor.textSecondary,
             ),
           ),
           const Spacer(),
@@ -470,9 +614,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
               fontSize: 11,
               fontWeight: FontWeight.bold,
               color: valueColor ??
-                  (isDark
-                      ? AppColor.textWhite
-                      : AppColor.textPrimary),
+                  (isDark ? AppColor.textWhite : AppColor.textPrimary),
             ),
           ),
         ],
@@ -487,9 +629,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
       height: 1,
       indent: 15,
       endIndent: 15,
-      color: isDark
-          ? AppColor.darkCard
-          : AppColor.divider,
+      color: isDark ? AppColor.darkCard : AppColor.divider,
     );
   }
 
@@ -502,9 +642,8 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
       child: ElevatedButton(
         onPressed: isUpdating ? null : toggleCompleted,
         style: ElevatedButton.styleFrom(
-          backgroundColor: isCompleted
-              ? AppColor.success
-              : AppColor.primary,
+          backgroundColor:
+          isCompleted ? AppColor.success : AppColor.primary,
           foregroundColor: AppColor.textWhite,
           elevation: 2,
           shape: RoundedRectangleBorder(
@@ -562,9 +701,8 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
             label: Text(l10n.edit),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColor.primary,
-              backgroundColor: isDark
-                  ? AppColor.darkSurface
-                  : AppColor.surface,
+              backgroundColor:
+              isDark ? AppColor.darkSurface : AppColor.surface,
               side: BorderSide(
                 color: AppColor.primary.withValues(alpha: .15),
               ),
@@ -587,9 +725,8 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
             label: Text(l10n.delete),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColor.error,
-              backgroundColor: isDark
-                  ? AppColor.darkSurface
-                  : AppColor.surface,
+              backgroundColor:
+              isDark ? AppColor.darkSurface : AppColor.surface,
               side: BorderSide(
                 color: AppColor.error.withValues(alpha: .15),
               ),
@@ -634,8 +771,7 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor:
-      isDark ? AppColor.darkSurface : AppColor.surface,
+      backgroundColor: isDark ? AppColor.darkSurface : AppColor.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(20),
@@ -649,16 +785,12 @@ class _ReminderDetailsViewState extends State<ReminderDetailsView> {
               ListTile(
                 leading: Icon(
                   Icons.edit_outlined,
-                  color: isDark
-                      ? AppColor.textWhite
-                      : AppColor.textPrimary,
+                  color: isDark ? AppColor.textWhite : AppColor.textPrimary,
                 ),
                 title: Text(
                   l10n.edit,
                   style: TextStyle(
-                    color: isDark
-                        ? AppColor.textWhite
-                        : AppColor.textPrimary,
+                    color: isDark ? AppColor.textWhite : AppColor.textPrimary,
                   ),
                 ),
                 onTap: () {
